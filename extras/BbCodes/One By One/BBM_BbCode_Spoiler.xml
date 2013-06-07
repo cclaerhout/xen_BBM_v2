@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bbm_bbcodes>
+  <BbCode>
+    <General>
+      <tag>spoiler</tag>
+      <title><![CDATA[BBM Spoiler]]></title>
+      <description><![CDATA[Adds a spoiler tag to hide and show a text]]></description>
+      <example><![CDATA[[spoiler]I just spoiled your mind.[/spoiler]
+[spoiler=Title]I just spoiled your mind.[/spoiler]]]></example>
+      <active>1</active>
+      <display_help>1</display_help>
+    </General>
+    <Methods>
+      <Replacement>
+        <start_range><![CDATA[]]></start_range>
+        <end_range><![CDATA[]]></end_range>
+        <options_number>1</options_number>
+      </Replacement>
+      <Template>
+        <active>1</active>
+        <name>bbm_bbcode_spoiler</name>
+        <callback_class></callback_class>
+        <callback_method></callback_method>
+      </Template>
+      <PhpCallback>
+        <class></class>
+        <method></method>
+      </PhpCallback>
+    </Methods>
+    <ParserOptions>
+      <stopAutoLink>none</stopAutoLink>
+      <parseOptions>1</parseOptions>
+      <regex></regex>
+      <trimLeadingLinesAfter>0</trimLeadingLinesAfter>
+      <plainCallback>0</plainCallback>
+      <plainChildren>0</plainChildren>
+      <stopSmilies>0</stopSmilies>
+      <stopLineBreakConversion>0</stopLineBreakConversion>
+      <wrapping_tag>none</wrapping_tag>
+      <wrapping_option></wrapping_option>
+      <emptyContent_check>0</emptyContent_check>
+      <options_separator></options_separator>
+    </ParserOptions>
+    <ParserPerms>
+      <parser_has_usr>0</parser_has_usr>
+      <parser_usr>a:0:{}</parser_usr>
+      <parser_return>none</parser_return>
+      <parser_return_delay>0</parser_return_delay>
+    </ParserPerms>
+    <ViewPerms>
+      <view_has_usr>0</view_has_usr>
+      <view_usr>a:0:{}</view_usr>
+      <view_return>none</view_return>
+      <view_return_delay>0</view_return_delay>
+    </ViewPerms>
+    <Button>
+      <hasButton>1</hasButton>
+      <button_has_usr>0</button_has_usr>
+      <button_usr>a:0:{}</button_usr>
+      <killCmd>0</killCmd>
+      <custCmd></custCmd>
+      <quattro_button_type>icons_xen</quattro_button_type>
+      <quattro_button_type_opt><![CDATA[e02c]]></quattro_button_type_opt>
+      <quattro_button_return>direct</quattro_button_return>
+      <quattro_button_return_opt><![CDATA[]]></quattro_button_return_opt>
+      <imgMethod></imgMethod>
+      <buttonDesc><![CDATA[{phrase:bbm_bbcode_spoiler_desc}]]></buttonDesc>
+      <tagOptions><![CDATA[]]></tagOptions>
+      <tagContent><![CDATA[]]></tagContent>
+    </Button>
+  </BbCode>
+</bbm_bbcodes>

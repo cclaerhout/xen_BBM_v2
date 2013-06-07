@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bbm_bbcodes>
+  <BbCode>
+    <General>
+      <tag>raw</tag>
+      <title><![CDATA[BBM Raw (Html)]]></title>
+      <description><![CDATA[Html Bb Code]]></description>
+      <example><![CDATA[Only for some usergroups & in posts:
+[raw]<b>Text in bold</b>[/raw]]]></example>
+      <active>1</active>
+      <display_help>0</display_help>
+    </General>
+    <Methods>
+      <Replacement>
+        <start_range><![CDATA[]]></start_range>
+        <end_range><![CDATA[]]></end_range>
+        <options_number>1</options_number>
+      </Replacement>
+      <Template>
+        <active>1</active>
+        <name>bbm_bbcode_html</name>
+        <callback_class>BBM_BbCode_Formatter_Default</callback_class>
+        <callback_method>templateRawTag</callback_method>
+      </Template>
+      <PhpCallback>
+        <class></class>
+        <method></method>
+      </PhpCallback>
+    </Methods>
+    <ParserOptions>
+      <stopAutoLink>all</stopAutoLink>
+      <parseOptions>0</parseOptions>
+      <regex></regex>
+      <trimLeadingLinesAfter>0</trimLeadingLinesAfter>
+      <plainCallback>0</plainCallback>
+      <plainChildren>1</plainChildren>
+      <stopSmilies>1</stopSmilies>
+      <stopLineBreakConversion>1</stopLineBreakConversion>
+      <wrapping_tag>none</wrapping_tag>
+      <wrapping_option></wrapping_option>
+      <emptyContent_check>0</emptyContent_check>
+      <options_separator></options_separator>
+    </ParserOptions>
+    <ParserPerms>
+      <parser_has_usr>1</parser_has_usr>
+      <parser_usr>a:0:{}</parser_usr>
+      <parser_return>template</parser_return>
+      <parser_return_delay>0</parser_return_delay>
+    </ParserPerms>
+    <ViewPerms>
+      <view_has_usr>0</view_has_usr>
+      <view_usr>a:0:{}</view_usr>
+      <view_return>none</view_return>
+      <view_return_delay>0</view_return_delay>
+    </ViewPerms>
+    <Button>
+      <hasButton>1</hasButton>
+      <button_has_usr>0</button_has_usr>
+      <button_usr>a:0:{}</button_usr>
+      <killCmd>0</killCmd>
+      <custCmd></custCmd>
+      <quattro_button_type>text</quattro_button_type>
+      <quattro_button_type_opt><![CDATA[Raw]]></quattro_button_type_opt>
+      <quattro_button_return>direct</quattro_button_return>
+      <quattro_button_return_opt><![CDATA[]]></quattro_button_return_opt>
+      <imgMethod></imgMethod>
+      <buttonDesc><![CDATA[{phrase:bbm_bbcode_html_desc}]]></buttonDesc>
+      <tagOptions><![CDATA[]]></tagOptions>
+      <tagContent><![CDATA[]]></tagContent>
+    </Button>
+  </BbCode>
+</bbm_bbcodes>
