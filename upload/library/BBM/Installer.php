@@ -80,7 +80,7 @@ class BBM_Installer
 		                	ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;"
 			);
 
-			$db->query("INSERT INTO bbm_buttons (config_id, config_type, config_buttons_order, config_buttons_full) VALUES (1, 'ltr', 'ltr', '', ''), (2, 'rtl', 'rtl', '', '');");
+			$db->query("INSERT INTO bbm_buttons (config_id, config_type, config_name, config_buttons_order, config_buttons_full) VALUES (1, 'ltr', 'ltr', '', ''), (2, 'rtl', 'rtl', '', '');");
 
 			self::addColumnIfNotExist($db, 'xf_forum', 'bbm_bm_editor', "varchar(25) NOT NULL DEFAULT 'disable'");
 		}
