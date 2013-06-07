@@ -712,8 +712,8 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 				'custCmd' => (string) $BbCode->Button->custCmd,
 				'quattro_button_type' => (string) $BbCode->Button->quattro_button_type,
 				'quattro_button_type_opt' => (string) $BbCode->Button->quattro_button_type_opt,
-				'quattro_button_return' => (string) $BbCode->Button->quattro_return_type,
-				'quattro_button_return_opt' => (string) $BbCode->Button->quattro_return_type_opt,
+				'quattro_button_return' => (string) $BbCode->Button->quattro_button_return,
+				'quattro_button_return_opt' => (string) $BbCode->Button->quattro_button_return_opt,
 				'imgMethod' => (string) $BbCode->Button->imgMethod, //depreciated
 				'buttonDesc' => (string) $BbCode->Button->buttonDesc,
 				'tagOptions' => (string) $BbCode->Button->tagOptions,
