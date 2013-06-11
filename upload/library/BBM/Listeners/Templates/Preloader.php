@@ -37,11 +37,11 @@ class BBM_Listeners_Templates_Preloader
 			       	$visitor = XenForo_Visitor::getInstance();
 
 
-				//Check mceQuattro options
-//To do: userGroup check + mobile checks
-//XenForo_Visitor::isBrowsingWith('mobile')
-				
-
+				//Don't continue if Quattro not available (might need to change this for other editor integrations
+				if(!isset($visitor->permissions['sedo_quattro']['display']) || empty($visitor->permissions['sedo_quattro']['display']))
+				{
+					break;
+				}
 	
 				//Get buttons config
 				$myConfigs = XenForo_Model::create('XenForo_Model_DataRegistry')->get('bbm_buttons');
@@ -238,6 +238,10 @@ class BBM_Listeners_Templates_Preloader
 				$button['button_code'] = (!empty($button['custCmd'])) ? $button['custCmd'] : 'bbm_'.$button['tag'];
 			}
 
+			$tag = self::_ifOrphanCleanMe($button['tag']);
+			$code = self::_ifOrphanCleanMe($button['button_code']);
+
+
 			/*Bake the extra CSS for custom Buttons*/
 			if(!empty($button['quattro_button_type']) && !in_array($button['quattro_button_type'], array('manual', 'text')))
 			{
@@ -254,7 +258,7 @@ class BBM_Listeners_Templates_Preloader
 				}
 
 				$customButtonsCss[] = array(
-					'buttonCode' => $button['button_code'],
+					'buttonCode' => $code,
 					'iconCode' => $button['quattro_button_type_opt'],
 					'iconSet' => $iconSet
 				);
@@ -274,10 +278,9 @@ class BBM_Listeners_Templates_Preloader
 					default: $iconSet = $btnType;
 				}
 				
-				//To do phrases
 				$customButtonsJs[] = array(
-					'tag'	=> $button['tag'],
-					'code' => $button['button_code'],
+					'tag'	=> $tag,
+					'code' => $code,
 					'iconSet' => $iconSet,
 					'type' => $btnType,
 					'typeOption' => self::_detectPhrases($button['quattro_button_type_opt']),
@@ -290,7 +293,7 @@ class BBM_Listeners_Templates_Preloader
 			}
 
 			/*Bake the grid*/
-			$quattroGrid[$lineID][] = $button['button_code'];
+			$quattroGrid[$lineID][] = $code;
 
 			if($key == $lastButtonKey)
 			{
@@ -305,6 +308,15 @@ class BBM_Listeners_Templates_Preloader
 		);
 	}
 	
+	/***
+		This function is used to replace the aerobase of the orphan buttons by at_
+		Reason: the @ charachter can't be used as an object key in js
+	**/
+	protected static function _ifOrphanCleanMe($string)
+	{
+		return str_replace('@', 'at_', $string);
+	}
+
 	protected static function _detectPhrases($string, $addSlashes = false)
 	{
 		if(preg_match_all('#{phrase:(.+?)}#i', $string, $captures, PREG_SET_ORDER))
