@@ -60,7 +60,7 @@ class BBM_Listeners_Templates_Preloader
 				}
 
 				$extraParams = self::_bakeExtraParams($myConfigs['bbm_buttons'][$config_type]['config_buttons_full'], $options, $visitor);
-				$params += $extraParams;
+				$params = $extraParams+$params; //array + operator: first params overrides the second - is said faster than array_merge
 	   			break;
 		   	case 'forum_edit':
 		   		if($template instanceof XenForo_Template_Admin && XenForo_Application::get('options')->get('Bbm_Bm_Forum_Config'))
