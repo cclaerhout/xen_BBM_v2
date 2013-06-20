@@ -449,10 +449,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 		}
 
-		if (!$this->_view)
-		{
-			$fallBack = true;
-		}
+		$fallBack = (!$this->_view) ? true : false;
 
 		if( isset($tagInfo['template_callback']) )
 		{
