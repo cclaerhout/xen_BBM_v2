@@ -4,17 +4,6 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 {
 	public function actionIndex()
 	{
-		$quattroTable = $this->_getButtonsModel()->checkQuattroTable();
-		
-		if(!$quattroTable)
-		{
-			$viewParams = array(
-				'error' => 'quattro'
-			);
-			
-			return $this->responseView('Bbm_ViewAdmin_Buttons_Homepage_Error', 'bbm_buttons_homepage_error', $viewParams);
-		}
-		
 		$configs = $this->_getButtonsModel()->getOnlyCustomConfigs();
 		$configs = $this->_checkIfConfigNameExists($configs);
 
@@ -83,8 +72,13 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       		$this->_assertPostOnly();
 
       		$config_id = $this->_input->filterSingle('config_id', XenForo_Input::UINT);
-      		$config_type = $this->_input->filterSingle('config_type', XenForo_Input::STRING);
-      		$config_name = $this->_input->filterSingle('config_name', XenForo_Input::STRING);
+
+		$dwInput = $this->_input->filter(array(
+				'config_type' => XenForo_Input::STRING,
+				'config_name' => XenForo_Input::STRING,
+				'config_ed' => XenForo_Input::STRING
+			)
+		);
 
       		$dw = XenForo_DataWriter::create('BBM_DataWriter_Buttons');
 
@@ -93,8 +87,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       			$dw->setExistingData($config_id);
     		}
 
-      		$dw->set('config_type', $config_type);
-      		$dw->set('config_name', $config_name);
+		$dw->bulkSet($dwInput);
       		$dw->save();
 
       		return $this->responseRedirect(
@@ -125,16 +118,23 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		}
 	}
 
-	public function actionEditorConfigltr()
+	public function actionEditorConfigLtr()
 	{
-		return $this->_editorConfig('ltr');
+		$this->_mceReady();
+		return $this->_editorConfig('ltr', 'mce');
 	}
 
-	public function actionEditorConfigrtl()
+	public function actionEditorConfigRtl()
 	{
-		return $this->_editorConfig('rtl');
+		$this->_mceReady();
+		return $this->_editorConfig('rtl', 'mce');
 	}
-	
+
+	public function actionEditorConfigXen()
+	{
+		return $this->_editorConfig('redactor', 'xen');
+	}
+
 	public function actionEditorCust()
 	{
 		if (isset($_GET['config_type']))
@@ -155,17 +155,41 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 			throw $this->responseException($this->responseError(new XenForo_Phrase('bbm_config_not_found'), 404));
 		}	
 
-		return $this->_editorConfig($datas['config_type']);
+		if($datas['config_ed'] == 'mce')
+		{
+			$this->_mceReady();
+		}
+
+		return $this->_editorConfig($datas['config_type'], $datas['config_ed']);
 	}
 
-	protected function _editorConfig($configType)
+
+	protected function _mceReady()
+	{
+		$quattroTable = $this->_getButtonsModel()->checkQuattroTable();
+		
+		if(!$quattroTable)
+		{
+			$viewParams = array(
+				'error' => 'quattro'
+			);
+			
+			return $this->responseView('Bbm_ViewAdmin_Buttons_Homepage_Error', 'bbm_buttons_homepage_error', $viewParams);
+		}
+	}
+
+	protected function _editorConfig($configType, $configEd)
 	{
 		//Get config and all buttons
-		$xen = $this->_xenButtons($configType);
+		$xen = $this->_xenButtons($configType, $configEd);
 
 		$buttons = $this->_getBbmBbCodeModel()->getBbCodesWithButton();
 		$buttons = $this->_addButtonCodeAndClass($buttons);
-		$buttons = $this->_addQuattroClass($buttons);
+
+		if($configEd == 'mce')
+		{
+			$buttons = $this->_addQuattroClass($buttons);
+		}
 
 		$config =  $this->_getButtonsModel()->getConfigByType($configType);
 
@@ -212,7 +236,11 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 			
 			//Add button class to the config group too (fix a bug when an orphan button was edited directly from the button manager)
 			$selectedButtons = $this->_addButtonCodeAndClass($selectedButtons);
-			$selectedButtons = $this->_addQuattroClass($selectedButtons);
+
+			if($configEd == 'mce')
+			{
+				$selectedButtons = $this->_addQuattroClass($selectedButtons);
+			}
 	
 			//Create a new array with the line ID as main key 
 			$lines = array();
@@ -249,11 +277,12 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 
 		$config_id = $this->_input->filterSingle('config_id', XenForo_Input::STRING);
 		$config_type = $this->_input->filterSingle('config_type', XenForo_Input::STRING);
+		$config_ed = $this->_input->filterSingle('config_ed', XenForo_Input::STRING);
 		$config_buttons_order = $this->_input->filterSingle('config_buttons_order', XenForo_Input::STRING);
 		$config_buttons_order = str_replace('button_', '', $config_buttons_order); // 'buttons_' prefix was only use for pretty css		
 
       		//Get buttons
-      		$xen = $this->_xenButtons($config_type);
+      		$xen = $this->_xenButtons($config_type, $config_ed);
       		$buttons = $this->_getBbmBbCodeModel()->getBbCodesWithButton();
       		$buttons = $this->_addButtonCodeAndClass($buttons);	
       		$buttons = array_merge($xen['buttons'], $buttons);		
@@ -338,7 +367,93 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		);
 	}
 
-	protected function _xenButtons($configType)
+	protected function _xenButtons($configType, $configEd)
+	{
+		if($configEd == 'mce')
+		{
+			return $this->_xenMceButtons($configType);
+		}
+		elseif($configEd == 'xen')
+		{
+			return $this->_xenRedactorButtons($configType);		
+		}
+	}
+
+	protected function _xenRedactorButtons($configType)
+	{
+		$redactorButtonsMap = array(
+			array('switchmode'),
+			array('removeformat'),
+			array('bold', 'italic', 'underline', 'deleted'),
+			array('fontcolor', 'fontsize', 'fontfamily'),
+			array('createlink', 'unlink'),
+			array('alignment'),
+			array('unorderedlist', 'orderedlist', 'outdent', 'indent'),
+			array('smilies', 'image', 'media'),
+			array('code', 'quote'),
+			array('draft'),
+			array('undo', 'redo')
+		);
+		
+		$prefix = '-';//to prevent clashes with bbm bbcodes
+		$list = '';
+		
+		foreach($redactorButtonsMap as $i => $buttonsGroup)
+		{
+			$separator = ($i == 0) ? '' : ',separator,';
+
+			foreach($buttonsGroup as &$buttonCode)
+			{
+				$buttonCode = $prefix.$buttonCode;
+			}
+			
+			$buttons = implode(',', $buttonsGroup);
+			$list .= $separator . $buttons;
+		}
+	
+		$arrayLines = array('1' => $list);
+		
+      		/*Lazy: use the same code than for MCE to be sure it will work with the templates loop */
+      		$buttons = array(); 
+      		$blankConfig = array();
+      		
+      		foreach($arrayLines as $i => $line)
+      		{
+      			$xen_buttons =  explode(',', $line);
+      			
+      			foreach($xen_buttons as $xen_code)
+      			{
+      				if($xen_code != 'separator')
+      				{
+      					$blankConfig[$i][] = $buttons[$xen_code] = array(
+      						'tag' => $xen_code,
+      						'button_code' => $xen_code,
+      						'icon_set' => '',
+      						'icon_class' =>  '',
+      						'icon_set_class' => '',
+      						'class' => 'xenButton'
+      					);
+      				}
+      				else
+      				{
+      					$blankConfig[$i][] = array(
+      						'tag' => 'separator',
+      						'button_code' => $xen_code,
+      						'class' => 'xenButton'
+      					);					
+      				}
+      			}
+      		}	
+	
+		return array(
+			'list' => $list,		//will be used as a fallback if user has disable javascript - to do: (or if user wants to reset)
+			'buttons' => $buttons, 		//will be merged with other buttons
+			'blankConfig' => $blankConfig 	//will be used for blank configs
+		);
+	
+	}
+
+	protected function _xenMceButtons($configType)
 	{
 		$direction = (in_array($configType, array('ltr', 'rtl'))) ? $configType : 'ltr';
 	

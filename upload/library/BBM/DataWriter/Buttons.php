@@ -2,7 +2,7 @@
 
 class BBM_DataWriter_Buttons extends XenForo_DataWriter
 {
-	protected $_protectedTypes = array('rtl', 'ltr', 'disable', 'transparent');
+	protected $_protectedTypes = array('rtl', 'ltr', 'disable', 'transparent', 'redactor');
 	
 	protected function _getFields() {
 		return array(
@@ -11,6 +11,11 @@ class BBM_DataWriter_Buttons extends XenForo_DataWriter
 						'type' => self::TYPE_UINT,
 				                'autoIncrement' => true
 				),
+				'config_ed' 	=> array(
+						'type' => self::TYPE_STRING,
+						'maxLength' => 200,
+						'default' => 'mce'
+				),				
 				'config_type' 	=> array(
 						'type' => self::TYPE_STRING,
 						'required' => true,

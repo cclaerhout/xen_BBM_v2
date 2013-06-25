@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.0.4" version_id="13" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.0.5" version_id="14" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="bbCodeAndSmilies" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="bbCodeAndSmilies" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -962,7 +962,11 @@ table.bbcm_errors td{
 <div id="container_global">
 	<div id="container_choice">
 
-		<div><span id="AddNewLine">{xen:phrase bbm_configuration_AddNewLine}</span><span id="CreateSeparator">{xen:phrase bbm_configuration_CreateSeparator}</span></div>
+		<xen:if is="{$config.config_ed} != 'xen'">
+			<div><span id="AddNewLine">{xen:phrase bbm_configuration_AddNewLine}</span><span id="CreateSeparator">{xen:phrase bbm_configuration_CreateSeparator}</span></div>
+		<xen:else />
+			<div><span id="CreateSeparator">{xen:phrase bbm_configuration_CreateSeparator}</span></div>
+		</xen:if>
 
 		<br />
 
@@ -972,7 +976,7 @@ table.bbcm_errors td{
 				<xen:if is="{$button.class} == 'xenButton'">
 					<xen:if is='{$button.icon_set}'>
 						<li id="button_{$button.tag}" class="icon_box {$button.class}">
-							<i class="{$button.icon_class} {$button.icon_set_class} mce-i-{$button.tag} Tooltip" title="{$button.tag}"></i>
+							<i class="{$button.icon_class} {$button.icon_set_class} mce-i-{$button.tag}" title="{$button.tag}"></i>
 						</li>
 					<xen:else />
 						<li id="button_{$button.tag}" class="buttons {$button.class}">
@@ -982,7 +986,7 @@ table.bbcm_errors td{
 				<xen:else/>
 					<xen:if is='{$button.icon_set}'>
 						<li id="button_{$button.tag}" class="icon_box {$button.class}">
-							<i class="{$button.icon_class} {$button.icon_set_class} mce-i-{$button.tag} Tooltip" title="{$button.tag}"></i>
+							<i class="{$button.icon_class} {$button.icon_set_class} mce-i-{$button.tag}" title="{$button.tag}"></i>
 							<span><a 	
 								href="{xen:adminlink bbm-bbcodes}{$button.tag_id}/edit&bm={$config.config_type}" 
 								class="OverlayTrigger" data-overlayoptions="{&quot;fixed&quot;:false}">[+]</a></span>
@@ -1012,7 +1016,7 @@ table.bbcm_errors td{
 					<xen:if is="{$button.class} == 'xenButton'">
 						<xen:if is='{$button.icon_set}'>
 							<li id="button_{$button.tag}" class="icon_box {$button.class}">
-								<i class="{$button.icon_class} {$button.icon_set_class}  mce-i-{$button.tag} Tooltip" title="{$button.tag}"></i>
+								<i class="{$button.icon_class} {$button.icon_set_class}  mce-i-{$button.tag}" title="{$button.tag}"></i>
 							</li>
 						<xen:else />
 							<li id="button_{$button.tag}" class="{xen:if '{$button.tag} == "separator"', 'separator', 'buttons {$button.class}'}">
@@ -1022,7 +1026,7 @@ table.bbcm_errors td{
 					<xen:else/>
 						<xen:if is='{$button.icon_set}'>
 							<li id="button_{$button.tag}" class="icon_box {$button.class}">
-								<i class="{$button.icon_class} {$button.icon_set_class} mce-i-{$button.tag} Tooltip" title="{$button.tag}"></i>
+								<i class="{$button.icon_class} {$button.icon_set_class} mce-i-{$button.tag}" title="{$button.tag}"></i>
 								<span><a 	
 									href="{xen:adminlink 'bbm-bbcodes/edit'}&bm={$config.config_type}&tag={$button.tag}"
 									class="OverlayTrigger"
@@ -1059,6 +1063,7 @@ table.bbcm_errors td{
 	</dl>
 	<input type="hidden" name="config_id" value="{$config.config_id}" />
 	<input type="hidden" name="config_type" value="{$config.config_type}" />
+	<input type="hidden" name="config_ed" value="{$config.config_ed}" />
 	<input id="defaultConfig" type="hidden" value="{$default}" />
 	<input id="target" type="hidden" name="config_buttons_order" value="{$config.config_buttons_order}" />
 	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
@@ -1327,13 +1332,23 @@ i.mce-text {
 
 #razOvl .bbm_ovl_submit {
 	padding-top:8px;
-}]]></template>
+}
+
+/*! jQuery UI - v1.10.3 - 2013-06-20
+* http://jqueryui.com
+* Includes: jquery.ui.core.css, jquery.ui.resizable.css, jquery.ui.selectable.css, jquery.ui.accordion.css, jquery.ui.autocomplete.css, jquery.ui.button.css, jquery.ui.datepicker.css, jquery.ui.dialog.css, jquery.ui.menu.css, jquery.ui.progressbar.css, jquery.ui.slider.css, jquery.ui.spinner.css, jquery.ui.tabs.css, jquery.ui.tooltip.css
+* To view and modify this theme, visit http://jqueryui.com/themeroller/?ffDefault=Trebuchet%20MS%2CTahoma%2CVerdana%2CArial%2Csans-serif&fwDefault=bold&fsDefault=1.1em&cornerRadius=4px&bgColorHeader=f6a828&bgTextureHeader=gloss_wave&bgImgOpacityHeader=35&borderColorHeader=e78f08&fcHeader=ffffff&iconColorHeader=ffffff&bgColorContent=eeeeee&bgTextureContent=highlight_soft&bgImgOpacityContent=100&borderColorContent=dddddd&fcContent=333333&iconColorContent=222222&bgColorDefault=f6f6f6&bgTextureDefault=glass&bgImgOpacityDefault=100&borderColorDefault=cccccc&fcDefault=1c94c4&iconColorDefault=ef8c08&bgColorHover=fdf5ce&bgTextureHover=glass&bgImgOpacityHover=100&borderColorHover=fbcb09&fcHover=c77405&iconColorHover=ef8c08&bgColorActive=ffffff&bgTextureActive=glass&bgImgOpacityActive=65&borderColorActive=fbd850&fcActive=eb8f00&iconColorActive=ef8c08&bgColorHighlight=ffe45c&bgTextureHighlight=highlight_soft&bgImgOpacityHighlight=75&borderColorHighlight=fed22f&fcHighlight=363636&iconColorHighlight=228ef1&bgColorError=b81900&bgTextureError=diagonals_thick&bgImgOpacityError=18&borderColorError=cd0a0a&fcError=ffffff&iconColorError=ffd27a&bgColorOverlay=666666&bgTextureOverlay=diagonals_thick&bgImgOpacityOverlay=20&opacityOverlay=50&bgColorShadow=000000&bgTextureShadow=flat&bgImgOpacityShadow=10&opacityShadow=20&thicknessShadow=5px&offsetTopShadow=-5px&offsetLeftShadow=-5px&cornerRadiusShadow=5px
+* Copyright 2013 jQuery Foundation and other contributors Licensed MIT */.ui-helper-hidden{display:none}.ui-helper-hidden-accessible{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.ui-helper-reset{margin:0;padding:0;border:0;outline:0;line-height:1.3;text-decoration:none;font-size:100%;list-style:none}.ui-helper-clearfix:before,.ui-helper-clearfix:after{content:"";display:table;border-collapse:collapse}.ui-helper-clearfix:after{clear:both}.ui-helper-clearfix{min-height:0}.ui-helper-zfix{width:100%;height:100%;top:0;left:0;position:absolute;opacity:0;filter:Alpha(Opacity=0)}.ui-front{z-index:100}.ui-state-disabled{cursor:default!important}.ui-icon{display:block;text-indent:-99999px;overflow:hidden;background-repeat:no-repeat}.ui-widget-overlay{position:fixed;top:0;left:0;width:100%;height:100%}.ui-resizable{position:relative}.ui-resizable-handle{position:absolute;font-size:.1px;display:block}.ui-resizable-disabled .ui-resizable-handle,.ui-resizable-autohide .ui-resizable-handle{display:none}.ui-resizable-n{cursor:n-resize;height:7px;width:100%;top:-5px;left:0}.ui-resizable-s{cursor:s-resize;height:7px;width:100%;bottom:-5px;left:0}.ui-resizable-e{cursor:e-resize;width:7px;right:-5px;top:0;height:100%}.ui-resizable-w{cursor:w-resize;width:7px;left:-5px;top:0;height:100%}.ui-resizable-se{cursor:se-resize;width:12px;height:12px;right:1px;bottom:1px}.ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;left:-5px;bottom:-5px}.ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;left:-5px;top:-5px}.ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;right:-5px;top:-5px}.ui-selectable-helper{position:absolute;z-index:100;border:1px dotted #000}.ui-accordion .ui-accordion-header{display:block;cursor:pointer;position:relative;margin-top:2px;padding:.5em .5em .5em .7em;min-height:0}.ui-accordion .ui-accordion-icons{padding-left:2.2em}.ui-accordion .ui-accordion-noicons{padding-left:.7em}.ui-accordion .ui-accordion-icons .ui-accordion-icons{padding-left:2.2em}.ui-accordion .ui-accordion-header .ui-accordion-header-icon{position:absolute;left:.5em;top:50%;margin-top:-8px}.ui-accordion .ui-accordion-content{padding:1em 2.2em;border-top:0;overflow:auto}.ui-autocomplete{position:absolute;top:0;left:0;cursor:default}.ui-button{display:inline-block;position:relative;padding:0;line-height:normal;margin-right:.1em;cursor:pointer;vertical-align:middle;text-align:center;overflow:visible}.ui-button,.ui-button:link,.ui-button:visited,.ui-button:hover,.ui-button:active{text-decoration:none}.ui-button-icon-only{width:2.2em}button.ui-button-icon-only{width:2.4em}.ui-button-icons-only{width:3.4em}button.ui-button-icons-only{width:3.7em}.ui-button .ui-button-text{display:block;line-height:normal}.ui-button-text-only .ui-button-text{padding:.4em 1em}.ui-button-icon-only .ui-button-text,.ui-button-icons-only .ui-button-text{padding:.4em;text-indent:-9999999px}.ui-button-text-icon-primary .ui-button-text,.ui-button-text-icons .ui-button-text{padding:.4em 1em .4em 2.1em}.ui-button-text-icon-secondary .ui-button-text,.ui-button-text-icons .ui-button-text{padding:.4em 2.1em .4em 1em}.ui-button-text-icons .ui-button-text{padding-left:2.1em;padding-right:2.1em}input.ui-button{padding:.4em 1em}.ui-button-icon-only .ui-icon,.ui-button-text-icon-primary .ui-icon,.ui-button-text-icon-secondary .ui-icon,.ui-button-text-icons .ui-icon,.ui-button-icons-only .ui-icon{position:absolute;top:50%;margin-top:-8px}.ui-button-icon-only .ui-icon{left:50%;margin-left:-8px}.ui-button-text-icon-primary .ui-button-icon-primary,.ui-button-text-icons .ui-button-icon-primary,.ui-button-icons-only .ui-button-icon-primary{left:.5em}.ui-button-text-icon-secondary .ui-button-icon-secondary,.ui-button-text-icons .ui-button-icon-secondary,.ui-button-icons-only .ui-button-icon-secondary{right:.5em}.ui-buttonset{margin-right:7px}.ui-buttonset .ui-button{margin-left:0;margin-right:-.3em}input.ui-button::-moz-focus-inner,button.ui-button::-moz-focus-inner{border:0;padding:0}.ui-datepicker{width:17em;padding:.2em .2em 0;display:none}.ui-datepicker .ui-datepicker-header{position:relative;padding:.2em 0}.ui-datepicker .ui-datepicker-prev,.ui-datepicker .ui-datepicker-next{position:absolute;top:2px;width:1.8em;height:1.8em}.ui-datepicker .ui-datepicker-prev-hover,.ui-datepicker .ui-datepicker-next-hover{top:1px}.ui-datepicker .ui-datepicker-prev{left:2px}.ui-datepicker .ui-datepicker-next{right:2px}.ui-datepicker .ui-datepicker-prev-hover{left:1px}.ui-datepicker .ui-datepicker-next-hover{right:1px}.ui-datepicker .ui-datepicker-prev span,.ui-datepicker .ui-datepicker-next span{display:block;position:absolute;left:50%;margin-left:-8px;top:50%;margin-top:-8px}.ui-datepicker .ui-datepicker-title{margin:0 2.3em;line-height:1.8em;text-align:center}.ui-datepicker .ui-datepicker-title select{font-size:1em;margin:1px 0}.ui-datepicker select.ui-datepicker-month-year{width:100%}.ui-datepicker select.ui-datepicker-month,.ui-datepicker select.ui-datepicker-year{width:49%}.ui-datepicker table{width:100%;font-size:.9em;border-collapse:collapse;margin:0 0 .4em}.ui-datepicker th{padding:.7em .3em;text-align:center;font-weight:700;border:0}.ui-datepicker td{border:0;padding:1px}.ui-datepicker td span,.ui-datepicker td a{display:block;padding:.2em;text-align:right;text-decoration:none}.ui-datepicker .ui-datepicker-buttonpane{background-image:none;margin:.7em 0 0;padding:0 .2em;border-left:0;border-right:0;border-bottom:0}.ui-datepicker .ui-datepicker-buttonpane button{float:right;margin:.5em .2em .4em;cursor:pointer;padding:.2em .6em .3em;width:auto;overflow:visible}.ui-datepicker .ui-datepicker-buttonpane button.ui-datepicker-current{float:left}.ui-datepicker.ui-datepicker-multi{width:auto}.ui-datepicker-multi .ui-datepicker-group{float:left}.ui-datepicker-multi .ui-datepicker-group table{width:95%;margin:0 auto .4em}.ui-datepicker-multi-2 .ui-datepicker-group{width:50%}.ui-datepicker-multi-3 .ui-datepicker-group{width:33.3%}.ui-datepicker-multi-4 .ui-datepicker-group{width:25%}.ui-datepicker-multi .ui-datepicker-group-last .ui-datepicker-header,.ui-datepicker-multi .ui-datepicker-group-middle .ui-datepicker-header{border-left-width:0}.ui-datepicker-multi .ui-datepicker-buttonpane{clear:left}.ui-datepicker-row-break{clear:both;width:100%;font-size:0}.ui-datepicker-rtl{direction:rtl}.ui-datepicker-rtl .ui-datepicker-prev{right:2px;left:auto}.ui-datepicker-rtl .ui-datepicker-next{left:2px;right:auto}.ui-datepicker-rtl .ui-datepicker-prev:hover{right:1px;left:auto}.ui-datepicker-rtl .ui-datepicker-next:hover{left:1px;right:auto}.ui-datepicker-rtl .ui-datepicker-buttonpane{clear:right}.ui-datepicker-rtl .ui-datepicker-buttonpane button{float:left}.ui-datepicker-rtl .ui-datepicker-buttonpane button.ui-datepicker-current,.ui-datepicker-rtl .ui-datepicker-group{float:right}.ui-datepicker-rtl .ui-datepicker-group-last .ui-datepicker-header,.ui-datepicker-rtl .ui-datepicker-group-middle .ui-datepicker-header{border-right-width:0;border-left-width:1px}.ui-dialog{position:absolute;top:0;left:0;padding:.2em;outline:0}.ui-dialog .ui-dialog-titlebar{padding:.4em 1em;position:relative}.ui-dialog .ui-dialog-title{float:left;margin:.1em 0;white-space:nowrap;width:90%;overflow:hidden;text-overflow:ellipsis}.ui-dialog .ui-dialog-titlebar-close{position:absolute;right:.3em;top:50%;width:21px;margin:-10px 0 0 0;padding:1px;height:20px}.ui-dialog .ui-dialog-content{position:relative;border:0;padding:.5em 1em;background:0;overflow:auto}.ui-dialog .ui-dialog-buttonpane{text-align:left;border-width:1px 0 0;background-image:none;margin-top:.5em;padding:.3em 1em .5em .4em}.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset{float:right}.ui-dialog .ui-dialog-buttonpane button{margin:.5em .4em .5em 0;cursor:pointer}.ui-dialog .ui-resizable-se{width:12px;height:12px;right:-5px;bottom:-5px;background-position:16px 16px}.ui-draggable .ui-dialog-titlebar{cursor:move}.ui-menu{list-style:none;padding:2px;margin:0;display:block;outline:0}.ui-menu .ui-menu{margin-top:-3px;position:absolute}.ui-menu .ui-menu-item{margin:0;padding:0;width:100%;list-style-image:url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)}.ui-menu .ui-menu-divider{margin:5px -2px 5px -2px;height:0;font-size:0;line-height:0;border-width:1px 0 0}.ui-menu .ui-menu-item a{text-decoration:none;display:block;padding:2px .4em;line-height:1.5;min-height:0;font-weight:400}.ui-menu .ui-menu-item a.ui-state-focus,.ui-menu .ui-menu-item a.ui-state-active{font-weight:400;margin:-1px}.ui-menu .ui-state-disabled{font-weight:400;margin:.4em 0 .2em;line-height:1.5}.ui-menu .ui-state-disabled a{cursor:default}.ui-menu-icons{position:relative}.ui-menu-icons .ui-menu-item a{position:relative;padding-left:2em}.ui-menu .ui-icon{position:absolute;top:.2em;left:.2em}.ui-menu .ui-menu-icon{position:static;float:right}.ui-progressbar{height:2em;text-align:left;overflow:hidden}.ui-progressbar .ui-progressbar-value{margin:-1px;height:100%}.ui-progressbar .ui-progressbar-overlay{background:url(images/animated-overlay.gif);height:100%;filter:alpha(opacity=25);opacity:.25}.ui-progressbar-indeterminate .ui-progressbar-value{background-image:none}.ui-slider{position:relative;text-align:left}.ui-slider .ui-slider-handle{position:absolute;z-index:2;width:1.2em;height:1.2em;cursor:default}.ui-slider .ui-slider-range{position:absolute;z-index:1;font-size:.7em;display:block;border:0;background-position:0 0}.ui-slider.ui-state-disabled .ui-slider-handle,.ui-slider.ui-state-disabled .ui-slider-range{filter:inherit}.ui-slider-horizontal{height:.8em}.ui-slider-horizontal .ui-slider-handle{top:-.3em;margin-left:-.6em}.ui-slider-horizontal .ui-slider-range{top:0;height:100%}.ui-slider-horizontal .ui-slider-range-min{left:0}.ui-slider-horizontal .ui-slider-range-max{right:0}.ui-slider-vertical{width:.8em;height:100px}.ui-slider-vertical .ui-slider-handle{left:-.3em;margin-left:0;margin-bottom:-.6em}.ui-slider-vertical .ui-slider-range{left:0;width:100%}.ui-slider-vertical .ui-slider-range-min{bottom:0}.ui-slider-vertical .ui-slider-range-max{top:0}.ui-spinner{position:relative;display:inline-block;overflow:hidden;padding:0;vertical-align:middle}.ui-spinner-input{border:0;background:0;color:inherit;padding:0;margin:.2em 0;vertical-align:middle;margin-left:.4em;margin-right:22px}.ui-spinner-button{width:16px;height:50%;font-size:.5em;padding:0;margin:0;text-align:center;position:absolute;cursor:default;display:block;overflow:hidden;right:0}.ui-spinner a.ui-spinner-button{border-top:0;border-bottom:0;border-right:0}.ui-spinner .ui-icon{position:absolute;margin-top:-8px;top:50%;left:0}.ui-spinner-up{top:0}.ui-spinner-down{bottom:0}.ui-spinner .ui-icon-triangle-1-s{background-position:-65px -16px}.ui-tabs{position:relative;padding:.2em}.ui-tabs .ui-tabs-nav{margin:0;padding:.2em .2em 0}.ui-tabs .ui-tabs-nav li{list-style:none;float:left;position:relative;top:0;margin:1px .2em 0 0;border-bottom-width:0;padding:0;white-space:nowrap}.ui-tabs .ui-tabs-nav li a{float:left;padding:.5em 1em;text-decoration:none}.ui-tabs .ui-tabs-nav li.ui-tabs-active{margin-bottom:-1px;padding-bottom:1px}.ui-tabs .ui-tabs-nav li.ui-tabs-active a,.ui-tabs .ui-tabs-nav li.ui-state-disabled a,.ui-tabs .ui-tabs-nav li.ui-tabs-loading a{cursor:text}.ui-tabs .ui-tabs-nav li a,.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-active a{cursor:pointer}.ui-tabs .ui-tabs-panel{display:block;border-width:0;padding:1em 1.4em;background:0}.ui-tooltip{padding:8px;position:absolute;z-index:9999;max-width:300px;-webkit-box-shadow:0 0 5px #aaa;box-shadow:0 0 5px #aaa}body .ui-tooltip{border-width:2px}.ui-widget{font-family:Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;font-size:1.1em}.ui-widget .ui-widget{font-size:1em}.ui-widget input,.ui-widget select,.ui-widget textarea,.ui-widget button{font-family:Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;font-size:1em}.ui-widget-content{border:1px solid #ddd;background:#eee url(images/ui-bg_highlight-soft_100_eeeeee_1x100.png) 50% top repeat-x;color:#333}.ui-widget-content a{color:#333}.ui-widget-header{border:1px solid #e78f08;background:#f6a828 url(images/ui-bg_gloss-wave_35_f6a828_500x100.png) 50% 50% repeat-x;color:#fff;font-weight:bold}.ui-widget-header a{color:#fff}.ui-state-default,.ui-widget-content .ui-state-default,.ui-widget-header .ui-state-default{border:1px solid #ccc;background:#f6f6f6 url(images/ui-bg_glass_100_f6f6f6_1x400.png) 50% 50% repeat-x;font-weight:bold;color:#1c94c4}.ui-state-default a,.ui-state-default a:link,.ui-state-default a:visited{color:#1c94c4;text-decoration:none}.ui-state-hover,.ui-widget-content .ui-state-hover,.ui-widget-header .ui-state-hover,.ui-state-focus,.ui-widget-content .ui-state-focus,.ui-widget-header .ui-state-focus{border:1px solid #fbcb09;background:#fdf5ce url(images/ui-bg_glass_100_fdf5ce_1x400.png) 50% 50% repeat-x;font-weight:bold;color:#c77405}.ui-state-hover a,.ui-state-hover a:hover,.ui-state-hover a:link,.ui-state-hover a:visited{color:#c77405;text-decoration:none}.ui-state-active,.ui-widget-content .ui-state-active,.ui-widget-header .ui-state-active{border:1px solid #fbd850;background:#fff url(images/ui-bg_glass_65_ffffff_1x400.png) 50% 50% repeat-x;font-weight:bold;color:#eb8f00}.ui-state-active a,.ui-state-active a:link,.ui-state-active a:visited{color:#eb8f00;text-decoration:none}.ui-state-highlight,.ui-widget-content .ui-state-highlight,.ui-widget-header .ui-state-highlight{border:1px solid #fed22f;background:#ffe45c url(images/ui-bg_highlight-soft_75_ffe45c_1x100.png) 50% top repeat-x;color:#363636}.ui-state-highlight a,.ui-widget-content .ui-state-highlight a,.ui-widget-header .ui-state-highlight a{color:#363636}.ui-state-error,.ui-widget-content .ui-state-error,.ui-widget-header .ui-state-error{border:1px solid #cd0a0a;background:#b81900 url(images/ui-bg_diagonals-thick_18_b81900_40x40.png) 50% 50% repeat;color:#fff}.ui-state-error a,.ui-widget-content .ui-state-error a,.ui-widget-header .ui-state-error a{color:#fff}.ui-state-error-text,.ui-widget-content .ui-state-error-text,.ui-widget-header .ui-state-error-text{color:#fff}.ui-priority-primary,.ui-widget-content .ui-priority-primary,.ui-widget-header .ui-priority-primary{font-weight:bold}.ui-priority-secondary,.ui-widget-content .ui-priority-secondary,.ui-widget-header .ui-priority-secondary{opacity:.7;filter:Alpha(Opacity=70);font-weight:normal}.ui-state-disabled,.ui-widget-content .ui-state-disabled,.ui-widget-header .ui-state-disabled{opacity:.35;filter:Alpha(Opacity=35);background-image:none}.ui-state-disabled .ui-icon{filter:Alpha(Opacity=35)}.ui-icon{width:16px;height:16px}.ui-icon,.ui-widget-content .ui-icon{background-image:url(images/ui-icons_222222_256x240.png)}.ui-widget-header .ui-icon{background-image:url(images/ui-icons_ffffff_256x240.png)}.ui-state-default .ui-icon{background-image:url(images/ui-icons_ef8c08_256x240.png)}.ui-state-hover .ui-icon,.ui-state-focus .ui-icon{background-image:url(images/ui-icons_ef8c08_256x240.png)}.ui-state-active .ui-icon{background-image:url(images/ui-icons_ef8c08_256x240.png)}.ui-state-highlight .ui-icon{background-image:url(images/ui-icons_228ef1_256x240.png)}.ui-state-error .ui-icon,.ui-state-error-text .ui-icon{background-image:url(images/ui-icons_ffd27a_256x240.png)}.ui-icon-blank{background-position:16px 16px}.ui-icon-carat-1-n{background-position:0 0}.ui-icon-carat-1-ne{background-position:-16px 0}.ui-icon-carat-1-e{background-position:-32px 0}.ui-icon-carat-1-se{background-position:-48px 0}.ui-icon-carat-1-s{background-position:-64px 0}.ui-icon-carat-1-sw{background-position:-80px 0}.ui-icon-carat-1-w{background-position:-96px 0}.ui-icon-carat-1-nw{background-position:-112px 0}.ui-icon-carat-2-n-s{background-position:-128px 0}.ui-icon-carat-2-e-w{background-position:-144px 0}.ui-icon-triangle-1-n{background-position:0 -16px}.ui-icon-triangle-1-ne{background-position:-16px -16px}.ui-icon-triangle-1-e{background-position:-32px -16px}.ui-icon-triangle-1-se{background-position:-48px -16px}.ui-icon-triangle-1-s{background-position:-64px -16px}.ui-icon-triangle-1-sw{background-position:-80px -16px}.ui-icon-triangle-1-w{background-position:-96px -16px}.ui-icon-triangle-1-nw{background-position:-112px -16px}.ui-icon-triangle-2-n-s{background-position:-128px -16px}.ui-icon-triangle-2-e-w{background-position:-144px -16px}.ui-icon-arrow-1-n{background-position:0 -32px}.ui-icon-arrow-1-ne{background-position:-16px -32px}.ui-icon-arrow-1-e{background-position:-32px -32px}.ui-icon-arrow-1-se{background-position:-48px -32px}.ui-icon-arrow-1-s{background-position:-64px -32px}.ui-icon-arrow-1-sw{background-position:-80px -32px}.ui-icon-arrow-1-w{background-position:-96px -32px}.ui-icon-arrow-1-nw{background-position:-112px -32px}.ui-icon-arrow-2-n-s{background-position:-128px -32px}.ui-icon-arrow-2-ne-sw{background-position:-144px -32px}.ui-icon-arrow-2-e-w{background-position:-160px -32px}.ui-icon-arrow-2-se-nw{background-position:-176px -32px}.ui-icon-arrowstop-1-n{background-position:-192px -32px}.ui-icon-arrowstop-1-e{background-position:-208px -32px}.ui-icon-arrowstop-1-s{background-position:-224px -32px}.ui-icon-arrowstop-1-w{background-position:-240px -32px}.ui-icon-arrowthick-1-n{background-position:0 -48px}.ui-icon-arrowthick-1-ne{background-position:-16px -48px}.ui-icon-arrowthick-1-e{background-position:-32px -48px}.ui-icon-arrowthick-1-se{background-position:-48px -48px}.ui-icon-arrowthick-1-s{background-position:-64px -48px}.ui-icon-arrowthick-1-sw{background-position:-80px -48px}.ui-icon-arrowthick-1-w{background-position:-96px -48px}.ui-icon-arrowthick-1-nw{background-position:-112px -48px}.ui-icon-arrowthick-2-n-s{background-position:-128px -48px}.ui-icon-arrowthick-2-ne-sw{background-position:-144px -48px}.ui-icon-arrowthick-2-e-w{background-position:-160px -48px}.ui-icon-arrowthick-2-se-nw{background-position:-176px -48px}.ui-icon-arrowthickstop-1-n{background-position:-192px -48px}.ui-icon-arrowthickstop-1-e{background-position:-208px -48px}.ui-icon-arrowthickstop-1-s{background-position:-224px -48px}.ui-icon-arrowthickstop-1-w{background-position:-240px -48px}.ui-icon-arrowreturnthick-1-w{background-position:0 -64px}.ui-icon-arrowreturnthick-1-n{background-position:-16px -64px}.ui-icon-arrowreturnthick-1-e{background-position:-32px -64px}.ui-icon-arrowreturnthick-1-s{background-position:-48px -64px}.ui-icon-arrowreturn-1-w{background-position:-64px -64px}.ui-icon-arrowreturn-1-n{background-position:-80px -64px}.ui-icon-arrowreturn-1-e{background-position:-96px -64px}.ui-icon-arrowreturn-1-s{background-position:-112px -64px}.ui-icon-arrowrefresh-1-w{background-position:-128px -64px}.ui-icon-arrowrefresh-1-n{background-position:-144px -64px}.ui-icon-arrowrefresh-1-e{background-position:-160px -64px}.ui-icon-arrowrefresh-1-s{background-position:-176px -64px}.ui-icon-arrow-4{background-position:0 -80px}.ui-icon-arrow-4-diag{background-position:-16px -80px}.ui-icon-extlink{background-position:-32px -80px}.ui-icon-newwin{background-position:-48px -80px}.ui-icon-refresh{background-position:-64px -80px}.ui-icon-shuffle{background-position:-80px -80px}.ui-icon-transfer-e-w{background-position:-96px -80px}.ui-icon-transferthick-e-w{background-position:-112px -80px}.ui-icon-folder-collapsed{background-position:0 -96px}.ui-icon-folder-open{background-position:-16px -96px}.ui-icon-document{background-position:-32px -96px}.ui-icon-document-b{background-position:-48px -96px}.ui-icon-note{background-position:-64px -96px}.ui-icon-mail-closed{background-position:-80px -96px}.ui-icon-mail-open{background-position:-96px -96px}.ui-icon-suitcase{background-position:-112px -96px}.ui-icon-comment{background-position:-128px -96px}.ui-icon-person{background-position:-144px -96px}.ui-icon-print{background-position:-160px -96px}.ui-icon-trash{background-position:-176px -96px}.ui-icon-locked{background-position:-192px -96px}.ui-icon-unlocked{background-position:-208px -96px}.ui-icon-bookmark{background-position:-224px -96px}.ui-icon-tag{background-position:-240px -96px}.ui-icon-home{background-position:0 -112px}.ui-icon-flag{background-position:-16px -112px}.ui-icon-calendar{background-position:-32px -112px}.ui-icon-cart{background-position:-48px -112px}.ui-icon-pencil{background-position:-64px -112px}.ui-icon-clock{background-position:-80px -112px}.ui-icon-disk{background-position:-96px -112px}.ui-icon-calculator{background-position:-112px -112px}.ui-icon-zoomin{background-position:-128px -112px}.ui-icon-zoomout{background-position:-144px -112px}.ui-icon-search{background-position:-160px -112px}.ui-icon-wrench{background-position:-176px -112px}.ui-icon-gear{background-position:-192px -112px}.ui-icon-heart{background-position:-208px -112px}.ui-icon-star{background-position:-224px -112px}.ui-icon-link{background-position:-240px -112px}.ui-icon-cancel{background-position:0 -128px}.ui-icon-plus{background-position:-16px -128px}.ui-icon-plusthick{background-position:-32px -128px}.ui-icon-minus{background-position:-48px -128px}.ui-icon-minusthick{background-position:-64px -128px}.ui-icon-close{background-position:-80px -128px}.ui-icon-closethick{background-position:-96px -128px}.ui-icon-key{background-position:-112px -128px}.ui-icon-lightbulb{background-position:-128px -128px}.ui-icon-scissors{background-position:-144px -128px}.ui-icon-clipboard{background-position:-160px -128px}.ui-icon-copy{background-position:-176px -128px}.ui-icon-contact{background-position:-192px -128px}.ui-icon-image{background-position:-208px -128px}.ui-icon-video{background-position:-224px -128px}.ui-icon-script{background-position:-240px -128px}.ui-icon-alert{background-position:0 -144px}.ui-icon-info{background-position:-16px -144px}.ui-icon-notice{background-position:-32px -144px}.ui-icon-help{background-position:-48px -144px}.ui-icon-check{background-position:-64px -144px}.ui-icon-bullet{background-position:-80px -144px}.ui-icon-radio-on{background-position:-96px -144px}.ui-icon-radio-off{background-position:-112px -144px}.ui-icon-pin-w{background-position:-128px -144px}.ui-icon-pin-s{background-position:-144px -144px}.ui-icon-play{background-position:0 -160px}.ui-icon-pause{background-position:-16px -160px}.ui-icon-seek-next{background-position:-32px -160px}.ui-icon-seek-prev{background-position:-48px -160px}.ui-icon-seek-end{background-position:-64px -160px}.ui-icon-seek-start{background-position:-80px -160px}.ui-icon-seek-first{background-position:-80px -160px}.ui-icon-stop{background-position:-96px -160px}.ui-icon-eject{background-position:-112px -160px}.ui-icon-volume-off{background-position:-128px -160px}.ui-icon-volume-on{background-position:-144px -160px}.ui-icon-power{background-position:0 -176px}.ui-icon-signal-diag{background-position:-16px -176px}.ui-icon-signal{background-position:-32px -176px}.ui-icon-battery-0{background-position:-48px -176px}.ui-icon-battery-1{background-position:-64px -176px}.ui-icon-battery-2{background-position:-80px -176px}.ui-icon-battery-3{background-position:-96px -176px}.ui-icon-circle-plus{background-position:0 -192px}.ui-icon-circle-minus{background-position:-16px -192px}.ui-icon-circle-close{background-position:-32px -192px}.ui-icon-circle-triangle-e{background-position:-48px -192px}.ui-icon-circle-triangle-s{background-position:-64px -192px}.ui-icon-circle-triangle-w{background-position:-80px -192px}.ui-icon-circle-triangle-n{background-position:-96px -192px}.ui-icon-circle-arrow-e{background-position:-112px -192px}.ui-icon-circle-arrow-s{background-position:-128px -192px}.ui-icon-circle-arrow-w{background-position:-144px -192px}.ui-icon-circle-arrow-n{background-position:-160px -192px}.ui-icon-circle-zoomin{background-position:-176px -192px}.ui-icon-circle-zoomout{background-position:-192px -192px}.ui-icon-circle-check{background-position:-208px -192px}.ui-icon-circlesmall-plus{background-position:0 -208px}.ui-icon-circlesmall-minus{background-position:-16px -208px}.ui-icon-circlesmall-close{background-position:-32px -208px}.ui-icon-squaresmall-plus{background-position:-48px -208px}.ui-icon-squaresmall-minus{background-position:-64px -208px}.ui-icon-squaresmall-close{background-position:-80px -208px}.ui-icon-grip-dotted-vertical{background-position:0 -224px}.ui-icon-grip-dotted-horizontal{background-position:-16px -224px}.ui-icon-grip-solid-vertical{background-position:-32px -224px}.ui-icon-grip-solid-horizontal{background-position:-48px -224px}.ui-icon-gripsmall-diagonal-se{background-position:-64px -224px}.ui-icon-grip-diagonal-se{background-position:-80px -224px}.ui-corner-all,.ui-corner-top,.ui-corner-left,.ui-corner-tl{border-top-left-radius:4px}.ui-corner-all,.ui-corner-top,.ui-corner-right,.ui-corner-tr{border-top-right-radius:4px}.ui-corner-all,.ui-corner-bottom,.ui-corner-left,.ui-corner-bl{border-bottom-left-radius:4px}.ui-corner-all,.ui-corner-bottom,.ui-corner-right,.ui-corner-br{border-bottom-right-radius:4px}.ui-widget-overlay{background:#666 url(images/ui-bg_diagonals-thick_20_666666_40x40.png) 50% 50% repeat;opacity:.5;filter:Alpha(Opacity=50)}.ui-widget-shadow{margin:-5px 0 0 -5px;padding:5px;background:#000 url(images/ui-bg_flat_10_000000_40x100.png) 50% 50% repeat-x;opacity:.2;filter:Alpha(Opacity=20);border-radius:5px}]]></template>
     <template title="bbm_buttons_config_add_edit"><![CDATA[<xen:title>{xen:if '{$config.config_type}', '{xen:phrase bbm_edit_config}: {$phrase.type}', '{xen:phrase bbm_add_config}'}</xen:title>
 
 <xen:form action="{xen:adminlink 'bbm-buttons/saveConfig', $config}">
 
 	<xen:textboxunit label="{xen:phrase bbm_config_type}:" name="config_type" value="{$config.config_type}" explain="{xen:phrase bbm_config_type_desc}" />
 	<xen:textboxunit label="{xen:phrase bbm_config_name}:" name="config_name" value="{$config.config_name}" explain="{xen:phrase bbm_config_name_desc}" />
+	<xen:selectunit label="{xen:phrase bbm_config_ed}:" name="config_ed" value="{$config.config_ed}" >	
+		<xen:option value="mce" label="{xen:phrase bbm_config_ed_mce4}" />
+		<xen:option value="xen" label="{xen:phrase bbm_config_ed_redactor}" />
+	</xen:selectunit>
 
 	<xen:submitunit save="{xen:phrase bbm_save_config}">
 		<xen:if is="{$config.config_type}">
@@ -1452,6 +1467,9 @@ i.mce-text {
 			UpdateID();
 			SaveUpdates();			
  	 	});
+
+		//Init toolip (jQuery UI)
+		$('#ButtonsList, #container_select').tooltip();
 	});
 
 	function MakeListSortable() {
@@ -1506,21 +1524,29 @@ i.mce-text {
 <xen:require css="bbm_buttons_homepage.css" />
 
 <xen:if is="{$permsBbm}">
-	<div id="miu" class="sectionMain">
+	<div id="bbm" class="sectionMain">
 		<div class="subHeading">{xen:phrase bbm_buttons_configuration_question}</div>
 	
 		<ul class="secondaryContent container">
 			<li>
-				<a href="{xen:adminlink 'bbm-buttons/editorconfigltr'}">
+				<p class="config_editor"><span>{xen:phrase bbm_config_ed_mce4}</span></p>
+				<a href="{xen:adminlink 'bbm-buttons/editor-config-ltr'}">
 					<p class="sectionMain buttons">{xen:phrase bbm_buttons_editor_ltr}</p>
 				</a>
 			</li>
 			<li>
-				<a href="{xen:adminlink 'bbm-buttons/editorconfigrtl'}">
+				<p class="config_editor"><span>{xen:phrase bbm_config_ed_mce4}</span></p>
+				<a href="{xen:adminlink 'bbm-buttons/editor-config-rtl'}">
 					<p class="sectionMain buttons">{xen:phrase bbm_buttons_editor_rtl}</p>
 				</a>
 			</li>
-	
+
+			<li>
+				<p class="config_editor"><span>{xen:phrase bbm_config_ed_redactor}</span></p>
+				<a href="{xen:adminlink 'bbm-buttons/editor-config-xen'}">
+					<p class="sectionMain buttons">{xen:phrase bbm_buttons_editor_redactor}</p>
+				</a>
+			</li>	
 			<xen:if is="{$configs}">
 					<xen:foreach loop="$configs" value="$config">
 						<li>
@@ -1529,7 +1555,8 @@ i.mce-text {
 									<span class="editText">{xen:phrase bbm_config_edit}</span>
 								</a>
 							</div>
-							<a class="cust" href="{xen:adminlink 'bbm-buttons/editorcust', $config}"><p class="sectionMain buttons">{$config.config_name}</p></a>
+							<xen:comment>The above code is ugly - it would need to be rewritten</xen:comment>
+							<a class="cust" href="{xen:adminlink 'bbm-buttons/editorcust', $config}"><p class="sectionMain buttons"><span class="config_editor"><span>{xen:if '{$config.config_ed} == "mce"', '{xen:phrase bbm_config_ed_mce4}', '{xen:phrase bbm_config_ed_redactor}'}</span></span>{$config.config_name}</p></a>
 						</li>
 					</xen:foreach>
 			</xen:if>
@@ -1545,28 +1572,28 @@ i.mce-text {
 	{xen:phrase bbm_permission_not_granted}
 </xen:if>	
 ]]></template>
-    <template title="bbm_buttons_homepage.css"><![CDATA[	#miu .container li {
+    <template title="bbm_buttons_homepage.css"><![CDATA[	#bbm .container li {
 		height:60px
 	}
 
-	#miu .container li a.cust {
+	#bbm .container li a.cust {
 		display:block;
 		width:96%;
 	}
 
-	#miu .container li .cust_edit {
+	#bbm .container li .cust_edit {
 		position:relative;
 		float:right;
 		line-height:60px;
 	}
 	
-	#miu .buttons {
+	#bbm .buttons {
 		background-color:{xen:property contentBackground};
 		font-size:16px;
 		text-align:center
 	}
 
-	#miu .buttons:hover {
+	#bbm .buttons:hover {
 		background-color:#ffffe5
 	}
 
@@ -1593,6 +1620,27 @@ i.mce-text {
 	#bm_status .disabled{
 		color:#f38185;
 		text-shadow: 0px 0px 1px #ffadb1;
+	}
+	
+	#bbm .config_editor{
+		float: right;
+		font-size: 9px;
+		line-height: 32px;
+		padding: 5px;
+		position: relative;
+		right: 10px;
+		width: 65px;
+	}
+
+	#bbm .cust .config_editor{
+		top:-10px;
+	}
+
+	#bbm .config_editor span{
+	 	border: 1px dotted grey;
+		color: grey;
+		font-style: italic;
+		padding: 2px 8px;
 	}]]></template>
     <template title="bbm_buttons_homepage_error"><![CDATA[<xen:if is="{$error} == 'quattro'">
 	{xen:phrase bbm_buttons_homepage_error_quattro}
@@ -1869,22 +1917,24 @@ i.mce-text {
 	color:grey;
 }]]></template>
   </admin_templates>
+  <admin_template_modifications/>
   <code_events/>
   <code_event_listeners>
-    <listener event_id="front_controller_post_view" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPostView" active="1" description="BbCode content protection: implementation"/>
-    <listener event_id="front_controller_pre_dispatch" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPreDispatch" active="1" description="BbCode content protection: get response type"/>
-    <listener event_id="front_controller_pre_view" execute_order="10" callback_class="BBM_Listeners_GetBbmEditor" callback_method="getBbmEditor" active="1" description="Get BbmEditor"/>
-    <listener event_id="front_controller_pre_view" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPreView" active="1" description="BbCode content protection: get controller &amp; implementation"/>
-    <listener event_id="load_class_bb_code" execute_order="10" callback_class="BBM_Listeners_BbCode" callback_method="listen" active="1" description="Listener for Formatter_Base, Autolink &amp; help"/>
-    <listener event_id="load_class_controller" execute_order="10" callback_class="BBM_Listeners_BbCode" callback_method="listen" active="1" description="Adds support for display in Help Section"/>
-    <listener event_id="load_class_datawriter" execute_order="10" callback_class="BBM_Listeners_DataWriter" callback_method="DataWriterAdmin" active="1" description="DataWriter Admin"/>
-    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" description="BbCode content protection: models"/>
-    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" description="Templates preloader"/>
-    <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" description="Public templates hooks"/>
-    <listener event_id="template_hook" execute_order="10" callback_class="BBM_Listeners_Templates_Admin" callback_method="OptionsForum" active="1" description="Admin Templates Hooks: Add Bbm editor selection to forum options (option)"/>
+    <listener event_id="front_controller_post_view" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPostView" active="1" hint="" description="BbCode content protection: implementation"/>
+    <listener event_id="front_controller_pre_dispatch" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPreDispatch" active="1" hint="" description="BbCode content protection: get response type"/>
+    <listener event_id="front_controller_pre_view" execute_order="10" callback_class="BBM_Listeners_GetBbmEditor" callback_method="getBbmEditor" active="1" hint="" description="Get BbmEditor"/>
+    <listener event_id="front_controller_pre_view" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPreView" active="1" hint="" description="BbCode content protection: get controller &amp; implementation"/>
+    <listener event_id="load_class_bb_code" execute_order="10" callback_class="BBM_Listeners_BbCode" callback_method="listen" active="1" hint="" description="Listener for Formatter_Base, Autolink &amp; help"/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="BBM_Listeners_BbCode" callback_method="listen" active="1" hint="" description="Adds support for display in Help Section"/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="BBM_Listeners_DataWriter" callback_method="DataWriterAdmin" active="1" hint="" description="DataWriter Admin"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="" description="BbCode content protection: models"/>
+    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="" description="Templates preloader"/>
+    <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="" description="Public templates hooks"/>
+    <listener event_id="template_hook" execute_order="10" callback_class="BBM_Listeners_Templates_Admin" callback_method="OptionsForum" active="1" hint="" description="Admin Templates Hooks: Add Bbm editor selection to forum options (option)"/>
   </code_event_listeners>
   <cron/>
   <email_templates/>
+  <email_template_modifications/>
   <optiongroups>
     <group group_id="bbm_bbcodemanager" display_order="13210" debug_only="0"/>
     <group group_id="bbm_buttonmanager" display_order="13211" debug_only="0"/>
@@ -1941,20 +1991,6 @@ i.mce-text {
       <sub_options></sub_options>
       <relation group_id="bbm_bbcodemanager" display_order="500"/>
     </option>
-    <option option_id="bbm_debug_tinymcehookcontent" edit_format="radio" data_type="boolean" can_backup="1">
-      <default_value>0</default_value>
-      <edit_format_params>1={xen:phrase bbm_options_yes}
-0={xen:phrase bbm_options_no}</edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="9999"/>
-    </option>
-    <option option_id="bbm_debug_tinymcehookdisable" edit_format="radio" data_type="boolean" can_backup="1">
-      <default_value>0</default_value>
-      <edit_format_params>1={xen:phrase bbm_options_yes}
-0={xen:phrase bbm_options_no}</edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="10"/>
-    </option>
     <option option_id="Bbm_HideTagsInFastPreview" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
@@ -1992,6 +2028,13 @@ i.mce-text {
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_bbcodemanager" display_order="9010"/>
+    </option>
+    <option option_id="Bbm_XenContentCheck" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1={xen:phrase bbm_options_yes}
+0={xen:phrase bbm_options_no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="120"/>
     </option>
     <option option_id="Bbm_wrapper_allcode" edit_format="callback" data_type="string" can_backup="1">
       <default_value>none</default_value>
@@ -2035,13 +2078,6 @@ i.mce-text {
       <sub_options></sub_options>
       <relation group_id="bbm_xenforo_bbcodes_control" display_order="210"/>
     </option>
-    <option option_id="Bbm_XenContentCheck" edit_format="radio" data_type="boolean" can_backup="1">
-      <default_value>0</default_value>
-      <edit_format_params>1={xen:phrase bbm_options_yes}
-0={xen:phrase bbm_options_no}</edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="120"/>
-    </option>
     <option option_id="Bbm_xenTags_disabled" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_xen_tags</edit_format_params>
@@ -2054,6 +2090,20 @@ i.mce-text {
 fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_xenforo_bbcodes_control" display_order="310"/>
+    </option>
+    <option option_id="bbm_debug_tinymcehookcontent" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1={xen:phrase bbm_options_yes}
+0={xen:phrase bbm_options_no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_buttonmanager" display_order="9999"/>
+    </option>
+    <option option_id="bbm_debug_tinymcehookdisable" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1={xen:phrase bbm_options_yes}
+0={xen:phrase bbm_options_no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_buttonmanager" display_order="10"/>
     </option>
     <option option_id="sedo_adv_premium_tag1" edit_format="textbox" data_type="string" can_backup="1">
       <default_value>premium</default_value>
@@ -2157,6 +2207,7 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_buttons_custcmd" version_id="0" version_string="1.0"><![CDATA[Bbm button name]]></phrase>
     <phrase title="bbm_buttons_custcmd_Desc" version_id="0" version_string="1.0"><![CDATA[If you choose to bypass commands, you can enter here your TinyMCE button name. If you let this field empty, then Bb code tag name will be used as button name.]]></phrase>
     <phrase title="bbm_buttons_editor_ltr" version_id="0" version_string="1.0"><![CDATA[LTR Editor Visual Management (Left-to-Right)]]></phrase>
+    <phrase title="bbm_buttons_editor_redactor" version_id="13" version_string="2.0.4"><![CDATA[Official XenForo editor (Redactor)]]></phrase>
     <phrase title="bbm_buttons_editor_rtl" version_id="0" version_string="1.0"><![CDATA[RTL Editor Visual Management (Right-to-Left)]]></phrase>
     <phrase title="bbm_buttons_hasbutton" version_id="0" version_string="1.0"><![CDATA[Editor button]]></phrase>
     <phrase title="bbm_buttons_hasbutton_question" version_id="0" version_string="1.0"><![CDATA[Activate the button inside the Buttons Manager?]]></phrase>
@@ -2227,9 +2278,12 @@ Your callback must return the parsed Bb Code.]]></phrase>
     <phrase title="bbm_configuration_raz_config_desc" version_id="10" version_string="2.0"><![CDATA[Are you sure you want to reset your buttons configuration?]]></phrase>
     <phrase title="bbm_configuration_raz_config_title" version_id="2" version_string="1.0.2"><![CDATA[Reset configuration]]></phrase>
     <phrase title="bbm_configuration_UpdateNow" version_id="0" version_string="1.0"><![CDATA[Update Now!]]></phrase>
-    <phrase title="bbm_configuration_visual_config" version_id="0" version_string="1.0"><![CDATA[Visual Configuration for TinyMCE]]></phrase>
+    <phrase title="bbm_configuration_visual_config" version_id="13" version_string="2.0.4"><![CDATA[Buttons Visual Configuration]]></phrase>
     <phrase title="bbm_config_create" version_id="0" version_string="1.0"><![CDATA[Create a new configuration]]></phrase>
+    <phrase title="bbm_config_ed" version_id="13" version_string="2.0.4"><![CDATA[Editor]]></phrase>
     <phrase title="bbm_config_edit" version_id="0" version_string="1.0"><![CDATA[Edit]]></phrase>
+    <phrase title="bbm_config_ed_mce4" version_id="13" version_string="2.0.4"><![CDATA[TinyQuattro]]></phrase>
+    <phrase title="bbm_config_ed_redactor" version_id="13" version_string="2.0.4"><![CDATA[Redactor]]></phrase>
     <phrase title="bbm_config_error_required" version_id="0" version_string="1.0"><![CDATA[The configuration short code  is required]]></phrase>
     <phrase title="bbm_config_go_to_options" version_id="0" version_string="1.0"><![CDATA[Configure in XenForo options]]></phrase>
     <phrase title="bbm_config_name" version_id="10" version_string="2.0"><![CDATA[Configuration name]]></phrase>
@@ -2756,6 +2810,25 @@ span.mce_bbm_spoiler {
     <template title="bbm_editor_extra_info" version_id="0" version_string="1.0"><![CDATA[<p>{xen:phrase bbm_controller_name} <b>{$controllerName}</b></p>
 <p>{xen:phrase bbm_controller_action} <b>{$controllerAction}</b></p>
 <p>{xen:phrase bbm_view_name} <b>{$viewName}</b></p>]]></template>
+    <template title="bbm_editor_js_setup" version_id="13" version_string="2.0.4"><![CDATA[<script>
+var BBM_Redactor = {
+	buttonsGrid: [{xen:raw $bbmButtonsJsGrid}],
+	customButtonsConfig:
+	{<xen:foreach loop="{$bbmCustomButtons}" value="$button" i="$i" count="$total">
+		{$button.code}:
+		{
+			tag: "{$button.tag}",
+			code: "{$button.code}",
+			description:  "{xen:jsescape {$button.description}}",
+			tagOptions: "{xen:jsescape {$button.tagOptions}}",
+			tagContent: "{xen:jsescape {$button.tagContent}}",
+			separator: "{xen:jsescape {$button.separator}}"
+		}{xen:if '{$i} != {$total}', ','}
+	</xen:foreach>}
+}
+</script>
+
+<xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
     <template title="bbm_js" version_id="0" version_string="1.0"><![CDATA[<xen:require css="bbm_buttons.css" />
 
 ]]></template>
@@ -2790,6 +2863,12 @@ span.mce_bbm_spoiler {
 	</li>
 </xen:foreach>]]></template>
   </templates>
+  <public_template_modifications>
+    <modification template="editor_js_setup" modification_key="bbm_redactor_setup" description="Custom Buttons for Redactor" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<xen:require js="js/redactor/redactor\.js" />#]]></find>
+      <replace><![CDATA[$0
+<xen:include template="bbm_editor_js_setup" />]]></replace>
+    </modification>
+  </public_template_modifications>
   <bb_code_media_sites/>
-  <template_modifications/>
 </addon>

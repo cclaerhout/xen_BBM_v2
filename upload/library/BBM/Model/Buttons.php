@@ -153,7 +153,7 @@ class BBM_Model_Buttons extends XenForo_Model
 	public function getOnlyCustomConfigs()
 	{
 		$configs = $this->getAllConfigs('config_type');
-		unset($configs['ltr'], $configs['rtl']);
+		unset($configs['ltr'], $configs['rtl'], $configs['redactor']);
 		return $configs;
 	}
 
@@ -181,7 +181,7 @@ class BBM_Model_Buttons extends XenForo_Model
 			'tag', 'tag_id', 'hasButton', 'button_has_usr',
 			'killCmd', 'custCmd', 'buttonDesc', 'tagOptions', 'tagContent', //imgMethod has been depreciated
 			'quattro_button_type', 'quattro_button_type_opt', 'quattro_button_return', 'quattro_button_return_opt',
-			'button_usr', 'active')
+			'button_usr', 'active', 'options_separator')
 		);
 		
 		$buttonData = array_intersect_key($buttonData, $datasToKeep);
@@ -192,17 +192,13 @@ class BBM_Model_Buttons extends XenForo_Model
 		foreach ($configs as $config_id => $config)
 		{
 			//Only continue if the config was set & wasn't empty (for ie: user delete a default button before to have set a config)
-			if(
-				!isset($config['config_buttons_full'])  || 
-				empty($config['config_buttons_full'])   ||
-				!isset($config['config_buttons_order']) || 
-				empty($config['config_buttons_order'])
-			)
+			if(empty($config['config_buttons_full']) || empty($config['config_buttons_order']))
 			{
 				continue;
 			}
 			
 			$config_type = $config['config_type'];
+			$config_ed = $config['config_ed'];
 			
       			//Prepare two main elements
 			$order = explode(',', $config['config_buttons_order']);
@@ -285,7 +281,7 @@ class BBM_Model_Buttons extends XenForo_Model
       			$dw->save();
       
 			//Update the Registry
-			$this->InsertConfigInRegistry();	
+			$this->InsertConfigInRegistry();
      		}	
 	}
 
@@ -294,8 +290,23 @@ class BBM_Model_Buttons extends XenForo_Model
 	*/
 	public function InsertConfigInRegistry()
 	{   
-		$config['bbm_buttons'] = $this->getAllConfigs('config_type');
+		//Registre structure:  bbm_buttons=>configEditor=>configType=>config
+		$allConfigs = $this->getAllConfigs('config_type');
+		$allConfigs = $this->_setEditorAsPrefixForConfigs($allConfigs);
+		$config['bbm_buttons'] = $allConfigs;
 		XenForo_Model::create('XenForo_Model_DataRegistry')->set('bbm_buttons', $config);
+	}
+
+	protected function _setEditorAsPrefixForConfigs($configs)
+	{
+		foreach($configs as $configType => $config)
+		{
+			$configEd = (empty($config['config_ed'])) ? 'mce' : $config['config_ed'];
+			$configs[$configEd][$configType] = $config;
+			unset($configs[$configType]);
+		}
+		
+		return $configs;
 	}
 
 	public function CleanConfigInRegistry()

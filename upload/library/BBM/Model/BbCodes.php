@@ -268,7 +268,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 	{
 		$fields = 'tag_id, tag, active, hasButton,';
 		$fields.= 'button_has_usr, button_usr, killCmd, custCmd,';
-		$fields.= 'buttonDesc, tagOptions, tagContent,'; //imgMethod has been depreciated - no need to add it here
+		$fields.= 'buttonDesc, tagOptions, tagContent, options_separator,'; //imgMethod has been depreciated - no need to add it here
 		$fields.= 'quattro_button_type, quattro_button_type_opt, quattro_button_return, quattro_button_return_opt';
 	
 		return $this->fetchAllKeyed("

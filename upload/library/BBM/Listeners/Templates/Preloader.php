@@ -2,6 +2,8 @@
 
 class BBM_Listeners_Templates_Preloader
 {
+	protected static $editor;
+	
 	public static function preloader($templateName, array &$params, XenForo_Template_Abstract $template)
 	{
 		switch ($templateName) 
@@ -33,16 +35,16 @@ class BBM_Listeners_Templates_Preloader
 					break;
 				}
 
+	   			//CHECK IF QUATTRO IS ENABLE
+				$activeAddons = XenForo_Model::create('XenForo_Model_DataRegistry')->get('addOns');
+				$quattroEnable = (!empty($activeAddons['sedo_tinymce_quattro'])) ? true : false;
 
+				//Which editor is being used? $options->quattro_iconsize is only use to check if the addon is installed or enable
 			       	$visitor = XenForo_Visitor::getInstance();
+				$editor = (empty($visitor->permissions['sedo_quattro']['display']) || !$quattroEnable) ? 'xen' : 'mce';
 
+				self::$editor = $editor;
 
-				//Don't continue if Quattro not available (might need to change this for other editor integrations
-				if(!isset($visitor->permissions['sedo_quattro']['display']) || empty($visitor->permissions['sedo_quattro']['display']))
-				{
-					break;
-				}
-	
 				//Get buttons config
 				$myConfigs = XenForo_Model::create('XenForo_Model_DataRegistry')->get('bbm_buttons');
 							
@@ -50,16 +52,19 @@ class BBM_Listeners_Templates_Preloader
 				{
 					break;
 				}
+
+				//Only use the configuration for the current editor
+				$myConfigs = $myConfigs['bbm_buttons'][$editor];
 	
 				//Check which Editor type must be used
 				$config_type = self::_bakeEditorConfig($template, $options, $visitor, $myConfigs);
 	
-				if(empty($myConfigs['bbm_buttons'][$config_type]['config_buttons_order']))
+				if(empty($myConfigs[$config_type]['config_buttons_order']))
 				{
 					break;
 				}
 
-				$extraParams = self::_bakeExtraParams($myConfigs['bbm_buttons'][$config_type]['config_buttons_full'], $options, $visitor);
+				$extraParams = self::_bakeExtraParams($myConfigs[$config_type]['config_buttons_full'], $options, $visitor);
 				$params = $extraParams+$params; //array + operator: first params overrides the second - is said faster than array_merge
 	   			break;
 		   	case 'forum_edit':
@@ -83,6 +88,11 @@ class BBM_Listeners_Templates_Preloader
 		*	Check Text Direction
 		***/
 		$config_type = ($template->getParam('pageIsRtl') === true) ? 'rtl' : 'ltr';
+		
+		if(self::$editor == 'xen')
+		{
+			$config_type = 'redactor';	
+		}
 
 		/****
 		*	Check controller datas
@@ -114,7 +124,7 @@ class BBM_Listeners_Templates_Preloader
 			$winner = $scores[$winnerKey];
 			
 			//Anti-doping test
-			$config_type = (isset($myConfigs['bbm_buttons'][$winner])) ? $winner : $config_type;
+			$config_type = (isset($myConfigs[$winner])) ? $winner : $config_type;
 		}
 
 		/****
@@ -144,7 +154,7 @@ class BBM_Listeners_Templates_Preloader
 			if(XenForo_Visitor::isBrowsingWith('mobile') && $options->Bbm_Bm_Mobile != 'disable')
 			{
 				//is mobile and editor has a style option
-				$config_type = (isset($myConfigs['bbm_buttons'][$options->Bbm_Bm_Mobile])) ? $options->Bbm_Bm_Mobile : $config_type;
+				$config_type = (isset($myConfigs[$options->Bbm_Bm_Mobile])) ? $options->Bbm_Bm_Mobile : $config_type;
 			}
 			
 			return $config_type;
@@ -168,13 +178,13 @@ class BBM_Listeners_Templates_Preloader
 			if($visitor->getBrowser['isMobile'] && $options->Bbm_Bm_Mobile != 'disable')
 			{
 				//is a mobile device and mobile configuration has been activated
-				$config_type = (isset($myConfigs['bbm_buttons'][$options->Bbm_Bm_Mobile])) ? $options->Bbm_Bm_Mobile : $config_type;
+				$config_type = (isset($myConfigs[$options->Bbm_Bm_Mobile])) ? $options->Bbm_Bm_Mobile : $config_type;
 			}
 			
 			if($visitor->getBrowser['isTablet'] && $options->Bbm_Bm_Tablets != 'disable')
 			{
 				//is a tablet & tablet configuration has been activated
-				$config_type = (isset($myConfigs['bbm_buttons'][$options->Bbm_Bm_Tablets])) ? $options->Bbm_Bm_Tablets : $config_type;				
+				$config_type = (isset($myConfigs[$options->Bbm_Bm_Tablets])) ? $options->Bbm_Bm_Tablets : $config_type;				
 			}
 
 			return $config_type;		
@@ -188,6 +198,17 @@ class BBM_Listeners_Templates_Preloader
 	protected static function _bakeExtraParams($buttons, $options, $visitor)
 	{
 		$buttons = unserialize($buttons);
+
+		if(self::$editor == 'mce')
+		{
+			return self::_bakeQuattroParams($buttons, $options, $visitor);
+		}
+		
+		return self::_bakeRedactorParams($buttons, $options, $visitor);
+	}	
+
+	protected static function _bakeQuattroParams($buttons, $options, $visitor)
+	{
 		$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));	
 		
 		$quattroGrid = array();
@@ -196,7 +217,7 @@ class BBM_Listeners_Templates_Preloader
 		
 		$lastButtonKey = count($buttons);
 		$lineID = 1;
-		
+
 		foreach($buttons as $key => $button)
 		{
 			$key = $key+1;
@@ -238,8 +259,8 @@ class BBM_Listeners_Templates_Preloader
 				$button['button_code'] = (!empty($button['custCmd'])) ? $button['custCmd'] : 'bbm_'.$button['tag'];
 			}
 
-			$tag = self::_ifOrphanCleanMe($button['tag']);
-			$code = self::_ifOrphanCleanMe($button['button_code']);
+			$tag = self::_cleanOrphan($button['tag']);
+			$code = self::_cleanOrphan($button['button_code']);
 
 
 			/*Bake the extra CSS for custom Buttons*/
@@ -277,7 +298,7 @@ class BBM_Listeners_Templates_Preloader
 						break;
 					default: $iconSet = $btnType;
 				}
-				
+
 				$customButtonsJs[] = array(
 					'tag'	=> $tag,
 					'code' => $code,
@@ -288,7 +309,8 @@ class BBM_Listeners_Templates_Preloader
 					'returnOption' => self::_detectPhrases($button['quattro_button_return_opt']),
 					'description' => self::_detectPhrases($button['buttonDesc']),
 					'tagOptions' => self::_detectPhrases($button['tagOptions']),
-					'tagContent' => self::_detectPhrases($button['tagContent'])
+					'tagContent' => self::_detectPhrases($button['tagContent']),
+					'separator' => (empty($button['options_separator'])) ? $options->Bbm_BbCode_Options_Separator : $button['options_separator']
 				);
 			}
 
@@ -303,8 +325,96 @@ class BBM_Listeners_Templates_Preloader
 
 		return array(
 			'quattroGrid' => $quattroGrid,
-			'customButtonsCss' => $customButtonsCss,
-			'customButtonsJs' => $customButtonsJs
+			'customQuattroButtonsCss' => $customButtonsCss,
+			'customQuattroButtonsJs' => $customButtonsJs
+		);
+	}
+
+	protected static function _bakeRedactorParams($buttons, $options, $visitor)
+	{
+		$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));	
+		
+		$buttonsGrid = array();
+		$customButtons = array();
+		
+		$btn_group_id = 1;
+
+		foreach($buttons as $button)
+		{
+			/*Check if button has a tag - should not be needed*/
+			if(!isset($button['tag']))
+			{
+				continue;
+			}
+
+			/*Don't display disable buttons*/
+			if(isset($button['active']) && !$button['active'])
+			{
+				continue;
+			}
+
+			/*Button permissions*/
+			if(!empty($button['button_has_usr']))
+			{
+				$usrOK = unserialize($button['button_usr']);
+
+				if(!array_intersect($visitorUserGroupIds, $usrOK))
+				{
+					continue;
+				}
+			}
+
+			/*Check if button has a code*/
+			if(empty($button['button_code']))
+			{
+				$button['button_code'] = (!empty($button['custCmd'])) ? $button['custCmd'] : 'bbm_'.$button['tag'];
+			}
+
+			if(!empty($button['class']) && $button['class'] == 'xenButton')
+			{
+				$button['tag'] = $button['button_code'] = str_replace('-', '', $button['tag']);
+			}
+				
+			$tag = self::_cleanOrphan($button['tag']);
+			$code = self::_cleanOrphan($button['button_code']);
+
+			if($button['tag'] == 'separator')
+			{
+				$btn_group_id++;
+			}
+			else
+			{
+				$buttonsGrid[$btn_group_id][] = $code;
+			}
+
+			if(isset($button['tagContent']))
+			{
+				$customButtons[] = array(
+					'tag'	=> $tag,
+					'code' => $code,
+					'description' => self::_detectPhrases($button['buttonDesc']),
+					'tagOptions' => self::_detectPhrases($button['tagOptions']),
+					'tagContent' => self::_detectPhrases($button['tagContent']),
+					'separator' => (empty($button['options_separator'])) ? $options->Bbm_BbCode_Options_Separator : $button['options_separator']
+				);
+			}
+		}
+
+		$buttonsJsGrid = '';
+		if(is_array($buttonsGrid))
+		{
+			$buttonsJsGrid = $buttonsGrid;
+			foreach($buttonsJsGrid  as &$buttons)
+			{
+				$buttons = '["'.implode('", "', $buttons).'"]';
+			}
+			
+			$buttonsJsGrid = implode(',', $buttonsJsGrid);
+		}
+
+		return array(
+			'bbmButtonsJsGrid' => $buttonsJsGrid,
+			'bbmCustomButtons' => $customButtons
 		);
 	}
 	
@@ -312,7 +422,7 @@ class BBM_Listeners_Templates_Preloader
 		This function is used to replace the aerobase of the orphan buttons by at_
 		Reason: the @ charachter can't be used as an object key in js
 	**/
-	protected static function _ifOrphanCleanMe($string)
+	protected static function _cleanOrphan($string)
 	{
 		return str_replace('@', 'at_', $string);
 	}

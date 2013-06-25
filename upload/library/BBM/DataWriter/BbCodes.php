@@ -2,8 +2,17 @@
 
 class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 {
-	const ALLOW_OVERRIDE = false;
-	const IGNORE_CALLBACKS_CHECK = false;	
+	const ALLOW_OVERRIDE = 'allowOverride';
+	const IGNORE_CALLBACKS_CHECK = 'ignoreCallbacksCheck';	
+
+	protected function _getDefaultOptions()
+	{
+		//Fix provided by Despair - thank you!
+		return array(
+			self::ALLOW_OVERRIDE => false,
+			self::IGNORE_CALLBACKS_CHECK => false
+		);
+	}
 	
 	protected $_existingDataErrorPhrase = 'bbm_bbcode_not_found';
 
@@ -122,10 +131,10 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 	
 	protected function _verifyCallback($class, $method)
 	{
-            if (!XenForo_Application::autoload($class) || !method_exists($class, $method))
-            {
-                $this->error(new XenForo_Phrase('please_enter_valid_callback_method'), 'callback_method');
-            }
+			if (!XenForo_Application::autoload($class) || !method_exists($class, $method))
+			{
+				$this->error(new XenForo_Phrase('please_enter_valid_callback_method'), 'callback_method');
+			}
 	}
 
 	protected function _verifyTemplate($templateName)
