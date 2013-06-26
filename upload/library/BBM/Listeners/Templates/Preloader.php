@@ -445,5 +445,79 @@ class BBM_Listeners_Templates_Preloader
 		
 		return $string;		
 	}
+
+	/*Template callback if needed*/
+
+	public static function getJsConfig($content, $params, XenForo_Template_Abstract $template)
+	{
+		$options = XenForo_Application::get('options');
+	
+		if ($template instanceof XenForo_Template_Admin && !$options->Bbm_Bm_SetInAdmin)
+		{
+			break;
+		}
+	
+		if(!empty($options->bbm_debug_tinymcehookdisable))
+		{
+			break;
+		}
+
+		//CHECK IF QUATTRO IS ENABLE
+		$activeAddons = XenForo_Model::create('XenForo_Model_DataRegistry')->get('addOns');
+		$quattroEnable = (!empty($activeAddons['sedo_tinymce_quattro'])) ? true : false;
+
+		//Which editor is being used? $options->quattro_iconsize is only use to check if the addon is installed or enable
+	       	$visitor = XenForo_Visitor::getInstance();
+		$editor = (empty($visitor->permissions['sedo_quattro']['display']) || !$quattroEnable) ? 'xen' : 'mce';
+
+		self::$editor = $editor;
+
+		//Get buttons config
+		$myConfigs = XenForo_Model::create('XenForo_Model_DataRegistry')->get('bbm_buttons');
+							
+		if(empty($myConfigs))
+		{
+				break;
+		}
+
+		//Only use the configuration for the current editor
+		$myConfigs = $myConfigs['bbm_buttons'][$editor];
+	
+		//Check which Editor type must be used
+		$config_type = self::_bakeEditorConfig($template, $options, $visitor, $myConfigs);
+	
+		if(empty($myConfigs[$config_type]['config_buttons_order']))
+		{
+			break;
+		}
+
+		$params = self::_bakeExtraParams($myConfigs[$config_type]['config_buttons_full'], $options, $visitor);
+
+		$bbmButtonsJsGrid = $params['bbmButtonsJsGrid'];
+		$bbmCustomButtons = $params['bbmCustomButtons'];
+		
+		$output = "<script>var BBM_Redactor = {	buttonsGrid: [$bbmButtonsJsGrid],customButtonsConfig:{";
+		
+		$i = 1;
+		$total = count($bbmCustomButtons);
+		
+		foreach($bbmCustomButtons as $button)
+		{
+			$coma = ($i != $total) ? ',' : '';
+			$tag = $button['tag'];
+			$code =  $button['code'];
+			$desc = XenForo_Template_Helper_Core::jsEscape($button['description']);
+			$opts = XenForo_Template_Helper_Core::jsEscape($button['tagOptions']);
+			$content = XenForo_Template_Helper_Core::jsEscape($button['tagContent']);
+			$separator = XenForo_Template_Helper_Core::jsEscape($button['seprarator']);
+		
+			$output .= "$code:{tag:\"$tag\",code:\"$code\",description:\"$desc\",tagOptions:\"$opts\",tagContent:\"$content\",separator:\"$separator\"}$coma";
+		}
+		
+		$output .= '}};</script>';
+		
+		return $output;
+	}
+
 }
 //	Zend_Debug::dump($abc);

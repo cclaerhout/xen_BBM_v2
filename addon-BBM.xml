@@ -2810,23 +2810,31 @@ span.mce_bbm_spoiler {
     <template title="bbm_editor_extra_info" version_id="0" version_string="1.0"><![CDATA[<p>{xen:phrase bbm_controller_name} <b>{$controllerName}</b></p>
 <p>{xen:phrase bbm_controller_action} <b>{$controllerAction}</b></p>
 <p>{xen:phrase bbm_view_name} <b>{$viewName}</b></p>]]></template>
-    <template title="bbm_editor_js_setup" version_id="13" version_string="2.0.4"><![CDATA[<script>
-var BBM_Redactor = {
-	buttonsGrid: [{xen:raw $bbmButtonsJsGrid}],
-	customButtonsConfig:
-	{<xen:foreach loop="{$bbmCustomButtons}" value="$button" i="$i" count="$total">
-		{$button.code}:
-		{
-			tag: "{$button.tag}",
-			code: "{$button.code}",
-			description:  "{xen:jsescape {$button.description}}",
-			tagOptions: "{xen:jsescape {$button.tagOptions}}",
-			tagContent: "{xen:jsescape {$button.tagContent}}",
-			separator: "{xen:jsescape {$button.separator}}"
-		}{xen:if '{$i} != {$total}', ','}
-	</xen:foreach>}
-}
-</script>
+    <template title="bbm_editor_js_setup" version_id="14" version_string="2.0.5"><![CDATA[<xen:if is="!{$bbmButtonsJsGrid}">
+	<xen:callback class="BBM_Listeners_Templates_Preloader" method="getJsConfig" />
+<xen:else />
+	<script>
+	var BBM_Redactor = {
+		buttonsGrid: [{xen:raw $bbmButtonsJsGrid}],
+		customButtonsConfig:
+		{<xen:foreach loop="{$bbmCustomButtons}" value="$button" i="$i" count="$total">
+			{$button.code}:
+			{
+				tag: "{$button.tag}",
+				code: "{$button.code}",
+				description:  "{xen:jsescape {$button.description}}",
+				tagOptions: "{xen:jsescape {$button.tagOptions}}",
+				tagContent: "{xen:jsescape {$button.tagContent}}",
+				separator: "{xen:jsescape {$button.separator}}"
+			}{xen:if '{$i} != {$total}', ','}
+		</xen:foreach>}
+	}
+	</script>
+</xen:if>
+
+
+
+
 
 <xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
     <template title="bbm_js" version_id="0" version_string="1.0"><![CDATA[<xen:require css="bbm_buttons.css" />
