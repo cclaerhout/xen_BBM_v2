@@ -6,17 +6,24 @@
 	{
 		__construct: function($textarea)
 		{
+			var un = 'undefined';
+			
+			if(typeof BBM_Redactor === un)
+				return false;
+
 			var redactorOptions = $textarea.data('options'),
 			myButtons = this.createCustomButtons(),
 			myOptions = {
 				editorOptions:{
 					//plugins: ['test', 'test2'],
-					buttons: BBM_Redactor.buttonsGrid
 				},
 				buttons: myButtons
 			};
 
-			if(typeof RedactorPlugins == 'undefined')
+			if(BBM_Redactor.buttonsGrid.length !== 0)
+				myOptions.editorOptions.buttons = BBM_Redactor.buttonsGrid;
+
+			if(typeof RedactorPlugins === un)
 				RedactorPlugins = {};
 
 			$textarea.data('options', $.extend(redactorOptions, myOptions));

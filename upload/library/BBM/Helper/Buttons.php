@@ -13,7 +13,7 @@ class BBM_Helper_Buttons
 		/*Init*/
 		$options = XenForo_Application::get('options');
 		$visitor = XenForo_Visitor::getInstance();
-		
+
 		if(!empty($options->bbm_debug_tinymcehookdisable))
 		{
 			return self::_fallBack();
@@ -442,18 +442,42 @@ class BBM_Helper_Buttons
 		{
 			return self::_mceFallback();
 		}
-		
-		return self::_xenFallback();
+		elseif(self::$editor == 'xen')
+		{
+			return self::_xenFallback();
+		}
+		else
+		{
+			return self::_safeFallback();
+		}
 	}
 	
 	protected static function _mceFallback()
 	{
-	
+		return array(
+			'quattroGrid' => array(),
+			'customQuattroButtonsCss' => array(),
+			'customQuattroButtonsJs' => array()
+		);	
 	}
 
 	protected static function _xenFallback()
 	{
-	
-	}	
+		return array(
+			'bbmButtonsJsGrid' => '',
+			'bbmCustomButtons' => array()
+		);	
+	}
+
+	protected static function _safeFallback()
+	{
+		return array(
+			'quattroGrid' => array(),
+			'customQuattroButtonsCss' => array(),
+			'customQuattroButtonsJs' => array(),
+			'bbmButtonsJsGrid' => '',
+			'bbmCustomButtons' => array()
+		);	
+	}		
 }
 //Zend_Debug::dump($bbmEditor);

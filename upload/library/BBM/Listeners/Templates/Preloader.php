@@ -33,9 +33,21 @@ class BBM_Listeners_Templates_Preloader
 				$controllerName = $template->getParam('controllerName');
 				$controllerAction = $template->getParam('controllerAction');
 				$viewName = $template->getParam('viewName');
-			
+
 				$extraParams = BBM_Helper_Buttons::getConfig($controllerName, $controllerAction, $viewName);
-				$params = $extraParams+$params; //array + operator: first params overrides the second - is said faster than array_merge
+
+				/***
+					Merge extra params to template params
+					> The first method is to use the array + operator -  params of first element overrides params of second element
+					> The second method is to use the array_merge function - params of second element should overrides params of the first
+					  unless if the key is a figure (if I understood the php documentation)
+					  
+					Selected method: first
+					Reason: it is said to be faster
+				**/
+				
+				$params = $extraParams+$params;			// First method
+				//$params = array_merge($params,$extraParams);	// Second method
 				
 	   			break;
 		   	case 'forum_edit':
@@ -55,7 +67,7 @@ class BBM_Listeners_Templates_Preloader
 
 	/***
 		REDACTOR: Template callback if needed
-		=> will be used as a fallback	
+		=> will be used as a safety fallback	
 	*/
 
 	public static function getJsConfig($content, $params, XenForo_Template_Abstract $template)
@@ -76,7 +88,7 @@ class BBM_Listeners_Templates_Preloader
 		$bbmButtonsJsGrid = $params['bbmButtonsJsGrid'];
 		$bbmCustomButtons = $params['bbmCustomButtons'];
 		
-		$output = "<script>var BBM_Redactor = {	buttonsGrid: [$bbmButtonsJsGrid],customButtonsConfig:{";
+		$output = "var BBM_Redactor = {	buttonsGrid: [$bbmButtonsJsGrid],customButtonsConfig:{";
 		
 		$i = 1;
 		$total = count($bbmCustomButtons);
@@ -97,10 +109,9 @@ class BBM_Listeners_Templates_Preloader
 			}
 		}
 		
-		$output .= '}};</script>';
+		$output .= '}};';
 		
 		return $output;
 	}
-
 }
 //	Zend_Debug::dump($abc);
