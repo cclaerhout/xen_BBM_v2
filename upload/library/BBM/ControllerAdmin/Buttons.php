@@ -542,6 +542,8 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		{
 			$btnType = (isset($button['quattro_button_type'])) ? $button['quattro_button_type'] : '';
 
+			$button['safetag'] = str_replace('@', 'at_', $button['tag']);			
+
 			if(	(isset($button['class']) && $button['class'] == 'xenButton')
 				|| empty($btnType) || $btnType == 'manual'
 			)
@@ -566,7 +568,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 					'icon_class' =>  'mce-ico',
 					'icon_set_class' => $this->_getMceClass($iconSet)
 				);
-
+				
 				$this->_buttonsWithCustomCss[$button['tag']] = $button;
 			}
 		}

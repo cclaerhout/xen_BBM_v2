@@ -522,7 +522,7 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 		
 		if($file->getName() != 'bbm_bbcodes')
 		{
-			throw new XenForo_Exception(new XenForo_Phase('bbm_xml_invalid'), true);
+			throw new XenForo_Exception(new XenForo_Phrase('bbm_xml_invalid'), true);
 		}
 
 		$BbCodes = count($file->BbCode);

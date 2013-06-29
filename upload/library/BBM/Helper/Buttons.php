@@ -16,7 +16,7 @@ class BBM_Helper_Buttons
 
 		if(!empty($options->bbm_debug_tinymcehookdisable))
 		{
-			return self::_fallBack();
+			return self::_fallBack(1);
 		}
 
 		$language = $visitor->getLanguage();
@@ -36,6 +36,12 @@ class BBM_Helper_Buttons
 
 		//Which editor is being used? $options->quattro_iconsize is only use to check if the addon is installed or enable
 		$editor = (empty($visitor->permissions['sedo_quattro']['display']) || !$quattroEnable) ? 'xen' : 'mce';
+		
+		if(XenForo_Application::get('options')->get('currentVersionId') < 1020031)
+		{
+			$editor = 'mce';
+		}
+		
 		self::$editor = $editor;
 
 		//Get buttons config
@@ -43,7 +49,7 @@ class BBM_Helper_Buttons
 							
 		if(empty($myConfigs))
 		{
-			return self::_fallBack();
+			return self::_fallBack(2);
 		}
 
 		//Only use the configuration for the current editor
@@ -51,10 +57,10 @@ class BBM_Helper_Buttons
 	
 		//Check which Editor type must be used
 		$config_type = self::_bakeEditorConfig($myConfigs);
-	
+
 		if(empty($myConfigs[$config_type]['config_buttons_order']))
 		{
-			return self::_fallBack();
+			return self::_fallBack(3);
 		}
 
 		return self::_bakeExtraParams($myConfigs[$config_type]['config_buttons_full'], $options, $visitor);
@@ -436,8 +442,9 @@ class BBM_Helper_Buttons
 		return $string;		
 	}
 
-	protected static function _fallBack()
+	protected static function _fallBack($debug)
 	{
+//		var_dump($debug);
 		if(self::$editor == 'mce')
 		{
 			return self::_mceFallback();
