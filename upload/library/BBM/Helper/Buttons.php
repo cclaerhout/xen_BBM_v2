@@ -298,7 +298,7 @@ class BBM_Helper_Buttons
 					'iconSet' => $iconSet,
 					'type' => $btnType,
 					'typeOption' => self::_detectPhrases($button['quattro_button_type_opt']),
-					'return' => $button['quattro_button_return'],
+					'return' => (!empty($button['killCmd'])) ? 'kill' : $button['quattro_button_return'],
 					'returnOption' => self::_detectPhrases($button['quattro_button_return_opt']),
 					'description' => self::_detectPhrases($button['buttonDesc']),
 					'tagOptions' => self::_detectPhrases($button['tagOptions']),
