@@ -340,11 +340,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			return $viewPermissionsReturn;
 		}
 
-		$fallBackContent = (isset($tag['children'][0])) ? $tag['children'][0] : '';//If tag is empty
-		$fallBack = htmlspecialchars($tag['original'][0] . $fallBackContent . $tag['original'][1]);
 		$content = $this->renderSubTree($tag['children'], $rendererStates);
+		$fallBack = htmlspecialchars($tag['original'][0]) . $content . htmlspecialchars($tag['original'][1]);
+
 		$startRange = $tagInfo['start_range'];
-		$endRange = $tagInfo['end_range'];		
+		$endRange = $tagInfo['end_range'];
 
 		preg_match_all('#{(\d+?)=([^}]*)}#ui', $startRange.$endRange, $captures, PREG_SET_ORDER);
 		
