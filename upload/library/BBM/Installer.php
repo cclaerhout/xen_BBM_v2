@@ -117,6 +117,15 @@ class BBM_Installer
 			}		
 		}
 
+		if(empty($addon) || $addon['version_id'] < 23)
+		{
+			self::addColumnIfNotExist($db, 'bbm', 'redactor_has_icon', "INT(1) NOT NULL DEFAULT '0'");
+			self::addColumnIfNotExist($db, 'bbm', 'redactor_sprite_mode', "INT(1) NOT NULL DEFAULT '0'");
+			self::addColumnIfNotExist($db, 'bbm', 'redactor_sprite_params_x', "INT(11) NOT NULL DEFAULT '0'");
+			self::addColumnIfNotExist($db, 'bbm', 'redactor_sprite_params_y', "INT(11) NOT NULL DEFAULT '0'");
+			self::addColumnIfNotExist($db, 'bbm', 'redactor_image_url', "TINYTEXT NULL DEFAULT NULL");		
+		}
+
 		//Generate simple cache (users don't need anymore to edit a bbcode and save it (without operating any change) to activate the Simple Cache
 		XenForo_Model::create('BBM_Model_BbCodes')->simplecachedActiveBbCodes(); 
 	}

@@ -208,7 +208,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$options = XenForo_Application::get('options');
 		$this->_xenContentCheck = $options->Bbm_XenContentCheck;
 		$this->_bbmSeparator = $options->Bbm_BbCode_Options_Separator;
-		$this->_bbmPatchAlignBbCode = $options->Bbm_PatchAlignBbCode;
 		$disabledXenTags = !empty($options->Bbcm_xenTags_disabled) ? $options->Bbcm_xenTags_disabled : array(); 
 		
 		if($options->Bbm_wrapper_img != 'none' && !in_array('img', $disabledXenTags) )
@@ -1072,36 +1071,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		return $string;
-	}
-
-	/****
-	*	TAG ALIGN FIX @extended
-	***/
-	protected $_bbmPatchAlignBbCode;
-	
-	public function renderTagAlign(array $tag, array $rendererStates)
-	{
-		if(!$this->_bbmPatchAlignBbCode)
-		{		
-			return parent::renderTagAlign($tag, $rendererStates);
-		}
-		
-		$text = $this->renderSubTree($tag['children'], $rendererStates);
-		if (trim($text) === '')
-		{
-			$text = '<br />';
-		}
-
-		switch (strtolower($tag['tag']))
-		{
-			case 'left':
-			case 'center':
-			case 'right':
-				return '<div align="' . $tag['tag'] . '">' . $text . '</div>';
-
-			default:
-				return $text;
-		}
 	}
 
 	/****

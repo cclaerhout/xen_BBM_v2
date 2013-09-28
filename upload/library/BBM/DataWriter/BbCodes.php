@@ -77,7 +77,13 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 				'imgMethod' 	=> array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 20), // Depreciated
 				'buttonDesc' 	=> array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 255),
 				'tagOptions' 	=> array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 255),
-				'tagContent' 	=> array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 255)
+				'tagContent' 	=> array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 255),
+				
+				'redactor_has_icon' => array('type' => self::TYPE_UINT, 'default' => 0),
+				'redactor_sprite_mode' => array('type' => self::TYPE_UINT, 'default' => 0),
+				'redactor_sprite_params_x' => array('type' => self::TYPE_INT, 'default' => 0),
+				'redactor_sprite_params_y' => array('type' => self::TYPE_INT, 'default' => 0),
+				'redactor_image_url' => array('type' => self::TYPE_STRING, 'default' => '')
 			)
 		);
 	}

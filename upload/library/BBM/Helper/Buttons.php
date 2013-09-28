@@ -332,6 +332,7 @@ class BBM_Helper_Buttons
 		
 		$buttonsGrid = array();
 		$customButtons = array();
+		$customButtonsCss = array();
 		
 		$btn_group_id = 1;
 
@@ -394,6 +395,20 @@ class BBM_Helper_Buttons
 					'separator' => (empty($button['options_separator'])) ? $options->Bbm_BbCode_Options_Separator : $button['options_separator']
 				);
 			}
+
+			if(!empty($button['redactor_has_icon']) && !empty($button['redactor_image_url']))
+			{			
+				$customButtonsCss[] = array(
+					'tag'	=> $tag,
+					'code' => $code,
+					'url' => $button['redactor_image_url'],
+					'isSprite' => $button['redactor_sprite_mode'],
+					'pos' => array(
+						'x' =>$button['redactor_sprite_params_x'],
+						'y' => $button['redactor_sprite_params_y']
+					)
+				);
+			}
 		}
 
 		$buttonsJsGrid = '';
@@ -410,7 +425,8 @@ class BBM_Helper_Buttons
 
 		return array(
 			'bbmButtonsJsGrid' => $buttonsJsGrid,
-			'bbmCustomButtons' => $customButtons
+			'bbmCustomButtons' => $customButtons,
+			'bbmCustomCss' => $customButtonsCss
 		);
 	}
 	
@@ -472,7 +488,8 @@ class BBM_Helper_Buttons
 	{
 		return array(
 			'bbmButtonsJsGrid' => '',
-			'bbmCustomButtons' => array()
+			'bbmCustomButtons' => array(),
+			'bbmCustomCss' => array()
 		);	
 	}
 
@@ -483,7 +500,8 @@ class BBM_Helper_Buttons
 			'customQuattroButtonsCss' => array(),
 			'customQuattroButtonsJs' => array(),
 			'bbmButtonsJsGrid' => '',
-			'bbmCustomButtons' => array()
+			'bbmCustomButtons' => array(),
+			'bbmCustomCss' => array()
 		);	
 	}		
 }

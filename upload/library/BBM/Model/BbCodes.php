@@ -402,6 +402,13 @@ class BBM_Model_BbCodes extends XenForo_Model
 				  $tagOptions->appendChild($document->createCDATASection($bbcode['tagOptions']));
 				$tagContent = $Button->appendChild($document->createElement('tagContent', ''));
 				  $tagContent->appendChild($document->createCDATASection($bbcode['tagContent']));
+
+				$Button->appendChild($document->createElement('redactor_has_icon', $bbcode['redactor_has_icon']));
+				$Button->appendChild($document->createElement('redactor_sprite_mode', $bbcode['redactor_sprite_mode']));
+				$Button->appendChild($document->createElement('redactor_sprite_params_x', $bbcode['redactor_sprite_params_x']));
+				$Button->appendChild($document->createElement('redactor_sprite_params_y', $bbcode['redactor_sprite_params_y']));
+				$RedactorImageUrl = $Button->appendChild($document->createElement('redactor_image_url', ''));
+				  $RedactorImageUrl->appendChild($document->createCDATASection($bbcode['redactor_image_url']));
 		}
 
 		return $document;
@@ -480,7 +487,8 @@ class BBM_Model_BbCodes extends XenForo_Model
 						'parser_has_usr', 'parser_usr', 'parser_return', 'parser_return_delay', 
 						'view_has_usr', 'view_usr', 'view_return', 'view_return_delay',
 						'hasButton', 'button_has_usr', 'button_usr', 'killCmd', 'custCmd', 'imgMethod', 'buttonDesc', 'tagOptions', 'tagContent',
-						'quattro_button_type', 'quattro_button_type_opt', 'quattro_button_return', 'quattro_button_return_opt'
+						'quattro_button_type', 'quattro_button_type_opt', 'quattro_button_return', 'quattro_button_return_opt',
+						'redactor_has_icon', 'redactor_sprite_mode', 'redactor_image_url', 'redactor_sprite_params_x', 'redactor_sprite_params_y'
 					);
 
 			foreach($keysToCheck as $k)
@@ -567,6 +575,13 @@ class BBM_Model_BbCodes extends XenForo_Model
 				  $tagOptions->appendChild($document->createCDATASection($bbcode['tagOptions']));
 				$tagContent = $Button->appendChild($document->createElement('tagContent', ''));
 				  $tagContent->appendChild($document->createCDATASection($bbcode['tagContent']));
+
+				$Button->appendChild($document->createElement('redactor_has_icon', $bbcode['redactor_has_icon']));
+				$Button->appendChild($document->createElement('redactor_sprite_mode', $bbcode['redactor_sprite_mode']));
+				$Button->appendChild($document->createElement('redactor_sprite_params_x', $bbcode['redactor_sprite_params_x']));
+				$Button->appendChild($document->createElement('redactor_sprite_params_y', $bbcode['redactor_sprite_params_y']));
+				$RedactorImageUrl = $Button->appendChild($document->createElement('redactor_image_url', ''));
+				  $RedactorImageUrl->appendChild($document->createCDATASection($bbcode['redactor_image_url']));
 		}
 
 		return $document;

@@ -181,7 +181,8 @@ class BBM_Model_Buttons extends XenForo_Model
 			'tag', 'tag_id', 'hasButton', 'button_has_usr',
 			'killCmd', 'custCmd', 'buttonDesc', 'tagOptions', 'tagContent', //imgMethod has been depreciated
 			'quattro_button_type', 'quattro_button_type_opt', 'quattro_button_return', 'quattro_button_return_opt',
-			'button_usr', 'active', 'options_separator')
+			'button_usr', 'active', 'options_separator', 'redactor_has_icon', 'redactor_sprite_mode', 'redactor_sprite_params_x',
+			'redactor_sprite_params_y', 'redactor_image_url')
 		);
 		
 		$buttonData = array_intersect_key($buttonData, $datasToKeep);

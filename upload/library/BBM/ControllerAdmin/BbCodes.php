@@ -196,7 +196,7 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 		}
 
 		//Button users
-		if(isset($code['button_usr']) AND !empty($code['button_usr']))
+		if(!empty($code['button_usr']))
 		{
 			$code['button_usr'] = unserialize($code['button_usr']);
 		}
@@ -204,7 +204,7 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 		$code['button_usr_list'] = $this->_getBbmBBCodeModel()->getUserGroupOptions($code['button_usr']);
 
 		//Parser users
-		if(isset($code['parser_usr']) AND !empty($code['parser_usr']))
+		if(!empty($code['parser_usr']))
 		{
 			$code['parser_usr'] = unserialize($code['parser_usr']);
 		}
@@ -212,7 +212,7 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 		$code['parser_usr_list'] = $this->_getBbmBBCodeModel()->getUserGroupOptions($code['parser_usr']);
 
 		//View users
-		if(isset($code['view_usr']) AND !empty($code['view_usr']))
+		if(!empty($code['view_usr']))
 		{
 			$code['view_usr'] = unserialize($code['view_usr']);
 		}
@@ -382,7 +382,13 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 				'imgMethod' => XenForo_Input::STRING, //Depreciated
 				'buttonDesc' => XenForo_Input::STRING,
 				'tagOptions' => XenForo_Input::STRING,
-				'tagContent' => XenForo_Input::STRING
+				'tagContent' => XenForo_Input::STRING,
+
+				'redactor_has_icon' => XenForo_Input::UINT,
+				'redactor_sprite_mode' => XenForo_Input::UINT,
+				'redactor_sprite_params_x' => XenForo_Input::INT,
+				'redactor_sprite_params_y' => XenForo_Input::INT,
+				'redactor_image_url' => XenForo_Input::STRING
 		));
 
 		//Button autofill (will avoid DW error) | To do: check this in the DW directly
@@ -717,7 +723,13 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 				'imgMethod' => (string) $BbCode->Button->imgMethod, //depreciated
 				'buttonDesc' => (string) $BbCode->Button->buttonDesc,
 				'tagOptions' => (string) $BbCode->Button->tagOptions,
-				'tagContent' => (string) $BbCode->Button->tagContent
+				'tagContent' => (string) $BbCode->Button->tagContent,
+
+				'redactor_has_icon' => (int) $BbCode->Button->redactor_has_icon,
+				'redactor_sprite_mode' => (int) $BbCode->Button->redactor_sprite_mode,
+				'redactor_sprite_params_x' => (int) $BbCode->Button->redactor_sprite_params_x,
+				'redactor_sprite_params_y' => (int) $BbCode->Button->redactor_sprite_params_y,
+				'redactor_image_url' => (string) $BbCode->Button->redactor_image_url
 			);
 			
 		return $builder;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.1.4" version_id="21" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.2.0" version_id="23" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="bbCodeAndSmilies" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="bbCodeAndSmilies" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -64,7 +64,11 @@
 <xen:require css="code_event.css" />
 <xen:require js="js/bbm/adminTools.js" />
 
-<xen:form action="{xen:adminlink 'bbm-bbcodes/save', $code}" class="xenForm AutoValidator" data-redirect="true">
+<xen:form action="{xen:adminlink 'bbm-bbcodes/save', $code}"
+	class="xenForm AutoValidator" 
+	data-icon-output="#IconEditorOutput img"
+	data-xensprite="{xen:phrase bbm_buttons_xensprites_url}"
+	data-redirect="true">
 
 	<ul class="tabs Tabs" data-panes="#forumPanes > li">
 		<li class="active"><a>{xen:phrase bbm_general_options_title}</a></li>
@@ -327,6 +331,37 @@
 				<xen:option name="killCmd" selected="{$code.killCmd}">{xen:phrase bbm_buttons_killcmd_activate_question}</xen:option>
 			</xen:checkboxunit>
 			<xen:textboxunit label="{xen:phrase bbm_buttons_custcmd}:" name="custCmd" value="{$code.custCmd}" explain="{xen:phrase bbm_buttons_custcmd_Desc}" />
+
+			<fieldset id="bbm_redactor_btn_config">
+				<xen:checkboxunit label="{xen:phrase bbm_buttons_has_redactor_icon}:">
+					<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
+				</xen:checkboxunit>
+
+				<div id="IconEditorOutput"><div class="secondaryContent">
+					<xen:if is="{$code.redactor_has_icon}">
+						<xen:if is="{$code.redactor_sprite_mode}">
+							<img src="styles/default/xenforo/clear.png" alt="" style="
+								background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
+						<xen:else />
+							<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
+						</xen:if>
+					<xen:else />
+						<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
+					</xen:if>
+				</div></div>
+
+				<xen:textboxunit label="{xen:phrase image_replacement_url}:" name="redactor_image_url" value="{$code.redactor_image_url}" explain="{xen:phrase bbm_buttons_redactor_image_url}" />
+		    
+				<xen:checkboxunit label="{xen:phrase sprite_mode}:">
+					<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
+				</xen:checkboxunit>
+				
+				<xen:controlunit label="{xen:phrase sprite_position}:">
+					<xen:spinbox name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" inputclass="Tooltip OptOut" />
+					<xen:spinbox name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" inputclass="Tooltip OptOut" />
+					px
+				</xen:controlunit>
+			</fieldset>
 		</li>
 	</ul>
 
@@ -402,6 +437,38 @@
 
 .options_separator{
 	text-align:center;
+}
+
+.bbm_btn_comptability{
+	font-weight: bolder;
+	color: #FF8370;
+}
+
+#IconEditorOutput{
+	height: 30px;
+	max-width: 100px;
+	overflow: hidden;
+	margin-left: auto;
+	margin-right: auto;
+}
+	
+#IconEditorOutput div{
+	border: 1px solid {xen:property primaryLighterStill};
+	border-radius: 2px;
+	padding: 0;
+	height: 24px;
+	width: 24px;
+}
+	
+#IconEditorOutput div img{
+	margin: 1px;
+	display: block;
+}
+
+#xenSpriteInsert{
+	font-decoration:underline;
+	color: orange;
+	cursor:pointer;
 }]]></template>
     <template title="bbm_bb_codes_edit_overlay"><![CDATA[<xen:title>{xen:if '{$code.tag}', '{xen:phrase bbm_edit_bbcode_tag}: {$code.title}', '{xen:phrase bbm_add_bbcode}'}</xen:title>
 
@@ -409,7 +476,9 @@
 <xen:require css="code_event.css" />
 <xen:require js="js/bbm/adminTools.js" />
 
-<xen:form action="{xen:adminlink 'bbm-bbcodes/save', $code}">
+<xen:form action="{xen:adminlink 'bbm-bbcodes/save', $code}"
+	data-icon-output="#IconEditorOutput img"
+	data-xensprite="{xen:phrase bbm_buttons_xensprites_url}">
 
 	<xen:textboxunit label="{xen:phrase bbm_bbcode_title}:" name="title" value="{$code.title}" explain="{xen:phrase bbm_bbcode_title_desc}" />
 	<xen:textboxunit label="{xen:phrase bbm_bbcode_desc}:" name="description" value="{$code.description}" explain="{xen:phrase bbm_bbcode_desc_desc}" />
@@ -660,6 +729,37 @@
 			<xen:option name="killCmd" selected="{$code.killCmd}">{xen:phrase bbm_buttons_killcmd_activate_question}</xen:option>
 		</xen:checkboxunit>
 		<xen:textboxunit label="{xen:phrase bbm_buttons_custcmd}:" name="custCmd" value="{$code.custCmd}" explain="{xen:phrase bbm_buttons_custcmd_Desc}" />
+
+		<fieldset id="bbm_redactor_btn_config">
+			<xen:checkboxunit label="{xen:phrase bbm_buttons_has_redactor_icon}:">
+				<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
+			</xen:checkboxunit>
+
+			<div id="IconEditorOutput"><div class="secondaryContent">
+				<xen:if is="{$code.redactor_has_icon}">
+					<xen:if is="{$code.redactor_sprite_mode}">
+						<img src="styles/default/xenforo/clear.png" alt="" style="
+							background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
+					<xen:else />
+						<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
+					</xen:if>
+				<xen:else />
+					<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
+				</xen:if>
+			</div></div>
+
+			<xen:textboxunit label="{xen:phrase image_replacement_url}:" name="redactor_image_url" value="{$code.redactor_image_url}" explain="{xen:phrase bbm_buttons_redactor_image_url}" />
+		    
+			<xen:checkboxunit label="{xen:phrase sprite_mode}:">
+				<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
+			</xen:checkboxunit>
+				
+			<xen:controlunit label="{xen:phrase sprite_position}:">
+				<xen:spinbox size="10" name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" />
+				<xen:spinbox size="10" name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" />
+				px
+			</xen:controlunit>
+		</fieldset>
 	</fieldset>
 
 
@@ -2004,13 +2104,6 @@ i.mce-text {
       <sub_options></sub_options>
       <relation group_id="bbm_bbcodemanager" display_order="9002"/>
     </option>
-    <option option_id="Bbm_PatchAlignBbCode" edit_format="radio" data_type="boolean" can_backup="1">
-      <default_value>0</default_value>
-      <edit_format_params>1={xen:phrase bbm_options_yes}
-0={xen:phrase bbm_options_no}</edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="110"/>
-    </option>
     <option option_id="Bbm_TagsMap_DebugInfo" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
@@ -2187,7 +2280,9 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_bm_option_title_new" version_id="0" version_string="1.0"><![CDATA[New configuration]]></phrase>
     <phrase title="bbm_bm_option_view_name" version_id="0" version_string="1.0"><![CDATA[View name]]></phrase>
     <phrase title="bbm_btn_quattro_button_return_opt" version_id="10" version_string="2.0"><![CDATA[Button return option]]></phrase>
-    <phrase title="bbm_btn_quattro_button_return_opt_desc" version_id="1" version_string="1.0.1"><![CDATA[This field is at the moment only use for the template method to get the template. Don't enter here the template name, but its <b>dialog suffix</b>. The template prefix will always be "quattro_dialog_bbm_", then comes the dialog suffix which must entered here. Ie: if you want to load the template "quattro_dialog_bbm_demo", enter here <b>demo</b>.
+    <phrase title="bbm_btn_quattro_button_return_opt_desc" version_id="22" version_string="2.1.5"><![CDATA[This field is at the moment only use for the template method to get the template. Don't enter here the template name, but its <b>dialog suffix</b>. The template prefix will always be "quattro_dialog_bbm_", then comes the dialog suffix which must entered here. Ie: if you want to load the template "quattro_dialog_bbm_demo", enter here <b>demo</b>.<br />
+<br />
+<span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro
 ]]></phrase>
     <phrase title="bbm_btn_quattro_button_type_opt" version_id="10" version_string="2.0"><![CDATA[Button type option]]></phrase>
     <phrase title="bbm_bulkexport" version_id="0" version_string="1.0"><![CDATA[Bulk Export]]></phrase>
@@ -2201,7 +2296,9 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_buttons_btn_type_manual" version_id="10" version_string="2.0"><![CDATA[Manual]]></phrase>
     <phrase title="bbm_buttons_btn_type_text" version_id="10" version_string="2.0"><![CDATA[Text]]></phrase>
     <phrase title="bbm_buttons_buttondesc" version_id="0" version_string="1.0"><![CDATA[Button description]]></phrase>
-    <phrase title="bbm_buttons_buttondesc_Desc" version_id="0" version_string="1.0"><![CDATA[Button description is used to display the description of the button on mouse over.]]></phrase>
+    <phrase title="bbm_buttons_buttondesc_Desc" version_id="22" version_string="2.1.5"><![CDATA[Button description is used to display the description of the button on mouse over.<br />
+<br />
+<span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro, XenForo Redactor]]></phrase>
     <phrase title="bbm_buttons_configuration" version_id="0" version_string="1.0"><![CDATA[TinyMCE Buttons Configuration]]></phrase>
     <phrase title="bbm_buttons_configuration_question" version_id="0" version_string="1.0"><![CDATA[Which options would you like to configure?]]></phrase>
     <phrase title="bbm_buttons_custcmd" version_id="0" version_string="1.0"><![CDATA[Bbm button name]]></phrase>
@@ -2211,6 +2308,8 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_buttons_editor_rtl" version_id="0" version_string="1.0"><![CDATA[RTL Editor Visual Management (Right-to-Left)]]></phrase>
     <phrase title="bbm_buttons_hasbutton" version_id="0" version_string="1.0"><![CDATA[Editor button]]></phrase>
     <phrase title="bbm_buttons_hasbutton_question" version_id="0" version_string="1.0"><![CDATA[Activate the button inside the Buttons Manager?]]></phrase>
+    <phrase title="bbm_buttons_has_redactor_icon" version_id="22" version_string="2.1.5"><![CDATA[XenForo Redactor Icon]]></phrase>
+    <phrase title="bbm_buttons_has_redactor_icon_question" version_id="22" version_string="2.1.5"><![CDATA[Activate an icon to use with the XenForo Redactor editor?]]></phrase>
     <phrase title="bbm_buttons_homepage_error_quattro" version_id="2" version_string="1.0.2"><![CDATA[TinyMCE Quattro is not installed or its version is below 1.02. Please install or upgrade it first.]]></phrase>
     <phrase title="bbm_buttons_img_method_css" version_id="0" version_string="1.0"><![CDATA[Css image]]></phrase>
     <phrase title="bbm_buttons_img_method_desc" version_id="0" version_string="1.0"><![CDATA[<b>&gt; Direct Image:</b><br />
@@ -2228,35 +2327,47 @@ If you choose this method, you will need to create yourself a CSS for the TinyMC
     <phrase title="bbm_buttons_killcmd_activate_question" version_id="0" version_string="1.0"><![CDATA[Bypass above commands?]]></phrase>
     <phrase title="bbm_buttons_Options_desc" version_id="0" version_string="1.0"><![CDATA[The options below are to create a button for this Bb code in order to customize the TinyMCE editor]]></phrase>
     <phrase title="bbm_buttons_Options_Title" version_id="0" version_string="1.0"><![CDATA[Editor button]]></phrase>
-    <phrase title="bbm_buttons_quattro_btn_type_opt_desc" version_id="10" version_string="2.0"><![CDATA[This field use depends on the above option.<br />
+    <phrase title="bbm_buttons_quattro_btn_type_opt_desc" version_id="22" version_string="2.1.5"><![CDATA[This field use depends on the above option.<br />
 <br />
 1) If you selected <b>Manual</b>, you should let this field blank. If you don't, you can setup the button css classes: use at least "btn" if you want to have the default button layout. All classes will be applied the prefix "<b>mce-</b>".<br />
 2) If you have selected <b>Text</b>, use this field to enter the text of your button<br />
-3) If you have selected an <b>icons set</b>, use this field to enter the icon unicode (without <b>\</b> ) . Ie: e02a]]></phrase>
-    <phrase title="bbm_buttons_return_desc" version_id="10" version_string="2.0"><![CDATA[You can select two kinds of return.<br />
+3) If you have selected an <b>icons set</b>, use this field to enter the icon unicode (without <b>\</b> ) . Ie: e02a<br />
+<br />
+<span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro]]></phrase>
+    <phrase title="bbm_buttons_redactor_image_url" version_id="22" version_string="2.1.5"><![CDATA[To use the default XenForo sprite, <span id="xenSpriteInsert">click here</span>.]]></phrase>
+    <phrase title="bbm_buttons_return_desc" version_id="22" version_string="2.1.5"><![CDATA[You can select two kinds of return.<br />
 <br />
 1) The <b>direct</b> method will use the below fields "Tag options" and "Tag content" (or simply the tag) to insert a Bb Code in the editor. <br />
-2) The <b>template</b> method will load a template in an overlay window. You will have to include a JavaScript inside this template to manage the submit. An example has been included in TinyMCE quattro, just check the "quattro_dialog_bbm_<b>demo</b>" template.
+2) The <b>template</b> method will load a template in an overlay window. You will have to include a JavaScript inside this template to manage the submit. An example has been included in TinyMCE quattro, just check the "quattro_dialog_bbm_<b>demo</b>" template.<br />
+<br />
+<span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro
 ]]></phrase>
     <phrase title="bbm_buttons_return_title" version_id="10" version_string="2.0"><![CDATA[Button return]]></phrase>
     <phrase title="bbm_buttons_saved_ajax" version_id="0" version_string="1.0"><![CDATA[Buttons saved:]]></phrase>
     <phrase title="bbm_buttons_tagcontent" version_id="0" version_string="1.0"><![CDATA[Tag content]]></phrase>
-    <phrase title="bbm_buttons_tagcontent_Desc" version_id="0" version_string="1.0"><![CDATA[The tag content is used to automatically add a content between the Bb code tags.<br />
-Ie: [bbcode]<b>content</b>[/bbcode]]]></phrase>
+    <phrase title="bbm_buttons_tagcontent_Desc" version_id="22" version_string="2.1.5"><![CDATA[The tag content is used to automatically add a content between the Bb code tags.<br />
+Ie: [bbcode]<b>content</b>[/bbcode]<br />
+<br />
+<span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro]]></phrase>
     <phrase title="bbm_buttons_tagoptions" version_id="0" version_string="1.0"><![CDATA[Tag options]]></phrase>
-    <phrase title="bbm_buttons_tagoptions_Desc" version_id="0" version_string="1.0"><![CDATA[Tag option is used to insert an option inside the Bb code opening tag. <br />
+    <phrase title="bbm_buttons_tagoptions_Desc" version_id="22" version_string="2.1.5"><![CDATA[Tag option is used to insert an option inside the Bb code opening tag. <br />
 Ie: [bbcode=<b>options</b>]content[/bbcode]<br />
-You can't use here the following characters: =[] (it would break the Bb code)]]></phrase>
-    <phrase title="bbm_buttons_type_desc" version_id="10" version_string="2.0"><![CDATA[Select here which type of button you want:<br />
+You can't use here the following characters: =[] (it would break the Bb code)<br />
+<br />
+<span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro]]></phrase>
+    <phrase title="bbm_buttons_type_desc" version_id="22" version_string="2.1.5"><![CDATA[Select here which type of button you want:<br />
 <br />
 1) <b>Manual</b> means you will have to customize yourself the css. Use this option if you plan to use a classic icon. <br />
 2) <b>Text</b> means you will have a text button. <br />
 3) <b>TinyMCE icons set</b> means you will use a font icon from the official TinyMCE font icons set. <br />
-4) <b>TinyMCE icons set</b> means you will use a font icon from the XenForo  font icons set.]]></phrase>
+4) <b>TinyMCE icons set</b> means you will use a font icon from the XenForo  font icons set.<br />
+<br />
+<span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro]]></phrase>
     <phrase title="bbm_buttons_type_title" version_id="10" version_string="2.0"><![CDATA[Button type]]></phrase>
     <phrase title="bbm_buttons_usergroups_activation" version_id="0" version_string="1.0"><![CDATA[Activate permissions for this button?]]></phrase>
     <phrase title="bbm_buttons_usergroups_list" version_id="0" version_string="1.0"><![CDATA[Usergroups List]]></phrase>
     <phrase title="bbm_buttons_usergroups_permissions" version_id="0" version_string="1.0"><![CDATA[Usergroups permissions]]></phrase>
+    <phrase title="bbm_buttons_xensprites_url" version_id="23" version_string="2.2.0"><![CDATA[styles/default/xenforo/editor/icons.png]]></phrase>
     <phrase title="bbm_callback_arguments" version_id="0" version_string="1.0"><![CDATA[Arguments]]></phrase>
     <phrase title="bbm_callback_arguments_list" version_id="0" version_string="1.0"><![CDATA[<ol>
 	<li><code><em>array</em> $tag</code> - all information about the tag.</li>
@@ -2585,8 +2696,6 @@ Default option is: no.]]></phrase>
     <phrase title="option_Bbm_HideTagsInFastPreview_explain" version_id="0" version_string="1.0"><![CDATA[This option will hide tags in thread fast preview.]]></phrase>
     <phrase title="option_Bbm_Params_DebugInfo" version_id="0" version_string="1.0"><![CDATA[[DEBUG] Display available params in the formatter]]></phrase>
     <phrase title="option_Bbm_Params_DebugInfo_explain" version_id="0" version_string="1.0"><![CDATA[If activate, these debug information can only be seen by admins.]]></phrase>
-    <phrase title="option_Bbm_PatchAlignBbCode" version_id="0" version_string="1.0"><![CDATA[Activate new Align BbCode]]></phrase>
-    <phrase title="option_Bbm_PatchAlignBbCode_explain" version_id="0" version_string="1.0"><![CDATA[Use htm 'align' code instead of css 'text-align' code for the [ALIGN] bbcode. This option will align correctly all Bbcodes. See <a href="http://xenforo.com/community/threads/xenforo-align-left-center-right-bbcodes-with-new-bbcodes.29397/">problem, description here</a>. Default option is: no.]]></phrase>
     <phrase title="option_Bbm_TagsMap_DebugInfo" version_id="0" version_string="1.0"><![CDATA[[DEBUG] Display Tags Map]]></phrase>
     <phrase title="option_Bbm_TagsMap_DebugInfo_explain" version_id="0" version_string="1.0"><![CDATA[This option will display the Tags Map and some debug information. This information can only be seen by admins.]]></phrase>
     <phrase title="option_Bbm_TagsMap_Disable" version_id="0" version_string="1.0"><![CDATA[Disable the Tags Map System]]></phrase>
@@ -2754,13 +2863,13 @@ Default option is: no.]]></phrase>
 }
 
 ]]></template>
-    <template title="bbm_bbcode_spoiler" version_id="0" version_string="1.0"><![CDATA[<xen:require js="js/bbm/bbcodes.js" />
+    <template title="bbm_bbcode_spoiler" version_id="22" version_string="2.1.5"><![CDATA[<xen:require js="js/bbm/bbcodes.js" />
 <xen:require css="bbm_bbcode_spoiler.css" />
 
 <xen:if is="{$options.1}">
-	<xen:set var="$buttonText">{$options.1}{xen:phrase bbm_bbcode_spoiler_open}</xen:set>
-	<xen:set var="$hideText">{$options.1}{xen:phrase bbm_bbcode_spoiler_close}</xen:set>
-	<xen:set var="$noScriptHelp"><noscript><span class="bbm_spoil_noscript_hastitle">{$options.1}</span> <span class="bbm_spoil_noscript_desc">{xen:phrase bbm_bbcode_spoiler_noscript_desc_generic}</span></noscript></xen:set>
+	<xen:set var="$buttonText">{xen:raw $options.1}{xen:phrase bbm_bbcode_spoiler_open}</xen:set>
+	<xen:set var="$hideText">{xen:raw $options.1}{xen:phrase bbm_bbcode_spoiler_close}</xen:set>
+	<xen:set var="$noScriptHelp"><noscript><span class="bbm_spoil_noscript_hastitle">{xen:raw $options.1}</span> <span class="bbm_spoil_noscript_desc">{xen:phrase bbm_bbcode_spoiler_noscript_desc_generic}</span></noscript></xen:set>
 <xen:else />
 	<xen:set var="$buttonText">{xen:phrase bbm_bbcode_spoiler_showspoiler}</xen:set>
 	<xen:set var="$hideText">{xen:phrase bbm_bbcode_spoiler_hidespoiler}</xen:set>
@@ -2778,7 +2887,12 @@ Default option is: no.]]></phrase>
 		<div class="bbm_spoiler_noscript"><blockquote>{xen:raw $content}</blockquote></div>
 	</div>
 </div>]]></template>
-    <template title="bbm_bbcode_spoiler.css" version_id="17" version_string="2.1.0"><![CDATA[.bbmSpoilerBlock .bbm_spoil_noscript_desc
+    <template title="bbm_bbcode_spoiler.css" version_id="22" version_string="2.1.5"><![CDATA[.bbmSpoilerBlock .quotecontent > .bbm_spoiler > blockquote
+{
+	{xen:property bbCodeQuoteMessage}
+}
+
+.bbmSpoilerBlock .bbm_spoil_noscript_desc
 {
 	font-style:italic;
 	font-size:7pt;
@@ -2800,6 +2914,8 @@ Default option is: no.]]></phrase>
 {
 	color:{xen:property contentText};
 }
+
+
 
 .bbmSpoilerBlock iframe, .bbmSpoilerBlock object, .bbmSpoilerBlock embed {
 	max-height: none;
@@ -2840,6 +2956,23 @@ span.mce_bbm_spoiler {
 
 
 <xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
+    <template title="bbm_editor_redactor_autocss" version_id="23" version_string="2.2.0"><![CDATA[<xen:if is="{$bbmCustomCss}">
+	<style type="text/css">
+		<xen:foreach loop="$bbmCustomCss" value="$button">
+			.redactor_toolbar li a.redactor_btn_{$button.code},
+			.redactor_toolbar li a.redactor_btn_{$button.code}:hover {
+				<xen:if is="{$button.isSprite} AND {$button.url} == {xen:phrase bbm_buttons_xensprites_url}">
+					background-position: {$button.pos.x}px {$button.pos.y}px;
+				<xen:elseif is="{$button.isSprite}" />
+					background-image: url("{$button.url}");
+					background-position: {$button.pos.x}px {$button.pos.y}px;
+				<xen:else />
+					background: url("{$button.url}") 0 0;
+				</xen:if>
+			}
+		</xen:foreach>
+	</style>
+</xen:if>]]></template>
     <template title="bbm_js" version_id="0" version_string="1.0"><![CDATA[<xen:require css="bbm_buttons.css" />
 
 ]]></template>
@@ -2880,6 +3013,13 @@ span.mce_bbm_spoiler {
       <replace><![CDATA[<xen:if is="{$xenOptions.currentVersionId} >= 1020031">
 		<xen:callback class="BBM_Listeners_Templates_Preloader" method="getJsConfig" />
 	</xen:if>]]></replace>
+    </modification>
+    <modification template="editor" modification_key="bbm_redactor_autocss" description="Auto css for Custom Buttons" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(^.*$)#s]]></find>
+      <replace><![CDATA[<xen:include template="bbm_editor_redactor_autocss" />
+
+
+$1]]></replace>
     </modification>
     <modification template="editor_js_setup" modification_key="bbm_redactor_setup" description="Custom Buttons for Redactor" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#<xen:require js="js/xenforo/bb_code_edit\.js" />#]]></find>
