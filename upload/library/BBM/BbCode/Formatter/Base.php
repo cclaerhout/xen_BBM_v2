@@ -1189,6 +1189,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	 **/
 	protected $_bbmRecursiveMode = false;
 
+	/***
+	 *  To remap some values (old key to new key). 
+	 **/
+	protected $_bbmRemapOptions = false;
+
 	//@extended
 	public function setView(XenForo_View $view = null)
 	{
@@ -1197,44 +1202,61 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		if ($view)
 		{
 			$params = $view->getParams();
-
 			$this->_checkIfDebug($params);
 
 			/**
 			 *  For posts: check thread & posts
 			 **/
-			if(isset($params['posts']) && $this->_disableTagsMap == false && !isset($params['bbm_config']))
+			if(	isset($params['posts']) && isset($params['thread']) 
+				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
+			)
 			{
 				$this->_bbmMessageKey = 'message';
 				$this->_bbmExtraKeys = array('signature');
 
-				if(isset($params['thread']))
-				{
-					//If thread is not check this is not very logic
-					$this->_threadParams = $params['thread'];
-				}
-
+				$this->_threadParams = $params['thread'];
 				$this->_postsDatas = $params['posts'];
-				$this->_createBbCodesMap($params['posts']);			
+
+				$this->_createBbCodesMap($this->_postsDatas);			
+			}
+
+			/**
+			 *  For conversations: check conversation & messages
+			 *  It's not perfect, but let's use the same functions than thread & posts
+			 **/
+			if(	isset($params['messages']) && isset($params['conversation']) 
+				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
+			)
+			{
+				$this->_bbmMessageKey = 'message';
+				$this->_bbmExtraKeys = array('signature');
+
+				$this->_threadParams = $params['conversation'];
+				$this->_postsDatas = $params['messages'];
+				
+				$this->_bbmRemapOptions = array(
+					'message_date' => 'post_date',
+					'conversation_id'  => 'post_id'
+				);
+				
+				$this->_createBbCodesMap($this->_postsDatas);			
 			}
 
 			/**
 			 *  For RM (resource & category)
 			 **/
-			if(isset($params['resource']) && $this->_disableTagsMap == false)
+			if(	isset($params['resource']) && isset($params['category'])
+				&& $this->_disableTagsMap == false  && !isset($params['bbm_config'])
+			)
 			{
 				$rm = $params['resource'];
+				$this->_rmParams['category'] = $params['category'];
 				$this->_rmParams = $rm;
-
-				if(isset($params['category']))
-				{
-					$this->_rmParams['category'] = $params['category'];
-				}
 
 				$this->_remapKeyValuesToPostParams(
 					$rm, array(
 						'resource_date' => 'post_date',
-						'resource_id'  => 'post_id',
+						'resource_id'  => 'post_id'
 					), true
 				);
 			}
@@ -1252,29 +1274,82 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					return;
 				}
 				
+				//Main key check				
 				$mainKey = $config['viewParamsMainKey'];
-				$this->_bbmViewParamsMainKey = $mainKey;
-				
+				if(!isset($params[$mainKey])) {
+					Zend_Debug::dump("The main key '{$mainKey}' doesn't exist.");
+					return;				
+				} else {
+					$this->_bbmViewParamsMainKey = $mainKey;				
+				}
+
+				//Targeted key check (optional)
+				$targetedKey = false;
 				if(	!empty($config['viewParamsTargetedKey'])
 					&& $config['viewParamsTargetedKey'] != $config['viewParamsMainKey']
 					&& is_string($config['viewParamsTargetedKey'])
 				){
-					$this->_bbmViewParamsTargetedKey = $config['viewParamsTargetedKey'];
+					$targetedKey = $config['viewParamsTargetedKey'];
+				}
+
+				if(!isset($params[$mainKey][$targetedKey])) {
+					Zend_Debug::dump("The targeted key '{$targetedKey}' doesn't exist.");
+					return;				
+				} else {
+					$this->_bbmViewParamsTargetedKey = $targetedKey;				
 				}
 				
-				if(!empty($config['messageKey']) && is_string($config['messageKey']))
+				//MultiPostMode is TRUE by defaut
+				$multiPostMode = (isset($config['multiPostsMode']) ? $config['multiPostsMode'] : true);
+				$this->_bbmRemapOptions = (isset($config['remapOptions'])) ? $config['remapOptions'] : false;
+
+				if($multiPostMode)
 				{
-					$this->_bbmMessageKey = $config['messageKey'];
-				}
-				
-				if(!empty($config['extraKeys']) && is_array($config['extraKeys']))
-				{
-					$this->_bbmExtraKeys = $config['extraKeys'];
-				}			
+					/***
+					 *  This mode is the one where several nodes (posts) with different posters
+					 *  are loaded on the same page. It requires to create a map of all tags
+					 *  To get the results, use the same functions than to get XenForo Posts/Threads
+					 **/
 					
-				if(isset($config['recursiveMode']))
+					if(!empty($config['messageKey']) && is_string($config['messageKey']))
+					{
+						$this->_bbmMessageKey = $config['messageKey'];
+					}
+					
+					if(!empty($config['extraKeys']) && is_array($config['extraKeys']))
+					{
+						$this->_bbmExtraKeys = $config['extraKeys'];
+					}			
+						
+					if(isset($config['recursiveMode']))
+					{
+						$this->_bbmRecursiveMode = $config['recursiveMode'];
+					}
+					
+					if(isset($config['idKey']))
+					{
+						$this->_bbmIdKey = $config['idKey'];
+					}
+
+					$this->_postsDatas = $params[$mainKey];
+					$this->_createBbCodesMap($params[$mainKey]);
+				}
+				else
 				{
-					$this->_bbmRecursiveMode = $config['recursiveMode'];
+					/***
+					 *  This mode is the one where the elements on the page are coming from the same
+					 *  posters. Ie: the XenForo Ressource Manager
+					 *
+					 *  Let's use again the viewParamsMainKey & viewParamsTargetedKey to keep
+					 *  an unified code
+					 **/
+
+					$sourceValues = ($targetedKey) ? $params[$mainKey][$targetedKey] : $params[$mainKey];
+
+					if(is_array($sourceValues) && is_array($this->_remapOptions))
+					{				
+						$this->_remapKeyValuesToPostParams($sourceValues, $this->_bbmRemapOptions, true);
+					}
 				}
 
 				if(!empty($config['moreInfoParamsKey']))
@@ -1310,14 +1385,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 						$this->_threadParams = $wipInfo;
 					}
 				}
-
-				if(isset($config['idKey']))
-				{
-					$this->_bbmIdKey = $config['idKey'];
-				}
-
-				$this->_postsDatas = $params[$mainKey];
-				$this->_createBbCodesMap($params[$mainKey]);			
 			}
 		}
 	}
@@ -1481,6 +1548,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$this->_currentPostParams = $this->_postsDatas[$postId];
+		
+		if(!empty($this->_bbmRemapOptions) && is_array($this->_bbmRemapOptions))
+		{
+			$this->_remapKeyValuesToPostParams($this->_currentPostParams, $this->_bbmRemapOptions);		
+		}
+
 		$this->_debugInit($tag['tag']);
 	}
 

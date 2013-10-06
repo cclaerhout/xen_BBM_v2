@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.2.0" version_id="23" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.2.1" version_id="24" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="bbCodeAndSmilies" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="bbCodeAndSmilies" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -1434,6 +1434,10 @@ i.mce-text {
 	padding-top:8px;
 }
 
+li.buttons span{
+	white-space: nowrap;
+}
+
 /*! jQuery UI - v1.10.3 - 2013-06-20
 * http://jqueryui.com
 * Includes: jquery.ui.core.css, jquery.ui.resizable.css, jquery.ui.selectable.css, jquery.ui.accordion.css, jquery.ui.autocomplete.css, jquery.ui.button.css, jquery.ui.datepicker.css, jquery.ui.dialog.css, jquery.ui.menu.css, jquery.ui.progressbar.css, jquery.ui.slider.css, jquery.ui.spinner.css, jquery.ui.tabs.css, jquery.ui.tooltip.css
@@ -2355,12 +2359,12 @@ Ie: [bbcode=<b>options</b>]content[/bbcode]<br />
 You can't use here the following characters: =[] (it would break the Bb code)<br />
 <br />
 <span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro]]></phrase>
-    <phrase title="bbm_buttons_type_desc" version_id="22" version_string="2.1.5"><![CDATA[Select here which type of button you want:<br />
+    <phrase title="bbm_buttons_type_desc" version_id="23" version_string="2.2.0"><![CDATA[Select here which type of button you want:<br />
 <br />
 1) <b>Manual</b> means you will have to customize yourself the css. Use this option if you plan to use a classic icon. <br />
 2) <b>Text</b> means you will have a text button. <br />
 3) <b>TinyMCE icons set</b> means you will use a font icon from the official TinyMCE font icons set. <br />
-4) <b>TinyMCE icons set</b> means you will use a font icon from the XenForo  font icons set.<br />
+4) <b>XenForo icons set</b> means you will use a font icon from the XenForo  font icons set.<br />
 <br />
 <span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro]]></phrase>
     <phrase title="bbm_buttons_type_title" version_id="10" version_string="2.0"><![CDATA[Button type]]></phrase>
@@ -2499,7 +2503,8 @@ To enable them, <a href="http://xenforo.com/community/threads/43787" target="_bl
     <phrase title="bbm_parser_options_desc" version_id="0" version_string="1.0"><![CDATA[Select how to transform your Bb code. Three parsing methods are available: <br />direct replacements, template or php callback.]]></phrase>
     <phrase title="bbm_parser_options_label" version_id="0" version_string="1.0"><![CDATA[Parse tag options]]></phrase>
     <phrase title="bbm_parser_options_title" version_id="0" version_string="1.0"><![CDATA[Parser methods]]></phrase>
-    <phrase title="bbm_parser_permissions_desc" version_id="0" version_string="1.0"><![CDATA[Configure those permissions will set if the Bb Code must or must not be parsed. <b>Only works with posts</b>.]]></phrase>
+    <phrase title="bbm_parser_permissions_desc" version_id="23" version_string="2.2.0"><![CDATA[Configure those permissions will set if the Bb Code must or must not be parsed. <b>Should work with posts, conversations & XenForo Resources</b>.<br />
+For other addons, please contact the developer directly.]]></phrase>
     <phrase title="bbm_parser_permissions_title" version_id="0" version_string="1.0"><![CDATA[Parser permissions]]></phrase>
     <phrase title="bbm_parser_return" version_id="0" version_string="1.0"><![CDATA[Unauthorised Return]]></phrase>
     <phrase title="bbm_parser_return_blank" version_id="0" version_string="1.0"><![CDATA[Blank]]></phrase>
@@ -2929,7 +2934,7 @@ span.mce_bbm_spoiler {
     <template title="bbm_editor_extra_info" version_id="0" version_string="1.0"><![CDATA[<p>{xen:phrase bbm_controller_name} <b>{$controllerName}</b></p>
 <p>{xen:phrase bbm_controller_action} <b>{$controllerAction}</b></p>
 <p>{xen:phrase bbm_view_name} <b>{$viewName}</b></p>]]></template>
-    <template title="bbm_editor_js_setup" version_id="17" version_string="2.1.0"><![CDATA[<script>
+    <template title="bbm_editor_js_setup" version_id="23" version_string="2.2.0"><![CDATA[<script>
 <xen:if is="!{$bbmButtonsJsGrid}">
 	<xen:comment>gridCallback</xen:comment>
 <xen:else />
@@ -2950,10 +2955,6 @@ span.mce_bbm_spoiler {
 	}
 </xen:if>
 </script>
-
-
-
-
 
 <xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
     <template title="bbm_editor_redactor_autocss" version_id="23" version_string="2.2.0"><![CDATA[<xen:if is="{$bbmCustomCss}">
