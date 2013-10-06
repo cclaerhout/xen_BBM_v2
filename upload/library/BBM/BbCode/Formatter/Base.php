@@ -7,9 +7,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	***/
 	protected $_bbmTags = null;
 	protected $_xenOriginalTags = array(
-			'b', 'i', 'u', 's', 'color', 'font', 'size', 'left', 'center', 
-			'right', 'indent', 'url', 'email', 'img', 'quote', 'code', 'php', 
-			'html', 'plain', 'media', 'attach');
+		'b', 'i', 'u', 's', 'color', 'font', 'size', 'left', 'center', 
+		'right', 'indent', 'url', 'email', 'img', 'quote', 'code', 'php', 
+		'html', 'plain', 'media', 'attach');
 	protected $_xenContentCheck;
 	protected $_bbmSeparator;
 
@@ -166,18 +166,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		  				
 		  			if($bbm['view_has_usr'])
 		  			{
-						$visitorUserGroupIds = array_merge(
-							array((string)$visitor['user_group_id']),
-							(explode(',', $visitor['secondary_group_ids']))
-						);
+						$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
 						$visitorsOk = unserialize($bbm['view_usr']);
 						$canViewBbCode = (array_intersect($visitorUserGroupIds, $visitorsOk)) ? true : false;
 						
 						$allBbmTags[$bbm['tag']]['view_perms']['can_view_content'] = $canViewBbCode;
 		  				$allBbmTags[$bbm['tag']]['view_perms']['view_return'] = $bbm['view_return'];	
 
-		      				if(	$bbm['view_return'] == 'default_template' 
-		      					&& array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
+		      				if($bbm['view_return'] == 'default_template' && array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
 		      				{
 		      					$this->_preloadBbmTemplates[] = 'bbm_viewer_content_protected';
 		      				}
@@ -1150,6 +1146,48 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_bbCodesMap = null;
 	protected $_bbCodesIncrementation = array();
 	protected $_currentPostParams = null;
+	protected $_useDefaultPostParams = false;
+	
+	/****
+	*	GET RESSOURCE/CATEGORY PARAMS
+	***/
+	protected $_rmParams = null;
+
+	/***
+	 *  When you pass the view in the Bb Codes formaters, your have set a main key
+	 *  Ie: for XenForo posts, it's "posts", for XenForo thread, it's "thread", for Extra Portal it's "items"
+	 **/
+	protected $_bbmViewParamsMainKey = '';
+
+	/***
+	 *  Most of the time, the targeted key (the one that will contain the messages to parse) is the main key,
+	 *  but some addons uses a subkey to stock all elements (ie: Extra portal, items['data']) . Just use this variable to specify
+	 *  this array sub key (ie: data). This parameter is optional
+	 **/
+	protected $_bbmViewParamsTargetedKey = null;
+
+	/***
+	 *  The message key (string) where Bb Codes will be parsed. Should me 'message' most of the time
+	 **/
+	protected $_bbmMessageKey = 'message';
+
+	/***
+	 *  The id key for the item (use for debuging)
+	 **/
+	protected $_bbmIdKey = 'post_id';
+
+	/***
+	 *  All extra keys to check (array). This parameter is important. To try to have data per posts, an itterator is used to create a map of the parsing tags.
+	 *  If somes tags are not in the map the parser will still parse them, but the map will not be accurate anymore. For example, in XenForo posts
+	 *  the signature will be all parsed. So the signature key must be added.
+	 **/
+	protected $_bbmExtraKeys = array();
+
+	/***
+	 *  To avoid to specify all above extra keys that must be checked you can select to use a recursive itterator that will look for all keys with string values
+	 *  inside the Targeted key. The admin board can also select to use this mode in the addon options.
+	 **/
+	protected $_bbmRecursiveMode = false;
 
 	//@extended
 	public function setView(XenForo_View $view = null)
@@ -1161,21 +1199,49 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$params = $view->getParams();
 
 			$this->_checkIfDebug($params);
-		
-			if(isset($params['thread']) && $this->_disableTagsMap == false)
+
+			/**
+			 *  For posts: check thread & posts
+			 **/
+			if(isset($params['posts']) && $this->_disableTagsMap == false && !isset($params['bbm_config']))
 			{
-				$this->_threadParams = $params['thread'];
-			}
-			
-			if(isset($params['posts']) && $this->_disableTagsMap == false)
-			{
-				$this->_messageKey = 'message';
-				$this->_extraKeys = array('signature');
+				$this->_bbmMessageKey = 'message';
+				$this->_bbmExtraKeys = array('signature');
+
+				if(isset($params['thread']))
+				{
+					//If thread is not check this is not very logic
+					$this->_threadParams = $params['thread'];
+				}
+
 				$this->_postsDatas = $params['posts'];
-				
-				$this->_createBbCodesMap($params['posts']);
+				$this->_createBbCodesMap($params['posts']);			
 			}
 
+			/**
+			 *  For RM (resource & category)
+			 **/
+			if(isset($params['resource']) && $this->_disableTagsMap == false)
+			{
+				$rm = $params['resource'];
+				$this->_rmParams = $rm;
+
+				if(isset($params['category']))
+				{
+					$this->_rmParams['category'] = $params['category'];
+				}
+
+				$this->_remapKeyValuesToPostParams(
+					$rm, array(
+						'resource_date' => 'post_date',
+						'resource_id'  => 'post_id',
+					), true
+				);
+			}
+
+			/**
+			 *  For Custom Addons
+			 **/
 			if(isset($params['bbm_config']) && $this->_disableTagsMap == false)
 			{
 				$config = $params['bbm_config'];
@@ -1256,41 +1322,49 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 	}
 
-	/***
-	 *  When you pass the view in the Bb Codes formaters, your have set a main key
-	 *  Ie: for XenForo posts, it's "posts", for XenForo thread, it's "thread", for Extra Portal it's "items"
+	/**
+	 * Let's map some key values to Post Params to avoid rewrite some Bb Codes
+	 * Important values: post_date, user_id, post_id, user_group_id, secondary_group_ids
 	 **/
-	protected $_bbmViewParamsMainKey = '';
+	protected function _remapKeyValuesToPostParams(array $values, array $remapOptions, $useDefaultPostParams = false)
+	{
+		if($useDefaultPostParams)
+		{
+			$this->_useDefaultPostParams = true;
+		}
+		
+		$keyValues = array('post_date', 'user_id', 'post_id', 'user_group_id', 'secondary_group_ids');
+		
+		foreach($remapOptions as $originalKey => $postParamKey)
+		{
+			if(!isset($values[$originalKey])){
+				continue;
+			}
+			
+			if(isset($this->_currentPostParams[$postParamKey])){
+				continue;
+			}
+			
+			$this->_currentPostParams[$postParamKey] = $values[$originalKey];
+			
+			$key = array_search($postParamKey, $keyValues);
+		
+			if($key !== false)
+			{
+				unset($keyValues[$key]);
+			}
+		}
 
-	/***
-	 *  Most of the time, the targeted key (the one that will contain the messages to parse) is the main key,
-	 *  but some addons uses a subkey to stock all elements (ie: Extra portal, items['data']) . Just use this variable to specify
-	 *  this array sub key (ie: data). This parameter is optional
-	 **/
-	protected $_bbmViewParamsTargetedKey = null;
-
-	/***
-	 *  The message key (string) where Bb Codes will be parsed. Should me 'message' most of the time
-	 **/
-	protected $_bbmMessageKey = 'message';
-
-	/***
-	 *  The id key for the item (use for debuging)
-	 **/
-	protected $_bbmIdKey = 'post_id';
-
-	/***
-	 *  All extra keys to check (array). This parameter is important. To try to have data per posts, an itterator is used to create a map of the parsing tags.
-	 *  If somes tags are not in the map the parser will still parse them, but the map will not be accurate anymore. For example, in XenForo posts
-	 *  the signature will be all parsed. So the signature key must be added.
-	 **/
-	protected $_bbmExtraKeys = array();
-
-	/***
-	 *  To avoid to specify all above extra keys that must be checked you can select to use a recursive itterator that will look for all keys with string values
-	 *  inside the Targeted key. The admin board can also select to use this mode in the addon options.
-	 **/
-	protected $_bbmRecursiveMode = false;
+		foreach($keyValues as $keyValue)
+		{
+			if(!isset($values[$keyValue]))
+			{
+				continue;
+			}
+			
+			$this->_currentPostParams[$keyValue] = $values[$keyValue];
+		}
+	}
 
 	protected function _createBbCodesMap($posts = NULL)
 	{
@@ -1376,6 +1450,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	protected function _bakeCurrentPostParams($tag)
 	{
+		if($this->_useDefaultPostParams)
+		{
+			return $this->_currentPostParams;
+		}
+
 		$id = $this->_getCurrentTagId($tag);
 		$tagName = $tag['tag'];
 
@@ -1441,6 +1520,33 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return NULL;
 	}
 
+	public function getRmParams()
+	{
+		return $this->_rmParams;
+	}
+
+	public function getRmParam($param, $inCategory = false)
+	{
+		if(empty($this->_rmParams))
+		{
+			return NULL;
+		}
+		
+		if(	$inCategory
+			&& !empty($this->_rmParams['category'])
+			&& isset($this->_rmParams['category'][$param])
+		)
+		{
+			return $this->_rmParams['category'][$param];
+		}
+		elseif( !$inCategory && isset($this->_rmParams[$param]) )
+		{
+			return $this->_rmParams['category'][$param];		
+		}
+		
+		return NULL;
+	}
+
 	public function getPostParams()
 	{
 		if(!empty($this->_bbmViewParamsTargetedKey))
@@ -1448,7 +1554,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$dataKey = $this->_bbmViewParamsTargetedKey;
 			return $this->_currentPostParams[$dataKey];
 		}		
-		
+
 		return $this->_currentPostParams;
 	}
 
