@@ -6,7 +6,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	*	CREATE CUSTOM TAGS
 	***/
 	protected $_bbmTags = null;
-	protected $_xenOriginalTags = array('b', 'i', 'u', 's', 'color', 'font', 'size', 'left', 'center', 'right', 'indent', 'url', 'email', 'img', 'quote', 'code', 'php', 'html', 'plain', 'media', 'attach');
+	protected $_xenOriginalTags = array(
+			'b', 'i', 'u', 's', 'color', 'font', 'size', 'left', 'center', 
+			'right', 'indent', 'url', 'email', 'img', 'quote', 'code', 'php', 
+			'html', 'plain', 'media', 'attach');
 	protected $_xenContentCheck;
 	protected $_bbmSeparator;
 
@@ -163,14 +166,18 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		  				
 		  			if($bbm['view_has_usr'])
 		  			{
-						$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
+						$visitorUserGroupIds = array_merge(
+							array((string)$visitor['user_group_id']),
+							(explode(',', $visitor['secondary_group_ids']))
+						);
 						$visitorsOk = unserialize($bbm['view_usr']);
 						$canViewBbCode = (array_intersect($visitorUserGroupIds, $visitorsOk)) ? true : false;
 						
 						$allBbmTags[$bbm['tag']]['view_perms']['can_view_content'] = $canViewBbCode;
 		  				$allBbmTags[$bbm['tag']]['view_perms']['view_return'] = $bbm['view_return'];	
 
-		      				if($bbm['view_return'] == 'default_template' && array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
+		      				if(	$bbm['view_return'] == 'default_template' 
+		      					&& array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
 		      				{
 		      					$this->_preloadBbmTemplates[] = 'bbm_viewer_content_protected';
 		      				}
@@ -558,8 +565,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       		}
 
 		//Increment tags using the XenForo Standard Replacement Method & all other callback methods than bbm
-		if (!empty($tagInfo['replace']) 
-		|| (isset($tagInfo['callback'][1]) && !in_array($tagInfo['callback'][1], array('replacementMethodRenderer', 'PhpMethodRenderer', 'TemplateMethodRenderer')))
+		if (	!empty($tagInfo['replace']) 
+			||
+			(	isset($tagInfo['callback'][1]) 
+				&&
+				!in_array(
+					$tagInfo['callback'][1], 
+					array('replacementMethodRenderer', 'PhpMethodRenderer', 'TemplateMethodRenderer')
+				)
+			)
 		)
 		{
 			$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
@@ -1148,18 +1162,135 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 			$this->_checkIfDebug($params);
 		
-			if(isset($params['posts']) && $this->_disableTagsMap == false)
-			{
-				$this->_postsDatas = $params['posts'];
-				$this->_createBbCodesMap($params['posts']);
-			}
-
 			if(isset($params['thread']) && $this->_disableTagsMap == false)
 			{
 				$this->_threadParams = $params['thread'];
-			}			
+			}
+			
+			if(isset($params['posts']) && $this->_disableTagsMap == false)
+			{
+				$this->_messageKey = 'message';
+				$this->_extraKeys = array('signature');
+				$this->_postsDatas = $params['posts'];
+				
+				$this->_createBbCodesMap($params['posts']);
+			}
+
+			if(isset($params['bbm_config']) && $this->_disableTagsMap == false)
+			{
+				$config = $params['bbm_config'];
+				
+				if(empty($config['viewParamsMainKey']))
+				{
+					Zend_Debug::dump('You must set a Main Key !');
+					return;
+				}
+				
+				$mainKey = $config['viewParamsMainKey'];
+				$this->_bbmViewParamsMainKey = $mainKey;
+				
+				if(	!empty($config['viewParamsTargetedKey'])
+					&& $config['viewParamsTargetedKey'] != $config['viewParamsMainKey']
+					&& is_string($config['viewParamsTargetedKey'])
+				){
+					$this->_bbmViewParamsTargetedKey = $config['viewParamsTargetedKey'];
+				}
+				
+				if(!empty($config['messageKey']) && is_string($config['messageKey']))
+				{
+					$this->_bbmMessageKey = $config['messageKey'];
+				}
+				
+				if(!empty($config['extraKeys']) && is_array($config['extraKeys']))
+				{
+					$this->_bbmExtraKeys = $config['extraKeys'];
+				}			
+					
+				if(isset($config['recursiveMode']))
+				{
+					$this->_bbmRecursiveMode = $config['recursiveMode'];
+				}
+
+				if(!empty($config['moreInfoParamsKey']))
+				{
+					/***
+					 * This key is only to emulate the thread info, in other words 
+					 * to have more info about the current view. It can be used to
+					 * create some Bb Codes. For example if the data from that key 
+					 * speficied the name of one page of your addon and you want to 
+					 * set permissions on that page, you can use this.
+					 * Ok, it's not very clear, so for more information, ask me by pm.
+					 **/
+					 
+					$extraInfoKey = $config['moreInfoParamsKey'];	
+
+					if(is_string($extraInfoKey) && isset($params[$extraInfoKey]))
+					{
+						$this->_threadParams = $params[$extraInfoKey];
+					}
+					elseif(is_array($extraInfoKey))
+					{
+						$wipInfo = array();
+						foreach($extraInfoKey as $info)
+						{
+							if(!isset($params[$extraInfoKey]))
+							{
+								continue;
+							}
+							
+							$wipInfo[] = $params[$extraInfoKey];
+						}
+						
+						$this->_threadParams = $wipInfo;
+					}
+				}
+
+				if(isset($config['idKey']))
+				{
+					$this->_bbmIdKey = $config['idKey'];
+				}
+
+				$this->_postsDatas = $params[$mainKey];
+				$this->_createBbCodesMap($params[$mainKey]);			
+			}
 		}
 	}
+
+	/***
+	 *  When you pass the view in the Bb Codes formaters, your have set a main key
+	 *  Ie: for XenForo posts, it's "posts", for XenForo thread, it's "thread", for Extra Portal it's "items"
+	 **/
+	protected $_bbmViewParamsMainKey = '';
+
+	/***
+	 *  Most of the time, the targeted key (the one that will contain the messages to parse) is the main key,
+	 *  but some addons uses a subkey to stock all elements (ie: Extra portal, items['data']) . Just use this variable to specify
+	 *  this array sub key (ie: data). This parameter is optional
+	 **/
+	protected $_bbmViewParamsTargetedKey = null;
+
+	/***
+	 *  The message key (string) where Bb Codes will be parsed. Should me 'message' most of the time
+	 **/
+	protected $_bbmMessageKey = 'message';
+
+	/***
+	 *  The id key for the item (use for debuging)
+	 **/
+	protected $_bbmIdKey = 'post_id';
+
+	/***
+	 *  All extra keys to check (array). This parameter is important. To try to have data per posts, an itterator is used to create a map of the parsing tags.
+	 *  If somes tags are not in the map the parser will still parse them, but the map will not be accurate anymore. For example, in XenForo posts
+	 *  the signature will be all parsed. So the signature key must be added.
+	 **/
+	protected $_bbmExtraKeys = array();
+
+	/***
+	 *  To avoid to specify all above extra keys that must be checked you can select to use a recursive itterator that will look for all keys with string values
+	 *  inside the Targeted key. The admin board can also select to use this mode in the addon options.
+	 **/
+	protected $_bbmRecursiveMode = false;
 
 	protected function _createBbCodesMap($posts = NULL)
 	{
@@ -1169,10 +1300,27 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$options = XenForo_Application::get('options');
+		$messageKey =  $this->_bbmMessageKey;
+		$extraKeys =  $this->_bbmExtraKeys;
 		
 		foreach($posts as $post_id => $post)
 		{
-			if( !isset($post['message']) )
+			if(!empty($this->_bbmViewParamsTargetedKey))
+			{
+				$subKey = $this->_bbmViewParamsTargetedKey;
+				if( !isset($post[$subKey]) )
+				{
+					continue;
+				}
+				
+				$data = $post[$subKey];
+			}
+			else
+			{
+				$data = $post;
+			}
+
+			if( !isset($data[$messageKey]) )
 			{
 				continue;
 			}
@@ -1180,7 +1328,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			if($options->Bbm_TagsMap_GlobalMethod)
 			{
 				//Global method => will check  all the elements (if they are strings) of the post array
-				$flattenPostIt = new RecursiveIteratorIterator( new RecursiveArrayIterator($post) );
+				$flattenPostIt = new RecursiveIteratorIterator( new RecursiveArrayIterator($data) );
 				$allPostItemsInOne = '';
 				foreach ($flattenPostIt as $postItem)
 				{
@@ -1194,8 +1342,17 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			else
 			{
 				//Restrictive method => will only check the message & signature elements of the post array
-				$target = $post['message'];
-				$target .= (isset($post['signature'])) ? $post['signature'] : '';
+				$target = $data[$messageKey];
+				
+				foreach($extraKeys as $extrakey)
+				{
+					if(!isset($data[$extrakey]) || !is_string($data[$extrakey]))
+					{
+						continue;
+					}	
+					
+					$target .= $data[$extrakey];
+				}
 			}
 
 			$BbCodesTree = $this->getParser()->parse($target);
@@ -1220,7 +1377,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected function _bakeCurrentPostParams($tag)
 	{
 		$id = $this->_getCurrentTagId($tag);
-
 		$tagName = $tag['tag'];
 
 		if( !isset($this->_bbCodesMap[$tagName][$id]) )
@@ -1287,11 +1443,23 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function getPostParams()
 	{
+		if(!empty($this->_bbmViewParamsTargetedKey))
+		{
+			$dataKey = $this->_bbmViewParamsTargetedKey;
+			return $this->_currentPostParams[$dataKey];
+		}		
+		
 		return $this->_currentPostParams;
 	}
 
-	public function getPostParam($param)
+	public function getPostParam($param, $root = false)
 	{
+		if(!empty($this->_bbmViewParamsTargetedKey) && $root != false)
+		{
+			$dataKey = $this->_bbmViewParamsTargetedKey;
+			return $this->_currentPostParams[$dataKey];
+		}
+
 		if( isset($this->_currentPostParams[$param]) )
 		{
 			return $this->_currentPostParams[$param];
@@ -1345,7 +1513,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       		if(self::$debug === true)
       		{
       			$tagId = $this->_bbCodesIncrementation[$tagName];
-      			$postId = $this->getPostParam('post_id');
+      			$postId = $this->getPostParam($this->_bbmIdKey);
       			echo "The tag being processed is $tagName (ID:$tagId - Post ID:$postId)<br />";
       		}
 	}
