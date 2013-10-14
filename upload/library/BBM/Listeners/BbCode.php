@@ -13,7 +13,7 @@ class BBM_Listeners_BbCode
 		
 		        if ($class == 'XenForo_BbCode_Formatter_Base')
 		        {
-		            $extend[] = 'BBM_BbCode_Formatter_Base';
+				$extend[] = 'BBM_BbCode_Formatter_Base';
 		        }
 		        
 		      	if ($class == 'XenForo_ControllerPublic_Help')

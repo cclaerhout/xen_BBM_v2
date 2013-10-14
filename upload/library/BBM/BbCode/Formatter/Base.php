@@ -13,6 +13,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_xenContentCheck;
 	protected $_bbmSeparator;
 
+	protected $_bbmDisableMethod;
+	protected $_bbmImgAllowedUsergroups;
+
 	//@extended
 	public function getTags()
 	{
@@ -212,6 +215,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$this->_xenContentCheck = $options->Bbm_XenContentCheck;
 		$this->_bbmSeparator = $options->Bbm_BbCode_Options_Separator;
 		$disabledXenTags = !empty($options->Bbcm_xenTags_disabled) ? $options->Bbcm_xenTags_disabled : array(); 
+
+		$this->_bbmImgAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_img;
 		
 		if($options->Bbm_wrapper_img != 'none' && !in_array('img', $disabledXenTags) )
 		{
@@ -269,6 +274,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$options = XenForo_Application::get('options');
 		$disabledXenTags = $options->Bbm_xenTags_disabled;
 		$disabledMethod = $options->Bbm_xenTags_disabled_method;
+
+		$this->_bbmDisableMethod = $disabledMethod;	
 		
 		if(empty($disabledXenTags))
 		{
@@ -545,8 +552,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
 	{
+      		//Check if xen tags content can be displayed 
+		$tagInfo = $this->_disableXenTagByUserGroups($tag['tag'], $tagInfo);
+
+      		//Parent function 
 		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
-		
+					
     		/***
 		*	Empty content check: do NOT use the function "renderSubTree" => it will do some problematic loops
     		***/
@@ -602,7 +613,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$this->_loadClass($this->_xenWrappersCallback['class']);
 			call_user_func_array(array($this->_xenWrappersCallback['class'], $this->_xenWrappersCallback['method']), array($tag, $this));
       		}
-      		
+
       		if( isset($tagInfo['wrappingTag']['tag']) )
       		{
       			return $this->wrapMe($tag, $rendererStates, $parent);
@@ -613,6 +624,39 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       		}
 	
 		return $parent;
+	}
+
+	protected function _disableXenTagByUserGroups($tagName, $tagInfo)
+	{
+		//To do: extend
+		if($tagName != 'img')
+		{
+			return $tagInfo;
+		}
+		
+		$usergroup = $this->getPostParam('user_group_id');
+		$secondaryUsergroups = $this->getPostParam('secondary_group_ids');
+
+		if($usergroup && $secondaryUsergroups && $this->_bbmImgAllowedUsergroups)
+		{
+			$posterUserGroupIds = array_merge(array((string)$usergroup), (explode(',', $secondaryUsergroups)));
+			$postersOk = $this->_bbmImgAllowedUsergroups;
+	
+			if(array_intersect($posterUserGroupIds, $postersOk))
+			{
+				if($this->_bbmDisableMethod == 'real')
+				{
+					//This time the real method is faker than the fake one
+					$tagInfo = array('replace' => array('[img]', '[/img]'));
+				}
+				else
+				{
+					$tagInfo = array('replace' => array('', ''));				
+				}
+			}
+		}
+		
+		return $tagInfo;
 	}
 
 	public function parseMultipleOptions($tagOption, $customSeparator)
@@ -747,6 +791,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		);
 	}
 
+	
 	/****
 	*	PERMISSIONS TOOLS
 	***/

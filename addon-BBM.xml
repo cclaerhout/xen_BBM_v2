@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.2.1" version_id="24" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.2.2" version_id="25" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="bbCodeAndSmilies" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="bbCodeAndSmilies" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -2188,6 +2188,12 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_xenforo_bbcodes_control" display_order="310"/>
     </option>
+    <option option_id="Bbm_xenTags_disabled_usrgrp_img" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>BBM_Options_XenOptions::render_usergroups</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="400"/>
+    </option>
     <option option_id="bbm_debug_tinymcehookcontent" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
@@ -2730,6 +2736,8 @@ Default option is: no.]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_explain" version_id="0" version_string="1.0"><![CDATA[If you want to disable one or several of the official XenForo Bb Codes, just select them in the list (use CTRL for a multi selection or to disable a selection).]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_method" version_id="0" version_string="1.0"><![CDATA[Disable methods]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_method_explain" version_id="0" version_string="1.0"><![CDATA[The fake unparsed method will render the Bb Codes with only their content in order to hide their tags.]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_usrgrp_img" version_id="24" version_string="2.2.1"><![CDATA[[IMG] Disable for these usergroups]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_usrgrp_img_explain" version_id="24" version_string="2.2.1"><![CDATA[Disclaimer: this method is experimental.]]></phrase>
     <phrase title="option_group_bbm_bbcodemanager" version_id="0" version_string="1.0"><![CDATA[[Bb Codes & Buttons Manager] Bb Codes Manager]]></phrase>
     <phrase title="option_group_bbm_bbcodemanager_description" version_id="0" version_string="1.0"><![CDATA[Bb Codes Manager Options]]></phrase>
     <phrase title="option_group_bbm_buttonmanager" version_id="0" version_string="1.0"><![CDATA[[Bb Codes & Buttons Manager] Buttons Manager]]></phrase>

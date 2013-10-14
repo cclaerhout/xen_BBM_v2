@@ -25,6 +25,12 @@ class BBM_Options_XenOptions
 		return XenForo_ViewAdmin_Helper_Option::renderOptionTemplateInternal('option_list_option_bbm_multiselect', $view, $fieldPrefix, $preparedOption, $canEdit);
 	}
 
+	public static function render_usergroups(XenForo_View $view, $fieldPrefix, array $preparedOption, $canEdit)
+	{
+		$preparedOption['formatParams'] = XenForo_Model::create('BBM_Options_Model_GetUsergroups')->getUserGroupsOptions($preparedOption['option_value']);
+		return XenForo_ViewAdmin_Helper_Option::renderOptionTemplateInternal('option_list_option_checkbox', $view, $fieldPrefix, $preparedOption, $canEdit);
+	}
+
       	public static function render_xen_tags(XenForo_View $view, $fieldPrefix, array $preparedOption, $canEdit)
       	{
 	        $tags = array('b', 'i', 'u', 's', 'color', 'font', 'size', 'left', 'center', 'right', 'indent', 'url', 'email', 'img', 'quote', 'code', 'php', 'html', 'plain', 'media', 'attach');
