@@ -1294,7 +1294,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				&& $this->_disableTagsMap == false  && !isset($params['bbm_config'])
 			)
 			{
-				var_dump($params['resource']);
 				$rm = $params['resource'];
 				$this->_rmParams['category'] = $params['category'];
 				$this->_rmParams = $rm;
