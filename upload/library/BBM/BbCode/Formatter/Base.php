@@ -1252,7 +1252,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			/**
 			 *  For posts: check thread & posts
 			 **/
-			if(	isset($params['posts']) && isset($params['thread']) 
+			if(	isset($params['posts']) && is_array($params['posts']) && isset($params['thread']) 
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
 			)
 			{
@@ -1269,7 +1269,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			 *  For conversations: check conversation & messages
 			 *  It's not perfect, but let's use the same functions than thread & posts
 			 **/
-			if(	isset($params['messages']) && isset($params['conversation']) 
+			if(	isset($params['messages']) && is_array($params['messages']) && isset($params['conversation']) 
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
 			)
 			{
@@ -1290,10 +1290,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			/**
 			 *  For RM (resource & category)
 			 **/
-			if(	isset($params['resource']) && isset($params['category'])
+			if(	isset($params['resource']) && is_array($params['resource']) &&  isset($params['category'])
 				&& $this->_disableTagsMap == false  && !isset($params['bbm_config'])
 			)
 			{
+				var_dump($params['resource']);
 				$rm = $params['resource'];
 				$this->_rmParams['category'] = $params['category'];
 				$this->_rmParams = $rm;
