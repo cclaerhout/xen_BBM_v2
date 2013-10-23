@@ -30,9 +30,9 @@ class BBM_Listeners_Templates_Preloader
 					break;
 				}
 
-				$controllerName = $template->getParam('controllerName');
-				$controllerAction = $template->getParam('controllerAction');
-				$viewName = $template->getParam('viewName');
+				$controllerName = self::getParam('controllerName', $params);
+				$controllerAction = self::getParam('controllerAction', $params);
+				$viewName = self::getParam('viewName', $params);
 
 				$extraParams = BBM_Helper_Buttons::getConfig($controllerName, $controllerAction, $viewName);
 
@@ -69,6 +69,16 @@ class BBM_Listeners_Templates_Preloader
 		REDACTOR: Template callback if needed
 		=> will be used as a safety fallback	
 	*/
+
+	public static function getParam($key, $params)
+	{
+		if(isset($params[$key]))
+		{
+			return $params[$key];
+		}
+		
+		return null;
+	}
 
 	public static function getJsConfig($content, $params, XenForo_Template_Abstract $template)
 	{

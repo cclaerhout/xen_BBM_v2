@@ -184,12 +184,12 @@ class BBM_Model_Buttons extends XenForo_Model
 			'button_usr', 'active', 'options_separator', 'redactor_has_icon', 'redactor_sprite_mode', 'redactor_sprite_params_x',
 			'redactor_sprite_params_y', 'redactor_image_url')
 		);
-		
+
 		$buttonData = array_intersect_key($buttonData, $datasToKeep);
 		$button_tag = $buttonData['tag'];
 
 		$configs = $this->getAllConfigs();
-		
+
 		foreach ($configs as $config_id => $config)
 		{
 			//Only continue if the config was set & wasn't empty (for ie: user delete a default button before to have set a config)
@@ -222,10 +222,10 @@ class BBM_Model_Buttons extends XenForo_Model
       					break;
       				}
       			}
-     		
+
       			if(!isset($buttonPositionInFull))
       			{
-      				break;
+      				continue;
       			}
       			
       			//Modify the button according to the chosen mode
@@ -241,6 +241,7 @@ class BBM_Model_Buttons extends XenForo_Model
 				}
 
       				//Update button values in the config
+
       				$full[$buttonPositionInFull] = $buttonData;			
 			}
 			elseif($mode == 'delete')
@@ -283,7 +284,7 @@ class BBM_Model_Buttons extends XenForo_Model
       
 			//Update the Registry
 			$this->InsertConfigInRegistry();
-     		}	
+     		}
 	}
 
 	/**

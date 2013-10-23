@@ -73,8 +73,7 @@ class BBM_Options_XenOptions
 			{
 				if(isset($config['config_type']))
 				{
-					$title = 'button_manager_config_' . $config['config_type'];
-					$config['phrase'] = new XenForo_Phrase($title);
+					$config['phrase'] = $config['config_name'];
 				}
 			}
 		}
