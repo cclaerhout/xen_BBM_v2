@@ -92,15 +92,34 @@ class BBM_Options_XenOptions
       	
       	public static function verify_bm_cust(array &$configs, XenForo_DataWriter $dw, $fieldName)
       	{
+		$srcConfigs = XenForo_Model::create('BBM_Model_Buttons')->getOnlyCustomConfigs();
+		$mapEditorTypeByConfig = array();
+
+		foreach($srcConfigs as $editorType =>  $srcConfig)
+		{
+			if(empty($srcConfig['config_type']))
+			{
+				//Should not occur
+				continue;
+			}
+			
+			$mapEditorTypeByConfig[$srcConfig['config_type']] = $srcConfig['config_ed'];
+		}
+		
 		foreach ($configs as $key => &$config)
 		{
 			if(empty($config['controllername']) && empty($config['controlleraction']) && empty($config['viewname']))
 			{
 				unset($configs[$key]);
+				continue;
 			}
+			
 			$config['controllername'] = trim($config['controllername']);
 			$config['controlleraction'] = trim($config['controlleraction']);
 			$config['viewname'] = trim($config['viewname']);
+
+			$type = $config['configtype'];
+			$config['editor'] = $mapEditorTypeByConfig[$type];
 		}
 		
 		ksort($configs);

@@ -126,6 +126,12 @@ class BBM_Installer
 			self::addColumnIfNotExist($db, 'bbm', 'redactor_image_url', "TINYTEXT NULL DEFAULT NULL");		
 		}
 
+		if(empty($addon) || $addon['version_id'] < 27)
+		{
+			$db->query("UPDATE bbm_buttons SET config_name = 'Quattro RTL' WHERE bbm_buttons.config_type = 'rtl'");
+			$db->query("UPDATE bbm_buttons SET config_name = 'Quattro LTR' WHERE bbm_buttons.config_type = 'ltr'");			
+		}
+
 		//Generate simple cache (users don't need anymore to edit a bbcode and save it (without operating any change) to activate the Simple Cache
 		XenForo_Model::create('BBM_Model_BbCodes')->simplecachedActiveBbCodes(); 
 	}

@@ -53,21 +53,28 @@ class BBM_Helper_Buttons
 		}
 
 		//Only use the configuration for the current editor
-		$myConfigs = $myConfigs['bbm_buttons'][$editor];
+		$myConfigs = $myConfigs['bbm_buttons'];
 	
 		//Check which Editor type must be used
-		$config_type = self::_bakeEditorConfig($myConfigs);
+		list($config_ed, $config_type) = self::_bakeEditorConfig($myConfigs, $editor);
 
-		if(empty($myConfigs[$config_type]['config_buttons_order']))
+		if(empty($myConfigs[$config_ed][$config_type]['config_buttons_order']))
 		{
 			return self::_fallBack(3);
 		}
 
-		return self::_bakeExtraParams($myConfigs[$config_type]['config_buttons_full'], $options, $visitor);
+		$extraParams = self::_bakeExtraParams($myConfigs[$config_ed][$config_type]['config_buttons_full'], $options, $visitor);
+		
+		if($editor == 'mce' && $editor != $config_ed)
+		{
+			$extraParams['loadQuattro'] = false;
+		}
+		
+		return $extraParams;
 	}
 
 
-	protected static function _bakeEditorConfig($myConfigs)
+	protected static function _bakeEditorConfig($myConfigs, $theoricalEditor)
 	{
 		$options = XenForo_Application::get('options');
 		$visitor = XenForo_Visitor::getInstance();
@@ -88,8 +95,8 @@ class BBM_Helper_Buttons
 		*	Check controller datas
 		***/
 		$custConfigs = $options->Bbm_Bm_Cust_Config;
-	
-		if(!empty($custConfigs) || is_array($custConfigs))
+
+		if(!empty($custConfigs) && is_array($custConfigs))
 		{
 			$controllerName = self::$controllerName;
 			$controllerAction = self::$controllerAction;
@@ -105,7 +112,9 @@ class BBM_Helper_Buttons
 				
 				if($points > 1)
 				{
-					$scores[$points] = $custConfig['configtype'];
+					$configType = $custConfig['configtype'];
+					$configEd = (isset($custConfig['editor'])) ? $custConfig['editor'] : null;
+					$scores[$points] = array('editor' => $configEd, 'type' => $configType);
 				}
 			}
 			
@@ -113,8 +122,22 @@ class BBM_Helper_Buttons
 			//Sorry but if competitors are ex aequo, the last one wins
 			$winner = $scores[$winnerKey];
 			
+			$winnerEd = $winner['editor'];
+			$winnerConfig = $winner['type'];
+
+			if(empty($winnerEd))
+			{
+				//Might occur if user didn't save again its configuration
+				$winnerEd = $theoricalEditor;
+			}
+
 			//Anti-doping test
-			$config_type = (isset($myConfigs[$winner])) ? $winner : $config_type;
+			if(isset($myConfigs[$winnerEd][$winnerConfig]))
+			{
+				$config_type = $winnerConfig;
+				$theoricalEditor = $winnerEd;
+				self::$editor = $winnerEd;
+			}
 		}
 
 		/****
@@ -132,6 +155,7 @@ class BBM_Helper_Buttons
 			if($editorOptions !== false && $editorOptions != 'disable')
 			{
 				$config_type = $editorOptions;
+				$theoricalEditor = self::_mceOrXenDetectByConfigType($myConfigs, $config_type);
 			}
 		}
 
@@ -144,10 +168,16 @@ class BBM_Helper_Buttons
 			if(XenForo_Visitor::isBrowsingWith('mobile') && $options->Bbm_Bm_Mobile != 'disable')
 			{
 				//is mobile and editor has a style option
-				$config_type = (isset($myConfigs[$options->Bbm_Bm_Mobile])) ? $options->Bbm_Bm_Mobile : $config_type;
+				$checkEdAndConfig = self::_mceOrXenDetectByConfigType($myConfigs, $options->Bbm_Bm_Mobile);
+				
+				if($checkEdAndConfig)
+				{
+					$config_type = $options->Bbm_Bm_Mobile;
+					$theoricalEditor = $checkEdAndConfig;
+				}
 			}
 			
-			return $config_type;
+			return array($theoricalEditor, $config_type);
 		}
 		else
 		{
@@ -156,7 +186,7 @@ class BBM_Helper_Buttons
 			if(!$visitor->getBrowser['isMobile'])
 			{
 				//is not mobile
-				return $config_type;
+				return array($theoricalEditor, $config_type);
 			}
 			
 			if($visitor->getBrowser['isTablet'] && $options->Bbm_Bm_Tablets != 'transparent')
@@ -168,17 +198,46 @@ class BBM_Helper_Buttons
 			if($visitor->getBrowser['isMobile'] && $options->Bbm_Bm_Mobile != 'disable')
 			{
 				//is a mobile device and mobile configuration has been activated
-				$config_type = (isset($myConfigs[$options->Bbm_Bm_Mobile])) ? $options->Bbm_Bm_Mobile : $config_type;
+				$checkEdAndConfig = self::_mceOrXenDetectByConfigType($myConfigs, $options->Bbm_Bm_Mobile);
+				
+				if($checkEdAndConfig)
+				{
+					$config_type = $options->Bbm_Bm_Mobile;
+					$theoricalEditor = $checkEdAndConfig;
+				}
 			}
 			
 			if($visitor->getBrowser['isTablet'] && $options->Bbm_Bm_Tablets != 'disable')
 			{
 				//is a tablet & tablet configuration has been activated
-				$config_type = (isset($myConfigs[$options->Bbm_Bm_Tablets])) ? $options->Bbm_Bm_Tablets : $config_type;				
+				$checkEdAndConfig = self::_mceOrXenDetectByConfigType($myConfigs, $options->Bbm_Bm_Tablets);
+				
+				if($checkEdAndConfig)
+				{
+					$config_type = $options->Bbm_Bm_Tablets;
+					$theoricalEditor = $checkEdAndConfig;
+				}
 			}
 
-			return $config_type;		
+			return array($theoricalEditor, $config_type);
 		}
+	}
+
+	protected static function _mceOrXenDetectByConfigType($configs, $configType)
+	{
+		//May be not the best way to proceed but the easiest
+		if(isset($configs['mce'][$configType]))
+		{
+			self::$editor = 'mce';
+			return 'mce';
+		}
+		elseif(isset($configs['xen'][$configType]))
+		{
+			self::$editor = 'xen';				
+			return 'xen';
+		}
+		
+		return false;
 	}
 	
 	/***

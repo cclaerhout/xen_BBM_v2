@@ -153,7 +153,8 @@ class BBM_Model_Buttons extends XenForo_Model
 	public function getOnlyCustomConfigs()
 	{
 		$configs = $this->getAllConfigs('config_type');
-		unset($configs['ltr'], $configs['rtl'], $configs['redactor']);
+		//unset($configs['ltr'], $configs['rtl'], $configs['redactor']); // Let Redactor
+		unset($configs['ltr'], $configs['rtl']);
 		return $configs;
 	}
 
