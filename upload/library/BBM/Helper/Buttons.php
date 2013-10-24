@@ -122,21 +122,24 @@ class BBM_Helper_Buttons
 			//Sorry but if competitors are ex aequo, the last one wins
 			$winner = $scores[$winnerKey];
 			
-			$winnerEd = $winner['editor'];
-			$winnerConfig = $winner['type'];
-
-			if(empty($winnerEd))
+			if(isset($winner['editor']) && isset($winner['type']))
 			{
-				//Might occur if user didn't save again its configuration
-				$winnerEd = $theoricalEditor;
-			}
+				$winnerEd = $winner['editor'];
+				$winnerConfig = $winner['type'];
 
-			//Anti-doping test
-			if(isset($myConfigs[$winnerEd][$winnerConfig]))
-			{
-				$config_type = $winnerConfig;
-				$theoricalEditor = $winnerEd;
-				self::$editor = $winnerEd;
+				if(empty($winnerEd))
+				{
+					//Might occur if user didn't save again its configuration
+					$winnerEd = $theoricalEditor;
+				}
+
+				//Anti-doping test
+				if(isset($myConfigs[$winnerEd][$winnerConfig]))
+				{
+					$config_type = $winnerConfig;
+					$theoricalEditor = $winnerEd;
+					self::$editor = $winnerEd;
+				}
 			}
 		}
 
