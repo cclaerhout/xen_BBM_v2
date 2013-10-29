@@ -14,7 +14,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_bbmSeparator;
 
 	protected $_bbmDisableMethod;
+
+	protected $_bbmAttachAllowedUsergroups;
+	protected $_bbmEmailAllowedUsergroups;
 	protected $_bbmImgAllowedUsergroups;
+	protected $_bbmUrlAllowedUsergroups;
+	protected $_bbmMediaAllowedUsergroups;
 
 	//@extended
 	public function getTags()
@@ -216,8 +221,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$this->_bbmSeparator = $options->Bbm_BbCode_Options_Separator;
 		$disabledXenTags = !empty($options->Bbcm_xenTags_disabled) ? $options->Bbcm_xenTags_disabled : array(); 
 
+		$this->_bbmAttachAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_attach;
+		$this->_bbmEmailAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_email;
 		$this->_bbmImgAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_img;
-		
+		$this->_bbmUrlAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_url;
+		$this->_bbmMediaAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_media;
+
 		if($options->Bbm_wrapper_img != 'none' && !in_array('img', $disabledXenTags) )
 		{
 			$this->_xenWrappers['img'] = $options->Bbm_wrapper_img;
@@ -552,25 +561,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
 	{
-      		//Check if xen tags content can be displayed 
-		$tagInfo = $this->_disableXenTagByUserGroups($tag['tag'], $tagInfo);
-
-      		//Parent function 
-		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
-					
-    		/***
-		*	Empty content check: do NOT use the function "renderSubTree" => it will do some problematic loops
-    		***/
-      		$content = (isset($tag['children'][0])) ? $tag['children'][0] : '';
-      		if(	(empty($content) && isset($tagInfo['emptyContent_check']))
-      			||
-      			(empty($content) && $this->_xenContentCheck && in_array($tag['tag'], $this->_xenOriginalTags))
-      		)
-      		{
-      			//This will work for all methods
-      			return $this->renderInvalidTag($tag, $rendererStates);
-      		}
-
 		//Increment tags using the XenForo Standard Replacement Method & all other callback methods than bbm
 		if (	!empty($tagInfo['replace']) 
 			||
@@ -590,6 +580,25 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_bakeCurrentPostParams($tag);
 			}
 		}
+
+      		//Check if xen tags content can be displayed 
+		$tagInfo = $this->_disableXenTagByUserGroups($tag['tag'], $tagInfo);
+
+      		//Parent function 
+		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
+					
+    		/***
+		*	Empty content check: do NOT use the function "renderSubTree" => it will do some problematic loops
+    		***/
+      		$content = (isset($tag['children'][0])) ? $tag['children'][0] : '';
+      		if(	(empty($content) && isset($tagInfo['emptyContent_check']))
+      			||
+      			(empty($content) && $this->_xenContentCheck && in_array($tag['tag'], $this->_xenOriginalTags))
+      		)
+      		{
+      			//This will work for all methods
+      			return $this->renderInvalidTag($tag, $rendererStates);
+      		}
 
 		//Xen Standard replacement
 		if (!empty($tagInfo['replace']))
@@ -628,34 +637,67 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	protected function _disableXenTagByUserGroups($tagName, $tagInfo)
 	{
-		//To do: extend
-		if($tagName != 'img')
+		$tagName = strtolower($tagName);
+		
+		if(!in_array($tagName, array('attach', 'email', 'img', 'media', 'url')))
 		{
 			return $tagInfo;
 		}
-		
-		$usergroup = $this->getPostParam('user_group_id');
-		$secondaryUsergroups = $this->getPostParam('secondary_group_ids');
 
-		if($usergroup && $secondaryUsergroups && $this->_bbmImgAllowedUsergroups)
+		$usergroup = $this->getPostParam('user_group_id');
+
+		if($usergroup === NULL)
 		{
-			$posterUserGroupIds = array_merge(array((string)$usergroup), (explode(',', $secondaryUsergroups)));
-			$postersOk = $this->_bbmImgAllowedUsergroups;
-	
-			if(array_intersect($posterUserGroupIds, $postersOk))
+			return $tagInfo;
+		}
+
+		if(	($tagName == 'attach' && !$this->_bbmAttachAllowedUsergroups)	
+			||
+			($tagName == 'email' && !$this->_bbmEmailAllowedUsergroups)
+			||
+			($tagName == 'img' && !$this->_bbmImgAllowedUsergroups) 
+			||
+			($tagName == 'media' && !$this->_bbmMediaAllowedUsergroups)
+			||
+			($tagName == 'url' && !$this->_bbmUrlAllowedUsergroups)
+		)
+		{
+			return $tagInfo;
+		}
+
+		$targetedUsergroups = array();
+
+		switch ($tagName)
+		{
+			case 'attach': 	$targetedUsergroups = $this->_bbmAttachAllowedUsergroups; 
+					break;
+			case 'email': 	$targetedUsergroups = $this->_bbmEmailAllowedUsergroups; 
+					break;
+			case 'img': 	$targetedUsergroups = $this->_bbmImgAllowedUsergroups; 
+					break;
+			case 'media': 	$targetedUsergroups = $this->_bbmMediaAllowedUsergroups; 
+					break;
+			case 'url': 	$targetedUsergroups = $this->_bbmUrlAllowedUsergroups;
+					break;
+		}
+
+		$secondaryUsergroups = $this->getPostParam('secondary_group_ids');
+		$posterUserGroupIds = array_merge(array((string)$usergroup), (explode(',', $secondaryUsergroups)));
+		$postersOk = $targetedUsergroups;
+
+		if(array_intersect($posterUserGroupIds, $postersOk))
+		{
+			if($this->_bbmDisableMethod == 'real')
 			{
-				if($this->_bbmDisableMethod == 'real')
-				{
-					//This time the real method is faker than the fake one
-					$tagInfo = array('replace' => array('[img]', '[/img]'));
-				}
-				else
-				{
-					$tagInfo = array('replace' => array('', ''));				
-				}
+				//This time the real method is faker than the fake one
+				$tagInfo = array('replace' => array("[$tagName]", "[/$tagName]"));
+			}
+			else
+			{
+				$tagInfo = array('replace' => array('', ''));				
 			}
 		}
-		
+	
 		return $tagInfo;
 	}
 
