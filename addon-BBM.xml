@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.3.0 Preview II" version_id="28" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.3.0 Preview II" version_id="29" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="bbCodeAndSmilies" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="bbCodeAndSmilies" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -1049,7 +1049,9 @@ table.bbcm_errors td{
 
 <style type="text/css">
 	<xen:foreach loop="$customCssButtons" value="$button">
-		.mce-i-{$button.safetag}:before	{ content: "\{$button.quattro_button_type_opt}"; }
+		<xen:if is="{$button.quattro_button_type_opt}">
+			.mce-i-{$button.safetag}:before	{ content: "\{$button.quattro_button_type_opt}"; }
+		</xen:if>
 	</xen:foreach>
 </style>
 
@@ -2460,6 +2462,8 @@ Your callback must return the parsed Bb Code.]]></phrase>
     <phrase title="bbm_enable_question" version_id="0" version_string="1.0"><![CDATA[Enable?]]></phrase>
     <phrase title="bbm_end_range" version_id="0" version_string="1.0"><![CDATA[Replacement - End range]]></phrase>
     <phrase title="bbm_end_range_Desc" version_id="0" version_string="1.0"><![CDATA[This range will replace the Bb Code closing tag.]]></phrase>
+    <phrase title="bbm_error_btn_option_cant_be_empty_buttonname_needed" version_id="28" version_string="2.3.0 Preview II"><![CDATA[You have selected a text button for TinyMCE Quattro. You must then set the name of that button in the "Button type option" field.]]></phrase>
+    <phrase title="bbm_error_btn_option_cant_be_empty_buttonunicode_needed" version_id="28" version_string="2.3.0 Preview II"><![CDATA[You have selected a button with an icons set for TinyMCE Quattro. You must then set the unicode of that button in the "Button type option" field.]]></phrase>
     <phrase title="bbm_error_enter_one_replacement_method" version_id="0" version_string="1.0"><![CDATA[Please only select one parsing method. <br />
 You have selected <b>{number}</b> methods: <b>{methods}</b>.]]></phrase>
     <phrase title="bbm_error_enter_one_templatename" version_id="0" version_string="1.0"><![CDATA[If you activate the Template Method, you need to enter a template name.]]></phrase>
@@ -2997,7 +3001,7 @@ span.mce_bbm_spoiler {
 </script>
 
 <xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
-    <template title="bbm_editor_redactor_autocss" version_id="23" version_string="2.2.0"><![CDATA[<xen:if is="{$bbmCustomCss}">
+    <template title="bbm_editor_redactor_autocss" version_id="28" version_string="2.3.0 Preview II"><![CDATA[<xen:if is="{$bbmCustomCss}">
 	<style type="text/css">
 		<xen:foreach loop="$bbmCustomCss" value="$button">
 			.redactor_toolbar li a.redactor_btn_{$button.code},

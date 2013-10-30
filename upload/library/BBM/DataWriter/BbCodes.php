@@ -16,7 +16,12 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 	
 	protected $_existingDataErrorPhrase = 'bbm_bbcode_not_found';
 
-	protected $_xenBbCodes = array('b', 'i', 'u', 's', 'color', 'font', 'size', 'left', 'center', 'right', 'indent', 'url', 'email', 'img', 'quote', 'code', 'php', 'html', 'list', 'plain', 'media', 'attach');
+	protected $_xenBbCodes = array(
+		'b', 'i', 'u', 's', 'color', 
+		'font', 'size', 'left', 'center', 'right', 'indent', 
+		'url', 'email', 'img', 'quote', 'code', 'php', 'html', 
+		'list', 'plain', 'media', 'attach'
+	);
 
 	protected function _getFields()
 	{
@@ -234,7 +239,22 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 				$this->error(new XenForo_Phrase('bbm_error_parser_return_callback_invalid'), 'parserReturn');
 				return false;
 			}
-		}		
+		}
+		
+		$mceButtonType = $this->get('quattro_button_type');
+		$mceButtonOption = $this->get('quattro_button_type_opt');
+
+		if($mceButtonType != 'manual' && !$mceButtonOption)
+		{
+			if($mceButtonType == 'text')
+			{
+				$this->error(new XenForo_Phrase('bbm_error_btn_option_cant_be_empty_buttonname_needed'), 'mceBtnOpt');
+			}
+			else
+				$this->error(new XenForo_Phrase('bbm_error_btn_option_cant_be_empty_buttonunicode_needed'), 'mceBtnOpt');			{
+			}
+			return false;
+		}
 	}
 	
 	protected function _getBbmBbCodeModel()
