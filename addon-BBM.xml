@@ -3008,7 +3008,7 @@ span.mce_bbm_spoiler {
 					background-image: url("{$button.url}");
 					background-position: {$button.pos.x}px {$button.pos.y}px;
 				<xen:else />
-					background: url("{$button.url}") 0 0;
+					background: url("{$button.url}") no-repeat 0 0;
 				</xen:if>
 			}
 		</xen:foreach>
