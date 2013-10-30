@@ -251,7 +251,8 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 				$this->error(new XenForo_Phrase('bbm_error_btn_option_cant_be_empty_buttonname_needed'), 'mceBtnOpt');
 			}
 			else
-				$this->error(new XenForo_Phrase('bbm_error_btn_option_cant_be_empty_buttonunicode_needed'), 'mceBtnOpt');			{
+			{
+				$this->error(new XenForo_Phrase('bbm_error_btn_option_cant_be_empty_buttonunicode_needed'), 'mceBtnOpt');
 			}
 			return false;
 		}
