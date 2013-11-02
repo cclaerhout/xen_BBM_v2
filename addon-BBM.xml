@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.3.0 Preview II" version_id="29" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.3.0" version_id="30" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
-    <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="bbCodeAndSmilies" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
-    <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="bbCodeAndSmilies" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="sedo_bbm" parent_navigation_id="setup" display_order="41" link="" admin_permission_id="" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="sedo_bbm_bbcodes_options" parent_navigation_id="sedo_bbm" display_order="300" link="options/list/bbm_bbcodemanager" admin_permission_id="option" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="sedo_bbm_buttons_options" parent_navigation_id="sedo_bbm" display_order="400" link="options/list/bbm_buttonmanager" admin_permission_id="option" debug_only="0" hide_no_children="0"/>
+    <navigation navigation_id="sedo_bbm_xenbbcodes_opt" parent_navigation_id="sedo_bbm" display_order="310" link="options/list/bbm_xenforo_bbcodes_control" admin_permission_id="option" debug_only="0" hide_no_children="0"/>
   </admin_navigation>
   <admin_permissions>
     <admin_permission admin_permission_id="bbm_BbCodesAndButtons" display_order="9999"/>
@@ -2265,8 +2269,12 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <interface_groups/>
   </permissions>
   <phrases>
-    <phrase title="admin_navigation_bbm_bbcodeManager" version_id="0" version_string="1.0"><![CDATA[[BBM] Bb Codes Manager]]></phrase>
-    <phrase title="admin_navigation_bbm_buttonsManager" version_id="0" version_string="1.0"><![CDATA[[BBM] Buttons Manager]]></phrase>
+    <phrase title="admin_navigation_bbm_bbcodeManager" version_id="29" version_string="2.3.0 Preview II"><![CDATA[Bb Codes Manager]]></phrase>
+    <phrase title="admin_navigation_bbm_buttonsManager" version_id="29" version_string="2.3.0 Preview II"><![CDATA[Buttons Manager]]></phrase>
+    <phrase title="admin_navigation_sedo_bbm" version_id="29" version_string="2.3.0 Preview II"><![CDATA[Bb Codes & Buttons Manager]]></phrase>
+    <phrase title="admin_navigation_sedo_bbm_bbcodes_options" version_id="29" version_string="2.3.0 Preview II"><![CDATA[Bb Codes options (Bbm)]]></phrase>
+    <phrase title="admin_navigation_sedo_bbm_buttons_options" version_id="29" version_string="2.3.0 Preview II"><![CDATA[Buttons Manager options]]></phrase>
+    <phrase title="admin_navigation_sedo_bbm_xenbbcodes_opt" version_id="29" version_string="2.3.0 Preview II"><![CDATA[Bb Codes options (Xen)]]></phrase>
     <phrase title="admin_permission_bbm_BbCodesAndButtons" version_id="0" version_string="1.0"><![CDATA[Manage Bb Codes & Buttons [bbm]]]></phrase>
     <phrase title="bbcm_active" version_id="1" version_string="1.1"><![CDATA[Active]]></phrase>
     <phrase title="bbcm_inactive" version_id="1" version_string="1.1"><![CDATA[Inactive]]></phrase>
