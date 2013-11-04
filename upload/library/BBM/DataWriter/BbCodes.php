@@ -244,7 +244,7 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 		$mceButtonType = $this->get('quattro_button_type');
 		$mceButtonOption = $this->get('quattro_button_type_opt');
 
-		if($mceButtonType != 'manual' && !$mceButtonOption)
+		if($mceButtonType != 'manual' && !$mceButtonOption && !empty($mceButtonType))
 		{
 			if($mceButtonType == 'text')
 			{
