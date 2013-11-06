@@ -4,9 +4,6 @@ class BBM_BbCode_Parser extends XFCP_BBM_BbCode_Parser
 	//This function will override the XenForo one. It's not really possible to extend it
 	protected function _parseTag()
 	{
-		$reflection = new ReflectionClass('XenForo_BbCode_Parser');
-		$instance = $reflection->newInstanceWithoutConstructor();
-		
 		$tagStartPosition = strpos($this->_text, '[', $this->_position);
 		if ($tagStartPosition === false)
 		{
