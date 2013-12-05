@@ -589,11 +589,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					
     		/***
 		*	Empty content check: do NOT use the function "renderSubTree" => it will do some problematic loops
+		*	0 check content solutions: is_numeric() or  $content !== '0'
     		***/
       		$content = (isset($tag['children'][0])) ? $tag['children'][0] : '';
-      		if(	(empty($content) && isset($tagInfo['emptyContent_check']))
+      		if(	(empty($content) && !is_numeric($content) && isset($tagInfo['emptyContent_check']))
       			||
-      			(empty($content) && $this->_xenContentCheck && in_array($tag['tag'], $this->_xenOriginalTags))
+      			(empty($content) && !is_numeric($content) && $this->_xenContentCheck && in_array($tag['tag'], $this->_xenOriginalTags))
       		)
       		{
       			//This will work for all methods
