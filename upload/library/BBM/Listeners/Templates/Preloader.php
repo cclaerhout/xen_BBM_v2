@@ -45,7 +45,7 @@ class BBM_Listeners_Templates_Preloader
 					Selected method: first
 					Reason: it is said to be faster
 				**/
-				
+
 				$params = $extraParams+$params;			// First method
 				//$params = array_merge($params,$extraParams);	// Second method
 				

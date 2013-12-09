@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.3.2" version_id="32" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.3.3" version_id="33" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -1455,10 +1455,21 @@ li.buttons span{
 
 	<xen:textboxunit label="{xen:phrase bbm_config_type}:" name="config_type" value="{$config.config_type}" explain="{xen:phrase bbm_config_type_desc}" />
 	<xen:textboxunit label="{xen:phrase bbm_config_name}:" name="config_name" value="{$config.config_name}" explain="{xen:phrase bbm_config_name_desc}" />
-	<xen:selectunit label="{xen:phrase bbm_config_ed}:" name="config_ed" value="{$config.config_ed}" >	
-		<xen:option value="mce" label="{xen:phrase bbm_config_ed_mce4}" />
-		<xen:option value="xen" label="{xen:phrase bbm_config_ed_redactor}" />
-	</xen:selectunit>
+
+	<xen:if is="{$mceSupport} AND {$redactorSupport}">
+		<xen:selectunit label="{xen:phrase bbm_config_ed}:" name="config_ed" value="{$config.config_ed}" >
+			<xen:option value="mce" label="{xen:phrase bbm_config_ed_mce4}" />
+			<xen:option value="xen" label="{xen:phrase bbm_config_ed_redactor}" />
+		</xen:selectunit>
+	<xen:elseif is="{$mceSupport}" />
+		<xen:selectunit label="{xen:phrase bbm_config_ed}:" name="config_ed" value="{$config.config_ed}" >
+			<xen:option value="mce" label="{xen:phrase bbm_config_ed_mce4}" />
+		</xen:selectunit>
+	<xen:elseif is="{$redactorSupport}" />
+		<xen:selectunit label="{xen:phrase bbm_config_ed}:" name="config_ed" value="{$config.config_ed}" >
+			<xen:option value="xen" label="{xen:phrase bbm_config_ed_redactor}" />
+		</xen:selectunit>
+	</xen:if>
 
 	<xen:submitunit save="{xen:phrase bbm_save_config}">
 		<xen:if is="{$config.config_type}">
@@ -1638,36 +1649,46 @@ li.buttons span{
 		<div class="subHeading">{xen:phrase bbm_buttons_configuration_question}</div>
 	
 		<ul class="secondaryContent container">
-			<li>
-				<p class="config_editor"><span>{xen:phrase bbm_config_ed_mce4}</span></p>
-				<a href="{xen:adminlink 'bbm-buttons/editor-config-ltr'}">
-					<p class="sectionMain buttons">{xen:phrase bbm_buttons_editor_ltr}</p>
-				</a>
-			</li>
-			<li>
-				<p class="config_editor"><span>{xen:phrase bbm_config_ed_mce4}</span></p>
-				<a href="{xen:adminlink 'bbm-buttons/editor-config-rtl'}">
-					<p class="sectionMain buttons">{xen:phrase bbm_buttons_editor_rtl}</p>
-				</a>
-			</li>
+			<xen:if is="{$mceSupport}">
+				<li>
+					<p class="config_editor"><span>{xen:phrase bbm_config_ed_mce4}</span></p>
+					<a href="{xen:adminlink 'bbm-buttons/editor-config-ltr'}">
+						<p class="sectionMain buttons">{xen:phrase bbm_buttons_editor_ltr}</p>
+					</a>
+				</li>
+				<li>
+					<p class="config_editor"><span>{xen:phrase bbm_config_ed_mce4}</span></p>
+					<a href="{xen:adminlink 'bbm-buttons/editor-config-rtl'}">
+						<p class="sectionMain buttons">{xen:phrase bbm_buttons_editor_rtl}</p>
+					</a>
+				</li>
+			</xen:if>
 
-			<li>
-				<p class="config_editor"><span>{xen:phrase bbm_config_ed_redactor}</span></p>
-				<a href="{xen:adminlink 'bbm-buttons/editor-config-xen'}">
-					<p class="sectionMain buttons">{xen:phrase bbm_buttons_editor_redactor}</p>
-				</a>
-			</li>	
+			<xen:if is="{$redactorSupport}">
+				<li>
+					<p class="config_editor"><span>{xen:phrase bbm_config_ed_redactor}</span></p>
+					<a href="{xen:adminlink 'bbm-buttons/editor-config-xen'}">
+						<p class="sectionMain buttons">{xen:phrase bbm_buttons_editor_redactor}</p>
+					</a>
+				</li>	
+			</xen:if>
+
 			<xen:if is="{$configs}">
 					<xen:foreach loop="$configs" value="$config">
-						<li>
-							<div class="optionEditLink cust_edit">
-								<a class="edit OverlayTrigger" href="{xen:adminlink 'bbm-buttons/addEditConfig', $config}">
-									<span class="editText">{xen:phrase bbm_config_edit}</span>
-								</a>
-							</div>
-							<xen:comment>The above code is ugly - it would need to be rewritten</xen:comment>
-							<a class="cust" href="{xen:adminlink 'bbm-buttons/editorcust', $config}"><p class="sectionMain buttons"><span class="config_editor"><span>{xen:if '{$config.config_ed} == "mce"', '{xen:phrase bbm_config_ed_mce4}', '{xen:phrase bbm_config_ed_redactor}'}</span></span>{$config.config_name}</p></a>
-						</li>
+						<xen:set var="$editorPhrase">{xen:if '{$config.config_ed} == "mce"', '{xen:phrase bbm_config_ed_mce4}', '{xen:phrase bbm_config_ed_redactor}'}</xen:set>
+						
+						<xen:if is="({$config.config_ed} == 'xen' AND {$redactorSupport}) || ({$config.config_ed} == 'mce' AND {$mceSupport})">
+							<li>
+								<div class="optionEditLink cust_edit">
+									<a class="edit OverlayTrigger" href="{xen:adminlink 'bbm-buttons/addEditConfig', $config}">
+										<span class="editText">{xen:phrase bbm_config_edit}</span>
+									</a>
+								</div>
+						
+								<a class="cust" href="{xen:adminlink 'bbm-buttons/editorcust', $config}"><p class="sectionMain buttons"
+								><span class="config_editor"><span>{xen:raw $editorPhrase}</span></span>{$config.config_name}</p></a>
+							</li>
+						</xen:if>
 					</xen:foreach>
 			</xen:if>
 		</ul>
@@ -2351,7 +2372,7 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_buttons_buttondesc_Desc" version_id="22" version_string="2.1.5"><![CDATA[Button description is used to display the description of the button on mouse over.<br />
 <br />
 <span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro, XenForo Redactor]]></phrase>
-    <phrase title="bbm_buttons_configuration" version_id="0" version_string="1.0"><![CDATA[TinyMCE Buttons Configuration]]></phrase>
+    <phrase title="bbm_buttons_configuration" version_id="31" version_string="2.3.1"><![CDATA[Buttons Configuration]]></phrase>
     <phrase title="bbm_buttons_configuration_question" version_id="0" version_string="1.0"><![CDATA[Which options would you like to configure?]]></phrase>
     <phrase title="bbm_buttons_custcmd" version_id="0" version_string="1.0"><![CDATA[Bbm button name]]></phrase>
     <phrase title="bbm_buttons_custcmd_Desc" version_id="0" version_string="1.0"><![CDATA[If you choose to bypass commands, you can enter here your TinyMCE button name. If you let this field empty, then Bb code tag name will be used as button name.]]></phrase>
@@ -2434,7 +2455,7 @@ Your callback must return the parsed Bb Code.]]></phrase>
     <phrase title="bbm_callback_signature" version_id="0" version_string="1.0"><![CDATA[Callback signature]]></phrase>
     <phrase title="bbm_check_empty_content" version_id="0" version_string="1.0"><![CDATA[Do not parse if content is empty]]></phrase>
     <phrase title="bbm_click_to_display" version_id="0" version_string="1.0"><![CDATA[(Click to display)]]></phrase>
-    <phrase title="bbm_configuration" version_id="0" version_string="1.0"><![CDATA[TinyMCE Buttons Configuration]]></phrase>
+    <phrase title="bbm_configuration" version_id="31" version_string="2.3.1"><![CDATA[Buttons Configuration]]></phrase>
     <phrase title="bbm_configuration_AddNewLine" version_id="0" version_string="1.0"><![CDATA[Add New Line]]></phrase>
     <phrase title="bbm_configuration_CreateSeparator" version_id="0" version_string="1.0"><![CDATA[Create Separator]]></phrase>
     <phrase title="bbm_configuration_raz" version_id="10" version_string="2.0"><![CDATA[Reset]]></phrase>
@@ -2449,9 +2470,11 @@ Your callback must return the parsed Bb Code.]]></phrase>
     <phrase title="bbm_config_ed_redactor" version_id="13" version_string="2.0.4"><![CDATA[Redactor]]></phrase>
     <phrase title="bbm_config_error_required" version_id="0" version_string="1.0"><![CDATA[The configuration short code  is required]]></phrase>
     <phrase title="bbm_config_go_to_options" version_id="0" version_string="1.0"><![CDATA[Configure in XenForo options]]></phrase>
+    <phrase title="bbm_config_mce_unsupported" version_id="31" version_string="2.3.1"><![CDATA[Your system doesn't support TinyMCE]]></phrase>
     <phrase title="bbm_config_name" version_id="10" version_string="2.0"><![CDATA[Configuration name]]></phrase>
     <phrase title="bbm_config_name_desc" version_id="10" version_string="2.0"><![CDATA[Select a name for your config]]></phrase>
     <phrase title="bbm_config_not_found" version_id="0" version_string="1.0"><![CDATA[The configuration can't be found]]></phrase>
+    <phrase title="bbm_config_redactor_unsupported" version_id="31" version_string="2.3.1"><![CDATA[Your system doesn't support the XenForo Redactor Editor]]></phrase>
     <phrase title="bbm_config_type" version_id="0" version_string="1.0"><![CDATA[Configuration short code]]></phrase>
     <phrase title="bbm_config_type_desc" version_id="0" version_string="1.0"><![CDATA[The above field is  <span style="color:orange;font-weight:boldest">required</span>. This is the configuration short code which will be used in the background. Use only alphanumeric. Don't use any space.]]></phrase>
     <phrase title="bbm_config_type_must_be_unique" version_id="0" version_string="1.0"><![CDATA[The configuration short code must be unique.]]></phrase>

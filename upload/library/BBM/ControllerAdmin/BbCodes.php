@@ -166,7 +166,11 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 	{
 		$code = $this->_getBbmBbCodePermissions($code);
 
+		list($mceSupport, $redactorSupport) = BBM_Helper_Editors::getCompatibility();
+
 		$viewParams = array(
+			'mceSupport' => $mceSupport,
+			'redactorSupport' => $redactorSupport,
 			'code' => $code,
 			'activeTags' => $this->_getBbmBBCodeModel()->getActiveTags($code)
 		);

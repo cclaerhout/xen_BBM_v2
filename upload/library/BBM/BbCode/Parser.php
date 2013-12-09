@@ -11,7 +11,15 @@ class BBM_BbCode_Parser extends XFCP_BBM_BbCode_Parser
 		}
 
 		$bbCodesOptionsPattern = '#\[(?:/)?[\w\d]+?(?:=(\[([\w\d]+?)(?:=.+?)?\].+?\[/\2\]|[^\[\]])+?)?(?P<closingBracket>\])#iu';
-		if(preg_match($bbCodesOptionsPattern, $this->_text, $matches, PREG_OFFSET_CAPTURE, $tagStartPosition) && isset($matches['closingBracket'][1]))
+		
+		if(	preg_match(
+				$bbCodesOptionsPattern, $this->_text, 
+				$matches, 
+				PREG_OFFSET_CAPTURE,
+				$tagStartPosition
+			) 
+			&& 
+			isset($matches['closingBracket'][1]))
 		{
 			$tagContentEndPosition = $matches['closingBracket'][1];
 		}

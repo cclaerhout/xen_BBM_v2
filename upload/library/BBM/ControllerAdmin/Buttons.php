@@ -7,7 +7,11 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		$configs = $this->_getButtonsModel()->getOnlyCustomConfigs();
 		$configs = $this->_checkIfConfigNameExists($configs);
 
+		list($mceSupport, $redactorSupport) = BBM_Helper_Editors::getCompatibility();
+
 		$viewParams = array(
+			'mceSupport' => $mceSupport,
+			'redactorSupport' => $redactorSupport,
 			'configs' => $configs,
 			'permsBbm' => XenForo_Visitor::getInstance()->hasAdminPermission('bbm_BbCodesAndButtons')
 		);
@@ -61,9 +65,14 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 
 	protected function _actionAddEditConfig($config)
 	{
-      		$viewParams = array(
+		list($mceSupport, $redactorSupport) = BBM_Helper_Editors::getCompatibility();
+
+		$viewParams = array(
+			'mceSupport' => $mceSupport,
+			'redactorSupport' => $redactorSupport,
       			'config' => $config
       		);
+      		
       		return $this->responseView('Bbm_ViewAdmin_Config_Add_Edit', 'bbm_buttons_config_add_edit', $viewParams);
 	}
 
@@ -180,6 +189,8 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 
 	protected function _editorConfig($configType, $configEd)
 	{
+		$this->checkEditorConfigCompatibility($configEd);
+
 		//Get config and all buttons
 		$xen = $this->_xenButtons($configType, $configEd);
 
@@ -269,6 +280,21 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
  		);
  		
 		return $this->responseView('Bbm_ViewAdmin_Buttons_Config', 'bbm_buttons_config', $viewParams);
+	}
+
+	public function checkEditorConfigCompatibility($configEd)
+	{
+		list($mceSupport, $redactorSupport) = BBM_Helper_Editors::getCompatibility();
+		
+		if($configEd == 'xen' && !$redactorSupport)
+		{
+			throw $this->responseException($this->responseError(new XenForo_Phrase('bbm_config_redactor_unsupported'), 404));		
+		}
+		
+		if($configEd == 'mce' && !$mceSupport)
+		{
+			throw $this->responseException($this->responseError(new XenForo_Phrase('bbm_config_mce_unsupported'), 404));
+		}
 	}
 
 	public function actionPostConfig()
