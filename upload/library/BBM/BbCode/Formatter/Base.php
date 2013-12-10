@@ -434,17 +434,33 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$rendererStates['isPost'] = ($this->getPostParams() !== NULL) ? true : false;
 			$rendererStates['canUseBbCode'] = true;
 		}
+		elseif($rendererStates['canUseBbCode'] && $this->checkBbCodeParsingPerms($tag, $rendererStates, true) !== true)
+		{
+			//For nested BB Codes
+			$rendererStates['canUseBbCode'] = false;
+			$parserPermissionsReturn = $this->checkBbCodeParsingPerms($tag, $rendererStates);
+
+			return $parserPermissionsReturn;
+		}
 
 		if(!isset($rendererStates['canViewBbCode']))
 		{
 			$viewPermissionsReturn = $this->checkBbCodeViewPerms($tag, $rendererStates);
-
+			
 			if($viewPermissionsReturn !== true)
 			{
 				return $viewPermissionsReturn;
 			}
 			
 			$rendererStates['canViewBbCode'] = true;
+		}
+		elseif($rendererStates['canViewBbCode'] && $this->checkBbCodeViewPerms($tag, $rendererStates, true) !== true)
+		{
+			//For nested BB Codes
+			$rendererStates['canViewBbCode'] = false;
+			$viewPermissionsReturn = $this->checkBbCodeViewPerms($tag, $rendererStates);
+
+			return $viewPermissionsReturn;
 		}
 
 		$content = $this->renderSubTree($tag['children'], $rendererStates);
@@ -512,6 +528,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$rendererStates['isPost'] = ($this->getPostParams() !== NULL) ? true : false;
 			$rendererStates['canUseBbCode'] = true;
 		}
+		elseif($rendererStates['canUseBbCode'] && $this->checkBbCodeParsingPerms($tag, $rendererStates, true) !== true)
+		{
+			//For nested BB Codes
+			$rendererStates['canUseBbCode'] = false;
+			$parserPermissionsReturn = $this->checkBbCodeParsingPerms($tag, $rendererStates);
+
+			return $parserPermissionsReturn;
+		}
 
 		if(!isset($rendererStates['canViewBbCode']))
 		{
@@ -524,6 +548,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			
 			$rendererStates['canViewBbCode'] = true;
 		}
+		elseif($rendererStates['canViewBbCode'] && $this->checkBbCodeViewPerms($tag, $rendererStates, true) !== true)
+		{
+			//For nested BB Codes
+			$rendererStates['canViewBbCode'] = false;
+			$viewPermissionsReturn = $this->checkBbCodeViewPerms($tag, $rendererStates);
+
+			return $viewPermissionsReturn;
+		}
 		
 		$phpcallback_class = $tagInfo['phpcallback_class'];
 		$phpcallback_method = $tagInfo['phpcallback_method'];
@@ -531,7 +563,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$this->_loadClass($phpcallback_class);
 		return call_user_func_array(array($phpcallback_class, $phpcallback_method), array($tag, $rendererStates, &$this));
 	}
-
 
 	/****
 	*	Current tag datas (easy access in this class or in callbacks to tag datas)
@@ -838,7 +869,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	/****
 	*	PERMISSIONS TOOLS
 	***/
-	public function checkBbCodeParsingPerms(array $tag, array $rendererStates)
+	public function checkBbCodeParsingPerms(array $tag, array $rendererStates, $preventLoop = false)
 	{
 		if( !isset($this->_tags[$tag['tag']]['parser_perms']) || !isset($this->_tags[$tag['tag']]['parser_perms']['parser_has_usr']) )
 		{
@@ -877,7 +908,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 			}
 		}
+
+		if($preventLoop == true)
+		{
+			return false;
+		}
 		
+		$rendererStates['canUseBbCode'] = false; //Default: if is not a post, no way to get this value anyway
 		$output = '';
 
 		if($perms['parser_return'] == 'content')
@@ -891,14 +928,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		elseif($perms['parser_return'] == 'callback')
 		{
 			$rendererStates['isPost'] = ($postParams !== NULL) ? true : false;
-			$rendererStates['canUseBbCode'] = false; //Default: if is not a post, no way to get this value anyway
 			return $this->PhpMethodRenderer($tag, $rendererStates, false);
 
 		}
 		elseif($perms['parser_return'] == 'template')
 		{
 			$rendererStates['isPost'] = ($postParams !== NULL) ? true : false;
-			$rendererStates['canUseBbCode'] = false;
 			return $this->TemplateMethodRenderer($tag, $rendererStates, false);
 		}
 		
@@ -906,7 +941,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	}
 
 
-	public function checkBbCodeViewPerms(array $tag, array $rendererStates)
+	public function checkBbCodeViewPerms(array $tag, array $rendererStates, $preventLoop = false)
 	{
 		if( !isset($this->_tags[$tag['tag']]['view_perms']) )
 		{
@@ -936,6 +971,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					return true;
 				}
 			}
+		}
+
+		if($preventLoop == true)
+		{
+			return false;
 		}
 
 		$rendererStates['canViewBbCode'] = false;
