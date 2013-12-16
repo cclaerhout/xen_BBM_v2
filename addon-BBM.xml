@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.3.4" version_id="34" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.3.5" version_id="35" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -331,11 +331,6 @@
 				<xen:textboxunit label="{xen:phrase bbm_buttons_tagcontent}:" name="tagContent" value="{$code.tagContent}" explain="{xen:phrase bbm_buttons_tagcontent_Desc}" />
 			</fieldset>
 	
-			<xen:checkboxunit label="{xen:phrase bbm_buttons_killcmd_activate}:" explain="{xen:phrase bbm_buttons_killcmd_activate_Desc}">
-				<xen:option name="killCmd" selected="{$code.killCmd}">{xen:phrase bbm_buttons_killcmd_activate_question}</xen:option>
-			</xen:checkboxunit>
-			<xen:textboxunit label="{xen:phrase bbm_buttons_custcmd}:" name="custCmd" value="{$code.custCmd}" explain="{xen:phrase bbm_buttons_custcmd_Desc}" />
-
 			<fieldset id="bbm_redactor_btn_config">
 				<xen:checkboxunit label="{xen:phrase bbm_buttons_has_redactor_icon}:">
 					<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
@@ -366,6 +361,11 @@
 					px
 				</xen:controlunit>
 			</fieldset>
+
+			<xen:checkboxunit label="{xen:phrase bbm_buttons_killcmd_activate}:" explain="{xen:phrase bbm_buttons_killcmd_activate_Desc}">
+				<xen:option name="killCmd" selected="{$code.killCmd}">{xen:phrase bbm_buttons_killcmd_activate_question}</xen:option>
+			</xen:checkboxunit>
+			<xen:textboxunit label="{xen:phrase bbm_buttons_custcmd}:" name="custCmd" value="{$code.custCmd}" explain="{xen:phrase bbm_buttons_custcmd_Desc}" />			
 		</li>
 	</ul>
 
@@ -729,11 +729,6 @@
 			<xen:textboxunit label="{xen:phrase bbm_buttons_tagcontent}:" name="tagContent" value="{$code.tagContent}" explain="{xen:phrase bbm_buttons_tagcontent_Desc}" />
 		</fieldset>
 
-		<xen:checkboxunit label="{xen:phrase bbm_buttons_killcmd_activate}:" explain="{xen:phrase bbm_buttons_killcmd_activate_Desc}">
-			<xen:option name="killCmd" selected="{$code.killCmd}">{xen:phrase bbm_buttons_killcmd_activate_question}</xen:option>
-		</xen:checkboxunit>
-		<xen:textboxunit label="{xen:phrase bbm_buttons_custcmd}:" name="custCmd" value="{$code.custCmd}" explain="{xen:phrase bbm_buttons_custcmd_Desc}" />
-
 		<fieldset id="bbm_redactor_btn_config">
 			<xen:checkboxunit label="{xen:phrase bbm_buttons_has_redactor_icon}:">
 				<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
@@ -764,6 +759,11 @@
 				px
 			</xen:controlunit>
 		</fieldset>
+
+		<xen:checkboxunit label="{xen:phrase bbm_buttons_killcmd_activate}:" explain="{xen:phrase bbm_buttons_killcmd_activate_Desc}">
+			<xen:option name="killCmd" selected="{$code.killCmd}">{xen:phrase bbm_buttons_killcmd_activate_question}</xen:option>
+		</xen:checkboxunit>
+		<xen:textboxunit label="{xen:phrase bbm_buttons_custcmd}:" name="custCmd" value="{$code.custCmd}" explain="{xen:phrase bbm_buttons_custcmd_Desc}" />		
 	</fieldset>
 
 
@@ -2051,6 +2051,7 @@ li.buttons span{
   <admin_template_modifications/>
   <code_events/>
   <code_event_listeners>
+    <listener event_id="editor_setup" execute_order="10" callback_class="BBM_Listeners_Editor" callback_method="addRedactorButtons" active="1" hint="" description="Adds Redactor Buttons"/>
     <listener event_id="front_controller_post_view" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPostView" active="1" hint="" description="BbCode content protection: implementation"/>
     <listener event_id="front_controller_pre_dispatch" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPreDispatch" active="1" hint="" description="BbCode content protection: get response type"/>
     <listener event_id="front_controller_pre_view" execute_order="10" callback_class="BBM_Listeners_GetBbmEditor" callback_method="getBbmEditor" active="1" hint="" description="Get BbmEditor"/>
@@ -2375,7 +2376,7 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_buttons_configuration" version_id="31" version_string="2.3.1"><![CDATA[Buttons Configuration]]></phrase>
     <phrase title="bbm_buttons_configuration_question" version_id="0" version_string="1.0"><![CDATA[Which options would you like to configure?]]></phrase>
     <phrase title="bbm_buttons_custcmd" version_id="0" version_string="1.0"><![CDATA[Bbm button name]]></phrase>
-    <phrase title="bbm_buttons_custcmd_Desc" version_id="0" version_string="1.0"><![CDATA[If you choose to bypass commands, you can enter here your TinyMCE button name. If you let this field empty, then Bb code tag name will be used as button name.]]></phrase>
+    <phrase title="bbm_buttons_custcmd_Desc" version_id="34" version_string="2.3.4"><![CDATA[If you choose to bypass commands, you can enter here your TinyMCE/XenForo Redactor button name. If you let this field empty, then Bb code tag name will be used as button name.]]></phrase>
     <phrase title="bbm_buttons_editor_ltr" version_id="0" version_string="1.0"><![CDATA[LTR Editor Visual Management (Left-to-Right)]]></phrase>
     <phrase title="bbm_buttons_editor_redactor" version_id="13" version_string="2.0.4"><![CDATA[Official XenForo editor (Redactor)]]></phrase>
     <phrase title="bbm_buttons_editor_rtl" version_id="0" version_string="1.0"><![CDATA[RTL Editor Visual Management (Right-to-Left)]]></phrase>
@@ -2396,7 +2397,7 @@ If you choose this method, you will need to create yourself a CSS for the TinyMC
     <phrase title="bbm_buttons_information_text" version_id="0" version_string="1.0"><![CDATA[The below options can accept XenForo Phrases. Use this pattern to activate a XenForo Phrase: <b>{phrase:<span style="color:orange !important;font-weight:bolder">buttonphrase</span>}</b>. When you create a phrase here, you must click on <b>"Cache this phrase globally"</b>. Otherwise it will use a Database Query.]]></phrase>
     <phrase title="bbm_buttons_information_title" version_id="0" version_string="1.0"><![CDATA[<span style="font-style:italic">Information</span>]]></phrase>
     <phrase title="bbm_buttons_killcmd_activate" version_id="0" version_string="1.0"><![CDATA[Bypass button commands]]></phrase>
-    <phrase title="bbm_buttons_killcmd_activate_Desc" version_id="0" version_string="1.0"><![CDATA[The only case this option must be activated is when the button is using a TinyMCE plugin, otherwise it <span style="color:orange;font-weight:bolder">MUST NOT</span> be activated. If you do it whereas you shouldn't have done it, then <b>TinyMCE will not load</b>.]]></phrase>
+    <phrase title="bbm_buttons_killcmd_activate_Desc" version_id="34" version_string="2.3.4"><![CDATA[The only case this option must be activated is when the button is using a TinyMCE or XenForo Redactor plugin, otherwise it <span style="color:orange;font-weight:bolder">MUST NOT</span> be activated. If you do it whereas you shouldn't have done it, then <b>TinyMCE will not load</b>.]]></phrase>
     <phrase title="bbm_buttons_killcmd_activate_question" version_id="0" version_string="1.0"><![CDATA[Bypass above commands?]]></phrase>
     <phrase title="bbm_buttons_Options_desc" version_id="0" version_string="1.0"><![CDATA[The options below are to create a button for this Bb code in order to customize the TinyMCE editor]]></phrase>
     <phrase title="bbm_buttons_Options_Title" version_id="0" version_string="1.0"><![CDATA[Editor button]]></phrase>

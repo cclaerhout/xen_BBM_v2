@@ -83,7 +83,7 @@ class BBM_Listeners_Templates_Preloader
 	public static function getJsConfig($content, $params, XenForo_Template_Abstract $template)
 	{
 		$options = XenForo_Application::get('options');
-	
+
 		if ($template instanceof XenForo_Template_Admin && !$options->Bbm_Bm_SetInAdmin)
 		{
 			return;
@@ -92,7 +92,7 @@ class BBM_Listeners_Templates_Preloader
 		$controllerName = $template->getParam('controllerName');
 		$controllerAction = $template->getParam('controllerAction');
 		$viewName = $template->getParam('viewName');
-			
+
 		$params = BBM_Helper_Buttons::getConfig($controllerName, $controllerAction, $viewName);
 
 		$bbmButtonsJsGrid = $params['bbmButtonsJsGrid'];

@@ -1,4 +1,4 @@
-!function($, window, document, _undefined)
+!function($, window, document, undefined)
 {
 	XenForo.BbmCustomEditor = function($textarea) { this.__construct($textarea); };
 
@@ -6,27 +6,26 @@
 	{
 		__construct: function($textarea)
 		{
-			var un = 'undefined';
-			
-			if(typeof BBM_Redactor === un)
+			if(typeof BBM_Redactor === undefined)
 				return false;
 
 			var redactorOptions = $textarea.data('options'),
-			myButtons = this.createCustomButtons(),
-			myOptions = {
-				editorOptions:{
-					//plugins: ['test', 'test2'],
-				},
-				buttons: myButtons
-			};
+				myButtons = this.createCustomButtons(),
+				myOptions = {
+					editorOptions:{
+						//plugins: ['test', 'test2'],
+					},
+					buttons: myButtons
+				};
 
-			if(BBM_Redactor.buttonsGrid.length !== 0)
+			if(BBM_Redactor.buttonsGrid.length !== 0){
 				myOptions.editorOptions.buttons = BBM_Redactor.buttonsGrid;
+			}
 
-			if(typeof RedactorPlugins === un)
+			if(typeof RedactorPlugins === undefined)
 				RedactorPlugins = {};
 
-			$textarea.data('options', $.extend(redactorOptions, myOptions));
+			$.extend(true, redactorOptions, myOptions);
 		},
 		createCustomButtons: function()
 		{
@@ -60,6 +59,4 @@
 
 	XenForo.register('textarea.BbCodeWysiwygEditor', 'XenForo.BbmCustomEditor');
 
-}(jQuery, this, document);
-
-
+}(jQuery, this, document, 'undefined');
