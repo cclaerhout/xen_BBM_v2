@@ -473,23 +473,33 @@ class BBM_Helper_Buttons
 			}
 		}
 
-		$buttonsJsGrid = '';
-		if(is_array($buttonsGrid))
+
+
+		return array(
+			'bbmButtonsJsGrid' => self::flattenRedactorButtonsGrid($buttonsGrid),
+			'bbmButtonsJsGridArray' => $buttonsGrid,
+			'bbmCustomButtons' => $customButtons,
+			'bbmCustomCss' => $customButtonsCss
+		);
+	}
+
+	public static function flattenRedactorButtonsGrid($buttonsGrid)
+	{
+		if(!empty($buttonsGrid))
 		{
-			$buttonsJsGrid = $buttonsGrid;
-			foreach($buttonsJsGrid  as &$buttons)
+			foreach($buttonsGrid as &$buttons)
 			{
 				$buttons = '["'.implode('", "', $buttons).'"]';
 			}
 			
-			$buttonsJsGrid = implode(',', $buttonsJsGrid);
+			$buttonsGrid = implode(',', $buttonsGrid);
 		}
-
-		return array(
-			'bbmButtonsJsGrid' => $buttonsJsGrid,
-			'bbmCustomButtons' => $customButtons,
-			'bbmCustomCss' => $customButtonsCss
-		);
+		else
+		{
+			$buttonsGrid = false;
+		}
+		
+		return $buttonsGrid;
 	}
 	
 	/***
@@ -550,6 +560,7 @@ class BBM_Helper_Buttons
 	{
 		return array(
 			'bbmButtonsJsGrid' => '',
+			'bbmButtonsJsGridArray' => array(),
 			'bbmCustomButtons' => array(),
 			'bbmCustomCss' => array()
 		);	
@@ -562,6 +573,7 @@ class BBM_Helper_Buttons
 			'customQuattroButtonsCss' => array(),
 			'customQuattroButtonsJs' => array(),
 			'bbmButtonsJsGrid' => '',
+			'bbmButtonsJsGridArray' => array(),
 			'bbmCustomButtons' => array(),
 			'bbmCustomCss' => array()
 		);	

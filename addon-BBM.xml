@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.3.5" version_id="35" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.4.0 Preview" version_id="36" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -1677,7 +1677,7 @@ li.buttons span{
 					<xen:foreach loop="$configs" value="$config">
 						<xen:set var="$editorPhrase">{xen:if '{$config.config_ed} == "mce"', '{xen:phrase bbm_config_ed_mce4}', '{xen:phrase bbm_config_ed_redactor}'}</xen:set>
 						
-						<xen:if is="({$config.config_ed} == 'xen' AND {$redactorSupport}) || ({$config.config_ed} == 'mce' AND {$mceSupport})">
+						<xen:if is="({$config.config_ed} == 'xen' AND {$redactorSupport}) || ({$config.config_ed} == 'mce' AND {$mceSupport}) AND {$config.config_type} !='redactor'">
 							<li>
 								<div class="optionEditLink cust_edit">
 									<a class="edit OverlayTrigger" href="{xen:adminlink 'bbm-buttons/addEditConfig', $config}">
@@ -2051,7 +2051,7 @@ li.buttons span{
   <admin_template_modifications/>
   <code_events/>
   <code_event_listeners>
-    <listener event_id="editor_setup" execute_order="10" callback_class="BBM_Listeners_Editor" callback_method="addRedactorButtons" active="1" hint="" description="Adds Redactor Buttons"/>
+    <listener event_id="editor_setup" execute_order="5000" callback_class="BBM_Listeners_Editor" callback_method="addRedactorButtons" active="1" hint="" description="Adds Redactor Buttons"/>
     <listener event_id="front_controller_post_view" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPostView" active="1" hint="" description="BbCode content protection: implementation"/>
     <listener event_id="front_controller_pre_dispatch" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPreDispatch" active="1" hint="" description="BbCode content protection: get response type"/>
     <listener event_id="front_controller_pre_view" execute_order="10" callback_class="BBM_Listeners_GetBbmEditor" callback_method="getBbmEditor" active="1" hint="" description="Get BbmEditor"/>
@@ -3021,29 +3021,7 @@ span.mce_bbm_spoiler {
     <template title="bbm_editor_extra_info" version_id="0" version_string="1.0"><![CDATA[<p>{xen:phrase bbm_controller_name} <b>{$controllerName}</b></p>
 <p>{xen:phrase bbm_controller_action} <b>{$controllerAction}</b></p>
 <p>{xen:phrase bbm_view_name} <b>{$viewName}</b></p>]]></template>
-    <template title="bbm_editor_js_setup" version_id="23" version_string="2.2.0"><![CDATA[<script>
-<xen:if is="!{$bbmButtonsJsGrid}">
-	<xen:comment>gridCallback</xen:comment>
-<xen:else />
-	var BBM_Redactor = {
-		buttonsGrid: [{xen:raw $bbmButtonsJsGrid}],
-		customButtonsConfig:
-		{<xen:foreach loop="{$bbmCustomButtons}" value="$button" i="$i" count="$total">
-			{$button.code}:
-			{
-				tag: "{$button.tag}",
-				code: "{$button.code}",
-				description:  "{xen:jsescape {$button.description}}",
-				tagOptions: "{xen:jsescape {$button.tagOptions}}",
-				tagContent: "{xen:jsescape {$button.tagContent}}",
-				separator: "{xen:jsescape {$button.separator}}"
-			}{xen:if '{$i} != {$total}', ','}
-		</xen:foreach>}
-	}
-</xen:if>
-</script>
-
-<xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
+    <template title="bbm_editor_js_setup" version_id="35" version_string="2.3.5"><![CDATA[<xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
     <template title="bbm_editor_redactor_autocss" version_id="28" version_string="2.3.0 Preview II"><![CDATA[<xen:if is="{$bbmCustomCss}">
 	<style type="text/css">
 		<xen:foreach loop="$bbmCustomCss" value="$button">

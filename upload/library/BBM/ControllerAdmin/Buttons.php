@@ -2,6 +2,8 @@
 
 class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 {
+	protected $protectedConfigNames = array('ltr', 'rtl', 'redactor');
+	
 	public function actionIndex()
 	{
 		$configs = $this->_getButtonsModel()->getOnlyCustomConfigs();
@@ -107,7 +109,8 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 
 	public function actionDeleteConfig()
 	{
-		$config_id = $this->_input->filterSingle('config_id', XenForo_Input::UINT);	
+		$config_id = $this->_input->filterSingle('config_id', XenForo_Input::UINT);
+		$this->checkDeletePermissions($config_id);
 
 		if ($this->isConfirmedPost())
 		{
@@ -124,6 +127,18 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 				'config' => $config
 			);
 			return $this->responseView('Bbm_ViewAdmin_Buttons_Delete', 'bbm_buttons_delete', $viewParams);
+		}
+	}
+
+	public function checkDeletePermissions($config_id)
+	{
+		$config_data = $this->_getButtonsModel()->getConfigById($config_id);
+		if(	isset($config_data['config_type']) 
+			&& 
+			in_array($config_data['config_type'], $this->protectedConfigNames)
+		)
+		{
+			throw $this->responseException($this->responseError(new XenForo_Phrase('bbm_config_type_protected'), 404));
 		}
 	}
 

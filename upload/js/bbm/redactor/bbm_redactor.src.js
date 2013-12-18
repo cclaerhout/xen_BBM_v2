@@ -6,54 +6,34 @@
 	{
 		__construct: function($textarea)
 		{
-			if(typeof BBM_Redactor === undefined)
-				return false;
-
 			var redactorOptions = $textarea.data('options'),
-				myButtons = this.createCustomButtons(),
-				myOptions = {
-					editorOptions:{
-						//plugins: ['test', 'test2'],
-					},
-					buttons: myButtons
-				};
-
-			if(BBM_Redactor.buttonsGrid.length !== 0){
-				myOptions.editorOptions.buttons = BBM_Redactor.buttonsGrid;
-			}
-
-			if(typeof RedactorPlugins === undefined)
-				RedactorPlugins = {};
-
-			$.extend(true, redactorOptions, myOptions);
-		},
-		createCustomButtons: function()
-		{
-			var buttons = BBM_Redactor.customButtonsConfig, custom = {};
-
-			$.each(buttons, function(code,config){
-
-				var tag = config.tag.replace(/^at_/, '');
-				
-				/*The XenForo would need to be updated*/
-				/*
-					var oTag ='['+tag, cTag = '[/'+tag+']', content = config.tagContent, options = config.tagOptions, fullCode;
+			    bbmConfig = redactorOptions.bbmButtonConfig || false,
+			    self = this;
 			
-					if(options) {
-						oTag += '='+options+']';
-					}else{
-						oTag += ']';
+			this.$textarea = $textarea;
+			this.options = redactorOptions;
+			    
+			if(bbmConfig !== false){
+				var buttons = [];
+				$.each(bbmConfig, function(k,btnGroup){
+					btnGroup = self.filterGroup(btnGroup);
+					if(btnGroup){
+						buttons.push(btnGroup);
+					}					
+				});
+
+				var bbmOptions = {
+					editorOptions: {
+						buttons: buttons
 					}
-					fullCode = oTag+content+cTag;
-				*/
-
-				custom[code] = {
-					title: (config.description) ? config.description : config.tag,
-					tag: tag
-				}
-			});
-			
-			return custom;
+				};
+				
+				$.extend(true, redactorOptions, bbmOptions);
+			}
+		},
+		filterGroup: function(btnGroup)
+		{
+			return btnGroup;
 		}
 	}
 

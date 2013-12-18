@@ -65,11 +65,6 @@ class BBM_Listeners_Templates_Preloader
 		}
 	}
 
-	/***
-		REDACTOR: Template callback if needed
-		=> will be used as a safety fallback	
-	*/
-
 	public static function getParam($key, $params)
 	{
 		if(isset($params[$key]))
@@ -78,50 +73,6 @@ class BBM_Listeners_Templates_Preloader
 		}
 		
 		return null;
-	}
-
-	public static function getJsConfig($content, $params, XenForo_Template_Abstract $template)
-	{
-		$options = XenForo_Application::get('options');
-
-		if ($template instanceof XenForo_Template_Admin && !$options->Bbm_Bm_SetInAdmin)
-		{
-			return;
-		}
-	
-		$controllerName = $template->getParam('controllerName');
-		$controllerAction = $template->getParam('controllerAction');
-		$viewName = $template->getParam('viewName');
-
-		$params = BBM_Helper_Buttons::getConfig($controllerName, $controllerAction, $viewName);
-
-		$bbmButtonsJsGrid = $params['bbmButtonsJsGrid'];
-		$bbmCustomButtons = $params['bbmCustomButtons'];
-		
-		$output = "var BBM_Redactor = {	buttonsGrid: [$bbmButtonsJsGrid],customButtonsConfig:{";
-		
-		$i = 1;
-		$total = count($bbmCustomButtons);
-		
-		if(is_array($bbmCustomButtons))
-		{
-			foreach($bbmCustomButtons as $button)
-			{
-				$coma = ($i != $total) ? ',' : '';
-				$tag = $button['tag'];
-				$code =  $button['code'];
-				$desc = XenForo_Template_Helper_Core::jsEscape($button['description']);
-				$opts = XenForo_Template_Helper_Core::jsEscape($button['tagOptions']);
-				$content = XenForo_Template_Helper_Core::jsEscape($button['tagContent']);
-				$separator = XenForo_Template_Helper_Core::jsEscape($button['seprarator']);
-		
-				$output .= "$code:{tag:\"$tag\",code:\"$code\",description:\"$desc\",tagOptions:\"$opts\",tagContent:\"$content\",separator:\"$separator\"}$coma";
-			}
-		}
-		
-		$output .= '}};';
-		
-		return $output;
 	}
 }
 //	Zend_Debug::dump($abc);
