@@ -8,12 +8,26 @@ class BBM_Listeners_Editor
 			return false;
 		}
 		
+		$xenOptions = XenForo_Application::get('options');
+		
+		if($xenOptions->bbm_debug_tinymcehookdisable)
+		{
+			return false;
+		}
+		
 		$template = $view->createOwnTemplateObject();
 		$controllerName = $template->getParam('controllerName');
 		$controllerAction = $template->getParam('controllerAction');
 		$viewName = $template->getParam('viewName');		
 		
 		$bbmParams = BBM_Helper_Buttons::getConfig($controllerName, $controllerAction, $viewName);
+
+		if(empty($bbmParams['bbmButtonsJsGridArray']))
+		{
+			//We must be here with Quattro
+			return false;
+		}
+
 		$bbmButtonsJsGrid = $bbmParams['bbmButtonsJsGridArray'];
 		$bbmCustomButtons = $bbmParams['bbmCustomButtons'];
 
