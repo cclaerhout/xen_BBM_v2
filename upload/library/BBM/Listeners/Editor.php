@@ -18,7 +18,7 @@ class BBM_Listeners_Editor
 		$template = $view->createOwnTemplateObject();
 		$controllerName = $template->getParam('controllerName');
 		$controllerAction = $template->getParam('controllerAction');
-		$viewName = $template->getParam('viewName');		
+		$viewName = $template->getParam('viewName');	
 		
 		$bbmParams = BBM_Helper_Buttons::getConfig($controllerName, $controllerAction, $viewName);
 
