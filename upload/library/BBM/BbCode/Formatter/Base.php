@@ -372,7 +372,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$endRange = preg_replace('#{(\d+?)=[^}]*}#ui', '{$1}', $endRange);
 		}
 
-		if ($tag['option'] && $this->parseMultipleOptions($tag['option'], $tagInfo['options_separator']))
+		if ((!empty($tag['option']) || is_numeric($tag['option'])) && $this->parseMultipleOptions($tag['option'], $tagInfo['options_separator']))
 		{
 			$options = $this->parseMultipleOptions($tag['option'], $tagInfo['options_separator']);
 
