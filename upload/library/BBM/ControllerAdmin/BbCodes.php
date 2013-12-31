@@ -165,10 +165,13 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 	protected function _getBbmBbCodeAddEditResponse(array $code)
 	{
 		$code = $this->_getBbmBbCodePermissions($code);
+		$addOnModel = $this->_getAddOnModel();
 
 		list($mceSupport, $redactorSupport) = BBM_Helper_Editors::getCompatibility();
 
 		$viewParams = array(
+			'addOnOptions' => $addOnModel->getAddOnOptionsListIfAvailable(),
+			'addOnSelected' => (isset($code['bbcode_addon']) ? $code['bbcode_addon'] : $addOnModel->getDefaultAddOnId()),
 			'mceSupport' => $mceSupport,
 			'redactorSupport' => $redactorSupport,
 			'code' => $code,
@@ -341,7 +344,7 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 				'example' => XenForo_Input::STRING,
 				'active' => XenForo_Input::UINT,
 				'display_help' => XenForo_Input::UINT,
-				
+
 				'start_range' => XenForo_Input::STRING,
 				'end_range' => XenForo_Input::STRING,
 				'options_number' => XenForo_Input::UINT,
@@ -394,6 +397,14 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 				'redactor_sprite_params_y' => XenForo_Input::INT,
 				'redactor_image_url' => XenForo_Input::STRING
 		));
+
+		if(XenForo_Application::debugMode())
+		{
+			$dwInput += $this->_input->filter(array(
+				'bbcode_id' => XenForo_Input::STRING,
+				'bbcode_addon' => XenForo_Input::STRING
+			));
+		}
 
 		//Button autofill (will avoid DW error) | To do: check this in the DW directly
 		if( (!empty($tag)  && $tag[0] == '@') )
@@ -680,6 +691,9 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 				'active' => (int) $BbCode->General->active,
 				'display_help' => (int) $BbCode->General->display_help,
 
+				'bbcode_id' => (string) $BbCode->General->bbcode_id,
+				'bbcode_addon' => (string) $BbCode->General->bbcode_addon,
+
 				'start_range' => (string) $BbCode->Methods->Replacement->start_range,
 				'end_range' => (string) $BbCode->Methods->Replacement->end_range,
 				'options_number' => (int) $BbCode->Methods->Replacement->options_number,
@@ -855,6 +869,11 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 	protected function _getBbmButtonsModel()
 	{
 		return $this->getModelFromCache('BBM_Model_Buttons');
-	}		
+	}
+
+	protected function _getAddOnModel()
+	{
+		return $this->getModelFromCache('XenForo_Model_AddOn');
+	}			
 }
 //Zend_Debug::dump($code);

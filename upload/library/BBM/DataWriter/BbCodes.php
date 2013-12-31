@@ -28,12 +28,18 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 		return array(
 			'bbm' => array(
 				'tag_id' => array('type' => self::TYPE_UINT, 'autoIncrement' => true),
-				'tag' => array('type' => self::TYPE_STRING, 'required' => true, 'maxLength' => 25, 'verification' => array('$this', '_verifyBbCodeTag'),'requiredError' => 'bbm_error_invalid_tag'),
+				'tag' => array('type' => self::TYPE_STRING, 'required' => true, 'maxLength' => 25, 
+					'verification' => array('$this', '_verifyBbCodeTag'),
+					'requiredError' => 'bbm_error_invalid_tag'
+				),
 				'title' => array('type' => self::TYPE_STRING, 'required' => true, 'maxLength' => 50, 'requiredError' => 'please_enter_valid_title'),
 				'description' => array('type' => self::TYPE_STRING, 'required' => true, 'maxLength' => 250, 'requiredError' => 'bbm_please_enter_valid_desc'),
 				'example' => array('type' => self::TYPE_STRING, 'required' => true, 'maxLength' => 2000, 'requiredError' => 'please_enter_embed_html'),
 				'active' => array('type' => self::TYPE_UINT, 'default' => 1),
 				'display_help' => array('type' => self::TYPE_UINT, 'default' => 1),
+
+				'bbcode_id' => array('type' => self::TYPE_STRING, 'maxLength' => 250, 'verification' => array('$this', '_verifyBbcui')),
+				'bbcode_addon' => array('type' => self::TYPE_STRING, 'maxLength' => 250),
 
 				'start_range' => array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 7000),
 				'end_range' => array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 7000),
@@ -137,6 +143,31 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 			}
 		}
 
+		return true;
+	}
+
+	protected function _verifyBbcui(&$bbcui)
+	{
+		$bbcui = trim($bbcui);
+
+		if(empty($bbcui))
+		{
+			return true;
+		}
+
+		$dataFound = $this->_getBbmBbCodeModel()->getBbCodeByUniqueIdentifier($bbcui);
+		$currentId = $this->getExisting('tag_id'); //null if new bb code
+		
+		if(empty($dataFound['tag_id']))
+		{
+			return true;
+		}
+		elseif((!$currentId && $dataFound) || ($currentId != $dataFound['tag_id']))
+		{
+			$this->error(new XenForo_Phrase('bbm_error_bbcui_must_be_unique'), 'bbcui');
+			return false;
+		}
+		
 		return true;
 	}
 	

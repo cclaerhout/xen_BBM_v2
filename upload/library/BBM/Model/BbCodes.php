@@ -27,6 +27,18 @@ class BBM_Model_BbCodes extends XenForo_Model
 	}
 
 	/**
+	* Gets the specified BB code by Unique Identifier
+	**/
+	public function getBbCodeByUniqueIdentifier($bbcui)
+	{
+		return $this->_getDb()->fetchRow('
+			SELECT *
+			FROM bbm
+			WHERE bbcode_id = ?
+		', $bbcui);
+	}
+
+	/**
 	* Gets id from tag 
 	**/
 	public function getBbCodeIdFromTag($tag)
@@ -40,6 +52,19 @@ class BBM_Model_BbCodes extends XenForo_Model
 		return $data['tag_id'];
 	}
 
+	/**
+	* Gets Bb Codes by addon
+	**/
+	public function getBbCodesByAddon($addon)
+	{
+		return $this->fetchAllKeyed("
+				SELECT *
+				FROM bbm
+				WHERE bbcode_addon = ?
+				ORDER BY tag
+			", 'tag_id', $addon
+		);
+	}
 
 	/**
 	* Gets all bbm Bb Codes
@@ -132,14 +157,14 @@ class BBM_Model_BbCodes extends XenForo_Model
 		$cache = array();
 
 		$cache['list'] = $this->fetchAllKeyed('
-			SELECT tag
+			SELECT tag, bbcode_id
 			FROM bbm
 			WHERE active = \'1\'
 			ORDER BY tag
 		', 'tag');
 
 		$cache['nohelp'] = $this->fetchAllKeyed('
-			SELECT tag
+			SELECT tag, bbcode_id
 			FROM bbm
 			WHERE active = \'1\'
 			AND display_help = \'0\'
@@ -172,18 +197,26 @@ class BBM_Model_BbCodes extends XenForo_Model
 			}
 			else
 			{
-				//Tag in value - key is number
-				foreach($item as &$tag)
+				//Tag in value - if bbcode_id is set, it becomes the key, otherwise the key is the tag id (numeric)
+				foreach($item as $idNum => &$tag)
 				{
-					if(!isset($tag['tag']))
+					if(empty($tag['tag']))
 					{
 						unset($tag);
+						continue;
 					}
-				
-					$tag = $tag['tag'];
+
+					if(!empty($tag['bbcode_id']))
+					{
+						$item[$tag['bbcode_id']] = $tag['tag'];
+						unset($item[$idNum]);
+					}
+					else
+					{
+						$item[] = $tag['tag'];
+						unset($item[$idNum]);
+					}
 				}
-	
-				$item = array_values($item);
 			}
 		}
 		
@@ -206,7 +239,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 	{
 		$cache = XenForo_Application::getSimpleCacheData('bbm_active');
 		$list = $cache['list'];
-		
+
 		if(!is_array($list))
 		{
 			return array();
@@ -339,7 +372,10 @@ class BBM_Model_BbCodes extends XenForo_Model
 				   $example->appendChild($document->createCDATASection($bbcode['example']));
 				$generalNode->appendChild($document->createElement('active', $bbcode['active']));
 				$generalNode->appendChild($document->createElement('display_help', $bbcode['display_help']));
-				
+
+				$generalNode->appendChild($document->createElement('bbcode_id', $bbcode['bbcode_id']));
+				$generalNode->appendChild($document->createElement('bbcode_addon', $bbcode['bbcode_addon']));
+
 			$MethodsNode = $bbcodeNode->appendChild($document->createElement('Methods'));
 				$ReplaceMethodNode = $MethodsNode->appendChild($document->createElement('Replacement'));
 					$starRange = $ReplaceMethodNode->appendChild($document->createElement('start_range', ''));

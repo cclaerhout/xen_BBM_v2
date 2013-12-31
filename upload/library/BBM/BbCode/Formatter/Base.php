@@ -54,161 +54,165 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		foreach($bbmTags AS $bbm)
 		{
-			if((boolean)$bbm['active'])
+			if(!$bbm['active'])
 			{
-		  			if($bbm['start_range'])
-		  			{
-	  					$allBbmTags[$bbm['tag']]['options_number'] = $bbm['options_number'];
-	  					$allBbmTags[$bbm['tag']]['start_range'] = $bbm['start_range'];
-	  					$allBbmTags[$bbm['tag']]['end_range'] = $bbm['end_range'];
-	  					$allBbmTags[$bbm['tag']]['callback'] = array($this, 'replacementMethodRenderer');
+				continue;
+			}
 
-	  					if($bbm['plainCallback'])
-	  					{
-	  						$allBbmTags[$bbm['tag']]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
-	  					}
-		  			}
-		  			elseif($bbm['phpcallback_class'])
-		  			{
-		  				$this->_preLoadTemplatesFromCallback($bbm['phpcallback_class'], $bbm['phpcallback_method']);
-		  				
-		  				if( method_exists($bbm['phpcallback_class'], $bbm['phpcallback_method']) )
-		  				{
-		  					$allBbmTags[$bbm['tag']]['phpcallback_class'] = $bbm['phpcallback_class'];
-			  				$allBbmTags[$bbm['tag']]['phpcallback_method'] = $bbm['phpcallback_method'];
-			  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'PhpMethodRenderer');
+      			if($bbm['start_range'])
+      			{
+      				$allBbmTags[$bbm['tag']]['options_number'] = $bbm['options_number'];
+      				$allBbmTags[$bbm['tag']]['start_range'] = $bbm['start_range'];
+      				$allBbmTags[$bbm['tag']]['end_range'] = $bbm['end_range'];
+      				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'replacementMethodRenderer');
 
-	  						$this->_prepareClassToLoad($bbm['phpcallback_class']);
+      				if($bbm['plainCallback'])
+      				{
+      					$allBbmTags[$bbm['tag']]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
+      				}
+      			}
+      			elseif($bbm['phpcallback_class'])
+      			{
+      				$this->_preLoadTemplatesFromCallback($bbm['phpcallback_class'], $bbm['phpcallback_method']);
+      				
+      				if( method_exists($bbm['phpcallback_class'], $bbm['phpcallback_method']) )
+      				{
+      					$allBbmTags[$bbm['tag']]['phpcallback_class'] = $bbm['phpcallback_class'];
+    	  				$allBbmTags[$bbm['tag']]['phpcallback_method'] = $bbm['phpcallback_method'];
+    	  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'PhpMethodRenderer');
 
-			  				if($bbm['plainCallback'])
-			  				{
-			  					$allBbmTags[$bbm['tag']]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
-			  				}	  						
-			  			}
-			  			else
-			  			{
-			  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'renderInvalidTag');
-			  			}
-		  			}
-		  			elseif($bbm['template_active'])
-		  			{
-						//Preload template automatically
-						$this->_preloadBbmTemplates[] = $bbm['template_name'];
-						
-		  				$allBbmTags[$bbm['tag']]['template_name'] = $bbm['template_name'];
-		  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'TemplateMethodRenderer');
+      					$this->_prepareClassToLoad($bbm['phpcallback_class']);
 
-		  				if($bbm['template_callback_class'])
-		  				{
-			  				if( method_exists($bbm['template_callback_class'], $bbm['template_callback_method']) )
-			  				{
-				  				$allBbmTags[$bbm['tag']]['template_callback']['class'] = $bbm['template_callback_class'];
-				  				$allBbmTags[$bbm['tag']]['template_callback']['method'] = $bbm['template_callback_method'];
-	
-			  					$this->_prepareClassToLoad($bbm['template_callback_class']);
-			  					$this->_preLoadTemplatesFromCallback($bbm['template_callback_class'], $bbm['template_callback_method']);
-			  				}
-			  				else
-				  			{
-				  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'renderInvalidTag');
-				  			}			  				
-			  			}
+    	  				if($bbm['plainCallback'])
+    	  				{
+    	  					$allBbmTags[$bbm['tag']]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
+    	  				}	  						
+    	  			}
+    	  			else
+    	  			{
+    	  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'renderInvalidTag');
+    	  			}
+      			}
+      			elseif($bbm['template_active'])
+      			{
+    				//Preload template automatically
+    				$this->_preloadBbmTemplates[] = $bbm['template_name'];
+    				
+      				$allBbmTags[$bbm['tag']]['template_name'] = $bbm['template_name'];
+      				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'TemplateMethodRenderer');
 
-		  				if($bbm['plainCallback'])
-		  				{
-		  					$allBbmTags[$bbm['tag']]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
-		  				}
-		  			}
-		  			
-		  			if($bbm['trimLeadingLinesAfter'] > 0 && $bbm['trimLeadingLinesAfter'] < 3)
-		  			{
-		  				$allBbmTags[$bbm['tag']]['trimLeadingLinesAfter'] = $bbm['trimLeadingLinesAfter'];
-		  			}
-		  			
-		  			if($bbm['regex'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['optionRegex'] = $bbm['regex'];
-		  			}
-		  			
-		  			if($bbm['plainChildren'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['plainChildren'] = true;
-		  			}
-		  			
-		  			if($bbm['stopSmilies'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['stopSmilies'] = true;
-		  			}
-		  			
-		  			if($bbm['stopLineBreakConversion'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['stopLineBreakConversion'] = true;
-		  			}
+      				if($bbm['template_callback_class'])
+      				{
+    	  				if( method_exists($bbm['template_callback_class'], $bbm['template_callback_method']) )
+    	  				{
+    		  				$allBbmTags[$bbm['tag']]['template_callback']['class'] = $bbm['template_callback_class'];
+    		  				$allBbmTags[$bbm['tag']]['template_callback']['method'] = $bbm['template_callback_method'];
 
-		  			if($bbm['parseOptions'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['parseOptions'] = true;
-		  			}
+    	  					$this->_prepareClassToLoad($bbm['template_callback_class']);
+    	  					$this->_preLoadTemplatesFromCallback($bbm['template_callback_class'], $bbm['template_callback_method']);
+    	  				}
+    	  				else
+    		  			{
+    		  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'renderInvalidTag');
+    		  			}			  				
+    	  			}
 
-		  			if($bbm['parser_has_usr'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['parser_perms']['parser_has_usr'] = $bbm['parser_has_usr'];		  			
-		  			}
+      				if($bbm['plainCallback'])
+      				{
+      					$allBbmTags[$bbm['tag']]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
+      				}
+      			}
+      			
+      			if($bbm['trimLeadingLinesAfter'] > 0 && $bbm['trimLeadingLinesAfter'] < 3)
+      			{
+      				$allBbmTags[$bbm['tag']]['trimLeadingLinesAfter'] = $bbm['trimLeadingLinesAfter'];
+      			}
+      			
+      			if($bbm['regex'])
+      			{
+      				$allBbmTags[$bbm['tag']]['optionRegex'] = $bbm['regex'];
+      			}
+      			
+      			if($bbm['plainChildren'])
+      			{
+      				$allBbmTags[$bbm['tag']]['plainChildren'] = true;
+      			}
+      			
+      			if($bbm['stopSmilies'])
+      			{
+      				$allBbmTags[$bbm['tag']]['stopSmilies'] = true;
+      			}
+      			
+      			if($bbm['stopLineBreakConversion'])
+      			{
+      				$allBbmTags[$bbm['tag']]['stopLineBreakConversion'] = true;
+      			}
 
-		  			if($bbm['parser_usr'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['parser_perms']['parser_usr'] = $bbm['parser_usr'];		  			
-		  			}
+      			if($bbm['parseOptions'])
+      			{
+      				$allBbmTags[$bbm['tag']]['parseOptions'] = true;
+      			}
 
-		  			if($bbm['parser_return'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['parser_perms']['parser_return'] = $bbm['parser_return'];		  			
-		  			}
+      			if($bbm['parser_has_usr'])
+      			{
+      				$allBbmTags[$bbm['tag']]['parser_perms']['parser_has_usr'] = $bbm['parser_has_usr'];		  			
+      			}
 
-		  			if($bbm['parser_return_delay'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['parser_perms']['parser_return_delay'] = $bbm['parser_return_delay'];
-		  			}
+      			if($bbm['parser_usr'])
+      			{
+      				$allBbmTags[$bbm['tag']]['parser_perms']['parser_usr'] = $bbm['parser_usr'];		  			
+      			}
 
-	  				$allBbmTags[$bbm['tag']]['view_perms']['can_view_content'] = true;
-		  				
-		  			if($bbm['view_has_usr'])
-		  			{
-						$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
-						$visitorsOk = unserialize($bbm['view_usr']);
-						$canViewBbCode = (array_intersect($visitorUserGroupIds, $visitorsOk)) ? true : false;
-						
-						$allBbmTags[$bbm['tag']]['view_perms']['can_view_content'] = $canViewBbCode;
-		  				$allBbmTags[$bbm['tag']]['view_perms']['view_return'] = $bbm['view_return'];	
+      			if($bbm['parser_return'])
+      			{
+      				$allBbmTags[$bbm['tag']]['parser_perms']['parser_return'] = $bbm['parser_return'];		  			
+      			}
 
-		      				if($bbm['view_return'] == 'default_template' && array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
-		      				{
-		      					$this->_preloadBbmTemplates[] = 'bbm_viewer_content_protected';
-		      				}
+      			if($bbm['parser_return_delay'])
+      			{
+      				$allBbmTags[$bbm['tag']]['parser_perms']['parser_return_delay'] = $bbm['parser_return_delay'];
+      			}
 
-			  			if($bbm['view_return_delay'])
-			  			{
-			  				$allBbmTags[$bbm['tag']]['view_perms']['view_return_delay'] = $bbm['view_return_delay'];
-			  			}
-		  			}
-		  			
-		  			if($bbm['wrapping_tag'] != 'none')
-		  			{
-		  				$allBbmTags[$bbm['tag']]['wrappingTag']['tag'] = $bbm['wrapping_tag'];
+      			$allBbmTags[$bbm['tag']]['view_perms']['can_view_content'] = true;
+      				
+      			if($bbm['view_has_usr'])
+      			{
+    				$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
+    				$visitorsOk = unserialize($bbm['view_usr']);
+    				$canViewBbCode = (array_intersect($visitorUserGroupIds, $visitorsOk)) ? true : false;
+    				
+    				$allBbmTags[$bbm['tag']]['view_perms']['can_view_content'] = $canViewBbCode;
+      				$allBbmTags[$bbm['tag']]['view_perms']['view_return'] = $bbm['view_return'];	
 
-		  				if(!empty($bbm['wrapping_option']))
-		  				{
-			  				$allBbmTags[$bbm['tag']]['wrappingTag']['option'] = $bbm['wrapping_option'];		  				
-		  				}
-		  			}
-		  			
-		  			if($bbm['emptyContent_check'])
-		  			{
-		  				$allBbmTags[$bbm['tag']]['emptyContent_check'] = true;
-		  			}
+          				if($bbm['view_return'] == 'default_template' && array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
+          				{
+          					$this->_preloadBbmTemplates[] = 'bbm_viewer_content_protected';
+          				}
 
-	  				$allBbmTags[$bbm['tag']]['options_separator'] = $bbm['options_separator'];
-		  		}
+    	  			if($bbm['view_return_delay'])
+    	  			{
+    	  				$allBbmTags[$bbm['tag']]['view_perms']['view_return_delay'] = $bbm['view_return_delay'];
+    	  			}
+      			}
+      			
+      			if($bbm['wrapping_tag'] != 'none')
+      			{
+      				$allBbmTags[$bbm['tag']]['wrappingTag']['tag'] = $bbm['wrapping_tag'];
+
+      				if(!empty($bbm['wrapping_option']))
+      				{
+    	  				$allBbmTags[$bbm['tag']]['wrappingTag']['option'] = $bbm['wrapping_option'];		  				
+      				}
+      			}
+      			
+      			if($bbm['emptyContent_check'])
+      			{
+      				$allBbmTags[$bbm['tag']]['emptyContent_check'] = true;
+      			}
+
+      			$allBbmTags[$bbm['tag']]['options_separator'] = $bbm['options_separator'];
+      			
+      			$allBbmTags[$bbm['tag']]['bbcode_id'] = $bbm['bbcode_id'];
 		}
 
 		$this->_bbmTags = $allBbmTags;
@@ -217,6 +221,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		*	XenForo Options - only need to call once the options
 		***/
 		$options = XenForo_Application::get('options');
+		
 		$this->_xenContentCheck = $options->Bbm_XenContentCheck;
 		$this->_bbmSeparator = $options->Bbm_BbCode_Options_Separator;
 		$disabledXenTags = !empty($options->Bbcm_xenTags_disabled) ? $options->Bbcm_xenTags_disabled : array(); 
@@ -333,7 +338,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	/****
 	*	RENDER TAGS METHODES
 	***/
-
 	public function replacementMethodRenderer(array $tag, array $rendererStates, $increment = true)
 	{
 		$tagInfo = $this->_tags[$tag['tag']];
@@ -494,6 +498,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			call_user_func_array(array($template_callback_class, $template_callback_method), array(&$content, &$options, &$templateName, &$fallBack, $rendererStates, $this));
 		}
 
+		if( !empty($tagInfo['bbcode_id']) )
+		{
+			$uniqueID = $tagInfo['bbcode_id'];
+			XenForo_CodeEvent::fire('bbm_callback_template_pre', array(&$content, &$options, &$templateName, &$fallBack, $rendererStates, $this, $uniqueID), $uniqueID);
+		}
+
 		if($fallBack === true)
 		{
 			//Can be modified by the above template Callback
@@ -561,7 +571,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$phpcallback_method = $tagInfo['phpcallback_method'];
 
 		$this->_loadClass($phpcallback_class);
-		return call_user_func_array(array($phpcallback_class, $phpcallback_method), array($tag, $rendererStates, &$this));
+
+		return call_user_func_array(array($phpcallback_class, $phpcallback_method), array($tag, $rendererStates, &$this));		
 	}
 
 	/****
@@ -782,7 +793,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		
 		if( !isset($this->_tagNewInfo[$tag])|| !isset($this->_tagNewInfo[$tag][$infoKey]) )
 		{
-			return false;
+			return null;
 		}
 		
 		if($arrayKey)
@@ -794,7 +805,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 			else
 			{
-				return false;
+				return null;
 			}
 		}
 		
@@ -865,7 +876,27 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		);
 	}
 
-	
+	public function getTextDirection($cssReturn = null)
+	{
+		
+		$dir = strtolower($this->_textDirection);
+		
+		if($cssReturn == 'align' || $cssReturn == 'float')
+		{
+			return ($dir == 'ltr') ? 'left' : 'right';
+		}
+		elseif($cssReturn == 'padding')
+		{
+			return ($dir == 'ltr') ? 'padding-left' : 'padding-right';
+		}
+		elseif($cssReturn == 'margin')
+		{
+			return ($dir == 'ltr') ? 'margin-left' : 'margin-right';
+		}
+		
+		return $dir;
+	}
+
 	/****
 	*	PERMISSIONS TOOLS
 	***/
@@ -1220,8 +1251,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	public function preLoadTemplates(XenForo_View $view)
 	{
 		 //Preload Bbm Templates
-		 if($this->_view && is_array($this->_preloadBbmTemplates))
-		 {
+		$bbmListenerTemplateCache = array();
+		XenForo_CodeEvent::fire('bbm_callback_template_cache', array(&$bbmListenerTemplateCache));
+		
+		if(!empty($bbmListenerTemplateCache) && is_array($bbmListenerTemplateCache) && is_array($this->_preloadBbmTemplates))
+		{
+			$this->_preloadBbmTemplates = array_merge($this->_preloadBbmTemplates, $bbmListenerTemplateCache);
+		}	 
+		 
+		if($this->_view && is_array($this->_preloadBbmTemplates))
+		{
 			foreach($this->_preloadBbmTemplates as $templateName)
 			{
 				$this->_view->preLoadTemplate($templateName);
@@ -1326,6 +1365,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	public function setView(XenForo_View $view = null)
 	{
 		parent::setView($view);
+
+		$this->_bbmSetRequestPath();
 
 		if ($view)
 		{
@@ -1823,6 +1864,55 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       			$postId = $this->getPostParam($this->_bbmIdKey);
       			echo "The tag being processed is $tagName (ID:$tagId - Post ID:$postId)<br />";
       		}
+	}
+
+	/****
+	*	Set/Get Request Path 
+	*	Often use to create proper Bb Codes with anchors - Better to do this only once
+	***/
+	
+	protected $bbmRequestUri = null;
+	protected $bbmFullBasePath = null;
+	protected $bbmFullUri = null;
+		
+	protected function _bbmsetRequestPath()
+	{
+		$requestPath = XenForo_Application::get('requestPaths');
+		
+		if(isset($requestPath['requestUri']))
+		{
+			$this->bbmRequestUri = $requestPath['requestUri'];
+		}
+
+		if(isset($requestPath['fullBasePath']))
+		{
+			$this->bbmFullBasePath = $requestPath['fullBasePath'];
+		}
+		
+		if(isset($requestPath['fullUri']))
+		{		
+			$this->bbmFullUri = $requestPath['fullUri'];
+		}
+	}
+	
+	public function getRequestPath($mode = 'requestUri')
+	{
+		switch ($mode) {
+			case 'requestUri':
+				return $this->bbmRequestUri;
+			break;
+			case 'fullBasePath':
+				return $this->bbmFullBasePath;
+			break;
+			case 'fullUri':
+				return $this->bbmFullUri;
+			break;
+			case 'all': return array(
+				'requestUri' => $this->bbmRequestUri,
+				'fullBasePath' => $this->bbmFullBasePath,
+				'fullUri' => $this->bbmFullUri
+			);	
+		}	
 	}
 }
 //Zend_Debug::dump($abc);

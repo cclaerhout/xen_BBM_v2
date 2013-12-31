@@ -132,6 +132,12 @@ class BBM_Installer
 			$db->query("UPDATE bbm_buttons SET config_name = 'Quattro LTR' WHERE bbm_buttons.config_type = 'ltr'");			
 		}
 
+		if(empty($addon) || $addon['version_id'] < 40)
+		{
+			self::addColumnIfNotExist($db, 'bbm', 'bbcode_id', "TINYTEXT NULL DEFAULT NULL");
+			self::addColumnIfNotExist($db, 'bbm', 'bbcode_addon', "TINYTEXT NULL DEFAULT NULL");
+		}
+
 		//Generate simple cache (users don't need anymore to edit a bbcode and save it (without operating any change) to activate the Simple Cache
 		XenForo_Model::create('BBM_Model_BbCodes')->simplecachedActiveBbCodes(); 
 	}

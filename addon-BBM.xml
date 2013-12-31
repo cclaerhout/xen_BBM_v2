@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.4.0.1" version_id="38" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.5.0" version_id="40" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -99,6 +99,22 @@
 			<xen:checkboxunit label="">
 				<xen:option name="display_help" selected="{$code.display_help}">{xen:phrase bbm_display_bbcode_in_help}</xen:option>
 			</xen:checkboxunit>
+			
+			<xen:if is="{$debugMode}">
+				<div class="bbm_dev secondaryContent">{xen:phrase bbm_dev_settings}</div>	
+				<xen:textboxunit label="{xen:phrase bbm_bbcode_id}:" name="bbcode_id" value="{$code.bbcode_id}" explain="{xen:phrase bbm_bbcode_id_desc}" />
+				<xen:comment> TO DO
+					<xen:if is="{$addOnOptions}">
+						<xen:selectunit label="{xen:phrase add_on}:" name="bbcode_addon" value="{$addOnSelected}">
+							<xen:options source="$addOnOptions" />
+						</xen:selectunit>
+					<xen:else />
+						<input type="hidden" name="bbcode_addon" value="{$addOnSelected}" />
+					</xen:if>
+				</xen:comment>
+			<xen:else />
+				<div class="bbm_dev_info">{xen:if '{$code.bbcode_id}', '<b>{xen:phrase id}:</b> {$code.bbcode_id} {xen:if '{$code.bbcode_addon}', ' |'}'} <xen:comment>{xen:if '{$code.bbcode_addon}', '<b>{xen:phrase addon}:</b> {$code.bbcode_addon}'}</xen:comment></div>
+			</xen:if>
 		</li>
 		
 		<li>
@@ -473,6 +489,17 @@
 	font-decoration:underline;
 	color: orange;
 	cursor:pointer;
+}
+
+.bbm_dev{
+	text-align:center;
+	font-weight:600;
+}
+
+.bbm_dev_info{
+	color: {xen:property mutedTextColor};
+	font-size:9pt;
+	text-align:right;
 }]]></template>
     <template title="bbm_bb_codes_edit_overlay"><![CDATA[<xen:title>{xen:if '{$code.tag}', '{xen:phrase bbm_edit_bbcode_tag}: {$code.title}', '{xen:phrase bbm_add_bbcode}'}</xen:title>
 
@@ -498,6 +525,22 @@
 	<xen:checkboxunit label="">
 		<xen:option name="display_help" selected="{$code.display_help}">{xen:phrase bbm_display_bbcode_in_help}</xen:option>
 	</xen:checkboxunit>
+
+	<xen:if is="{$debugMode}">
+		<div class="bbm_dev secondaryContent">{xen:phrase bbm_dev_settings}</div>	
+		<xen:textboxunit label="{xen:phrase bbm_bbcode_id}:" name="bbcode_id" value="{$code.bbcode_id}" explain="{xen:phrase bbm_bbcode_id_desc}" />
+		<xen:comment> TO DO
+			<xen:if is="{$addOnOptions}">
+				<xen:selectunit label="{xen:phrase add_on}:" name="bbcode_addon" value="{$addOnSelected}">
+					<xen:options source="$addOnOptions" />
+				</xen:selectunit>
+			<xen:else />
+				<input type="hidden" name="bbcode_addon" value="{$addOnSelected}" />
+			</xen:if>
+		</xen:comment>
+	<xen:else />
+		<div class="bbm_dev_info">{xen:if '{$code.bbcode_id}', '<b>{xen:phrase id}:</b> {$code.bbcode_id} {xen:if '{$code.bbcode_addon}', ' |'}'} <xen:comment>{xen:if '{$code.bbcode_addon}', '<b>{xen:phrase addon}:</b> {$code.bbcode_addon}'}</xen:comment></div>
+	</xen:if>	
 
 	<fieldset>
 		<div class="secondaryContent">
@@ -2049,7 +2092,58 @@ li.buttons span{
 }]]></template>
   </admin_templates>
   <admin_template_modifications/>
-  <code_events/>
+  <code_events>
+    <event event_id="bbm_callback_template_cache"><![CDATA[<p>This listener allows to cache extra templates that must be rendered with your Bb Codes. You don't need to cache the template you have specified inside the Bb Code options. It is already automatically cached.</p>
+
+<blockquote>
+	<code><em>array</em> &templates</code>
+</blockquote>
+
+<p>Arguments:</p>
+<ol>
+	<li><code>&$templates/code> - the templates to cache in the view.</li>
+</ol>
+
+<p>Example:</p>
+<pre>	public static function myDemo(&$templates)
+	{
+		$templates[] = 'myNewTemplateToLoad';
+	}
+</pre>]]></event>
+    <event event_id="bbm_callback_template_pre"><![CDATA[<p>This listener allows to extend any Bb Codes using the template rendering method providing it has an unique identifier. This unique identifier can be set in the Bb Code options only when the debug mode is enabled. This listener is executed after the original template callback and before the template is rendered. Please note that to use this listener, the Bb Code doesn't need to have an original callback.</p>
+
+<p>To target only one Bb Code (that what should be done), be sure to match  its unique identifier. If you're using at least XenForo 1.2, you can directly put this identifier in the "Event Hint" field. If you don't, be sure to return false when the "$bbCodeIdentifier" variable doesn't match your Bb Code identifier.</p>
+
+<blockquote style="overflow-x:auto;height:35px">
+	<code>&$content, <em>array</em> &$options, &$templateName, &$fallBack, <em>array</em> $rendererStates, $parentClass, $bbCodeIdentifier</code>
+</blockquote>
+
+<p>Arguments:</p>
+<ol>
+	<li><code>&$content</code> - the content of your Bb Code.</li>
+	<li><code><em>array</em> &$options</code> - the options of your Bb Code put inside an array according to the {link}.</li>
+	<li><code>&$templateName</code> - the template name to fetch. If for any reasons you decide to change the template name, don't forget to cache it using the other listener "bbm_callback_template_cache of this addon.</li>
+	<li><code>&$fallBack</code> - when the page view is not available, your template can't be fetched (<a class="bbm_link" href="http://www.xenforo.com/community/threads/45464/" target="_blank">ref</a>). The default fallBack is the content of the Bb Code wrapped inside a div tag with this CSS class: template_fallback_<b>{tag}</b>. You can set here a new fallback.</li>
+	<li><code><em>array</em> $rendererStates</code> - rendering options for the XenForo renderer engine.</li>
+	<li><code>$parentClass</code> - direct access to the public functions of the parent class (BbCode_Formatter_Base)</li>
+	<li><code>$bbCodeIdentifier</code> - The unique identifier of the Bb Code</li>
+</ol>
+
+Your callback doesn't need to return anything. It allows you to modify on the fly the following variables: $content, $options (array) or $templateName.
+
+<p>Example:</p>
+<pre>	public static function myDemo(&$content, array &$options, &$templateName, &$fallBack, array $rendererStates, $parentClass, $bbCodeIdentifier)
+	{
+		//XenForo 1.1.x compatible code
+		if($bbCodeIdentifier != 'myBbCodeUniqueId')
+		{
+			return false;
+		}
+		
+		Zend_Debug::dump($bbCodeIdentifier);		
+	}
+</pre>]]></event>
+  </code_events>
   <code_event_listeners>
     <listener event_id="editor_setup" execute_order="5000" callback_class="BBM_Listeners_Editor" callback_method="addRedactorButtons" active="1" hint="" description="Adds Redactor Buttons"/>
     <listener event_id="front_controller_post_view" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPostView" active="1" hint="" description="BbCode content protection: implementation"/>
@@ -2161,6 +2255,13 @@ li.buttons span{
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_xenforo_bbcodes_control" display_order="120"/>
+    </option>
+    <option option_id="Bbm_ZenkakuConv" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1={xen:phrase bbm_options_yes}
+0={xen:phrase bbm_options_no}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="540"/>
     </option>
     <option option_id="Bbm_modify_parser" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
@@ -2330,6 +2431,7 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_bbcode_example_desc" version_id="0" version_string="1.0"><![CDATA[Provide example uses for your BB Code for display in the help section.]]></phrase>
     <phrase title="bbm_bbcode_hl_desc" global_cache="1" version_id="0" version_string="1.0"><![CDATA[Highlight some text!]]></phrase>
     <phrase title="bbm_bbcode_html_desc" global_cache="1" version_id="0" version_string="1.0"><![CDATA[Inserts html code]]></phrase>
+    <phrase title="bbm_bbcode_id" version_id="40" version_string="2.5.0"><![CDATA[Bb Code Unique IDentifier]]></phrase>
     <phrase title="bbm_bbcode_not_found" version_id="0" version_string="1.0"><![CDATA[Requested BB Code Not Found]]></phrase>
     <phrase title="bbm_bbCode_option" version_id="0" version_string="1.0"><![CDATA[Requires Option]]></phrase>
     <phrase title="bbm_bbcode_protected_cant_view_bbcode" version_id="0" version_string="1.0"><![CDATA[Subscribe and get exclusive access to our premium content!]]></phrase>
@@ -2492,6 +2594,7 @@ Your callback must return the parsed Bb Code.]]></phrase>
     <phrase title="bbm_custom_options_separator_desc" version_id="4" version_string="1.1.3"><![CDATA[You can set here a custom separator for your Bb Codes options. Let this field blank if you want to use your global options.]]></phrase>
     <phrase title="bbm_delete_bbcode" version_id="0" version_string="1.0"><![CDATA[Delete BB Code]]></phrase>
     <phrase title="bbm_delete_config" version_id="0" version_string="1.0"><![CDATA[Delete configuration]]></phrase>
+    <phrase title="bbm_dev_settings" version_id="40" version_string="2.5.0"><![CDATA[Development settings]]></phrase>
     <phrase title="bbm_disable" version_id="0" version_string="1.0"><![CDATA[Disable]]></phrase>
     <phrase title="bbm_disable_bbcode_parsing" version_id="0" version_string="1.0"><![CDATA[Do not parse BB Codes placed within this BB Code.]]></phrase>
     <phrase title="bbm_disable_invalid_bbcodes" version_id="1" version_string="1.1"><![CDATA[Disable invalid Bb Codes]]></phrase>
@@ -2817,6 +2920,12 @@ Once activated, It will automatically override the private function "_parseTag()
     <phrase title="option_Bbm_xenTags_disabled_usrgrp_media_explain" version_id="27" version_string="2.3.0 Preview"><![CDATA[Disclaimer: this method is experimental. It should work with XenForo posts, threads, conversations, etc.]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_usrgrp_url" version_id="27" version_string="2.3.0 Preview"><![CDATA[[URL] Disable for these usergroups]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_usrgrp_url_explain" version_id="27" version_string="2.3.0 Preview"><![CDATA[Disclaimer: this method is experimental. It should work with XenForo posts, threads, conversations, etc.]]></phrase>
+    <phrase title="option_Bbm_ZenkakuConv" version_id="37" version_string="2.4.0"><![CDATA[Clean option helper - Zenkaku conversion support]]></phrase>
+    <phrase title="option_Bbm_ZenkakuConv_explain" version_id="37" version_string="2.4.0"><![CDATA[If your Japanese/Chinese members might use full-width characters, enable this setting will enable to convert the Bb Code options in half width characters to be sure to match the user needs. This function is not automatic. The Bb Code must use the helper provided with this addon.<br />
+<br />
+Example:<br />
+<span style="color:orange;">$cleanOption = BBM_Helper_BbCodes::cleanOption($option, false);</span><br />
+If you use "true" as second parameter, the option will be output with lower cases.]]></phrase>
     <phrase title="option_group_bbm_bbcodemanager" version_id="0" version_string="1.0"><![CDATA[[Bb Codes & Buttons Manager] Bb Codes Manager]]></phrase>
     <phrase title="option_group_bbm_bbcodemanager_description" version_id="0" version_string="1.0"><![CDATA[Bb Codes Manager Options]]></phrase>
     <phrase title="option_group_bbm_buttonmanager" version_id="0" version_string="1.0"><![CDATA[[Bb Codes & Buttons Manager] Buttons Manager]]></phrase>
@@ -3074,12 +3183,6 @@ span.mce_bbm_spoiler {
 </xen:foreach>]]></template>
   </templates>
   <public_template_modifications>
-    <modification template="bbm_editor_js_setup" modification_key="bbm_grid_callback" description="Callback Intergration (workaround for XenForo 1.1)" execution_order="10" enabled="1" action="str_replace">
-      <find><![CDATA[<xen:comment>gridCallback</xen:comment>]]></find>
-      <replace><![CDATA[<xen:if is="{$xenOptions.currentVersionId} >= 1020031">
-		<xen:callback class="BBM_Listeners_Templates_Preloader" method="getJsConfig" />
-	</xen:if>]]></replace>
-    </modification>
     <modification template="editor" modification_key="bbm_redactor_autocss" description="Auto css for Custom Buttons" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(^.*$)#s]]></find>
       <replace><![CDATA[<xen:include template="bbm_editor_redactor_autocss" />
