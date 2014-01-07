@@ -192,7 +192,7 @@ class BBM_Helper_Buttons
 				return array($theoricalEditor, $config_type);
 			}
 			
-			if($visitor->getBrowser['isTablet'] && $options->Bbm_Bm_Tablets != 'transparent')
+			if($visitor->getBrowser['isTablet'] && !in_array($options->Bbm_Bm_Tablets, array('transparent', 'disable')))
 			{
 				//is a tablet & transparent mode has been activated
 				$config_type = $options->Bbm_Bm_Tablets;
