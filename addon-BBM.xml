@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.5.1" version_id="41" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.5.2" version_id="42" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -326,57 +326,83 @@
 			</dl>
 	
 			<fieldset>
-				<xen:selectunit name="quattro_button_type" value="{$code.quattro_button_type}" label="{xen:phrase bbm_buttons_type_title}:">	
-					<xen:option value="manual" label="{xen:phrase bbm_buttons_btn_type_manual}" />
-					<xen:option value="text" label="{xen:phrase bbm_buttons_btn_type_text}" />
-					<xen:option value="icons_mce" label="{xen:phrase bbm_buttons_btn_type_icons_tinymce}" />
-					<xen:option value="icons_xen" label="{xen:phrase bbm_buttons_btn_type_icons_xenforo}" />
-					<xen:explain>{xen:phrase bbm_buttons_type_desc}</xen:explain>
-				</xen:selectunit>
-				<xen:textboxunit label="{xen:phrase bbm_btn_quattro_button_type_opt}:" name="quattro_button_type_opt" value="{$code.quattro_button_type_opt}" explain="{xen:phrase bbm_buttons_quattro_btn_type_opt_desc}" />
-
-				<xen:selectunit name="quattro_button_return" value="{$code.quattro_button_return}" label="{xen:phrase bbm_buttons_return_title}:">	
-					<xen:option value="direct" label="{xen:phrase bbm_buttons_btn_return_direct}" />
-					<xen:option value="template" label="{xen:phrase bbm_buttons_btn_return_template}" />
-					<xen:explain>{xen:phrase bbm_buttons_return_desc}</xen:explain>
-				</xen:selectunit>
-				<xen:textboxunit label="{xen:phrase bbm_btn_quattro_button_return_opt}:" name="quattro_button_return_opt" value="{$code.quattro_button_return_opt}" explain="{xen:phrase bbm_btn_quattro_button_return_opt_desc}" />
-
 				<xen:textboxunit label="{xen:phrase bbm_buttons_buttondesc}:" name="buttonDesc" value="{$code.buttonDesc}" explain="{xen:phrase bbm_buttons_buttondesc_Desc}" />
 				<xen:textboxunit label="{xen:phrase bbm_buttons_tagoptions}:" name="tagOptions" value="{$code.tagOptions}" explain="{xen:phrase bbm_buttons_tagoptions_Desc}" />
 				<xen:textboxunit label="{xen:phrase bbm_buttons_tagcontent}:" name="tagContent" value="{$code.tagContent}" explain="{xen:phrase bbm_buttons_tagcontent_Desc}" />
 			</fieldset>
+
+			<xen:if is="{$mceSupport}">
+				<fieldset>
+					<xen:selectunit name="quattro_button_type" value="{$code.quattro_button_type}" label="{xen:phrase bbm_buttons_type_title}:">	
+						<xen:option value="manual" label="{xen:phrase bbm_buttons_btn_type_manual}" />
+						<xen:option value="text" label="{xen:phrase bbm_buttons_btn_type_text}" />
+						<xen:option value="icons_mce" label="{xen:phrase bbm_buttons_btn_type_icons_tinymce}" />
+						<xen:option value="icons_xen" label="{xen:phrase bbm_buttons_btn_type_icons_xenforo}" />
+						<xen:explain>{xen:phrase bbm_buttons_type_desc}</xen:explain>
+					</xen:selectunit>
 	
-			<fieldset id="bbm_redactor_btn_config">
-				<xen:checkboxunit label="{xen:phrase bbm_buttons_has_redactor_icon}:">
-					<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
-				</xen:checkboxunit>
+					<div id="quattro_icon_helper">
+						<xen:include template="bbm_quattro_buttons_map">
+							<xen:map from="$quattroSets.xen" to="$xenSet" />
+							<xen:map from="$quattroSets.mce" to="$mceSet" />
+						</xen:include>
+					</div>
+	
+					<xen:textboxunit 
+						label="{xen:phrase bbm_btn_quattro_button_type_opt}:"
+						name="quattro_button_type_opt" value="{$code.quattro_button_type_opt}" 
+						explain="{xen:phrase bbm_buttons_quattro_btn_type_opt_desc}" />
+	
+					<xen:selectunit name="quattro_button_return" value="{$code.quattro_button_return}" label="{xen:phrase bbm_buttons_return_title}:">	
+						<xen:option value="direct" label="{xen:phrase bbm_buttons_btn_return_direct}" />
+						<xen:option value="template" label="{xen:phrase bbm_buttons_btn_return_template}" />
+						<xen:explain>{xen:phrase bbm_buttons_return_desc}</xen:explain>
+					</xen:selectunit>
 
-				<div id="IconEditorOutput"><div class="secondaryContent">
-					<xen:if is="{$code.redactor_has_icon}">
-						<xen:if is="{$code.redactor_sprite_mode}">
-							<img src="styles/default/xenforo/clear.png" alt="" style="
-								background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
+					<xen:textboxunit
+						label="{xen:phrase bbm_btn_quattro_button_return_opt}:" 
+						name="quattro_button_return_opt" value="{$code.quattro_button_return_opt}"
+						explain="{xen:phrase bbm_btn_quattro_button_return_opt_desc}" />
+				</fieldset>
+			</xen:if>
+
+			<xen:if is="{$redactorSupport}">
+				<fieldset id="bbm_redactor_btn_config">
+					<xen:checkboxunit label="{xen:phrase bbm_buttons_has_redactor_icon}:">
+						<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
+					</xen:checkboxunit>
+	
+					<div id="IconEditorOutput"><div class="secondaryContent">
+						<xen:if is="{$code.redactor_has_icon}">
+							<xen:if is="{$code.redactor_sprite_mode}">
+								<img src="styles/default/xenforo/clear.png" alt="" style="
+									background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
+							<xen:else />
+								<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
+							</xen:if>
 						<xen:else />
-							<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
+							<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
 						</xen:if>
-					<xen:else />
-						<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
-					</xen:if>
-				</div></div>
+					</div></div>
+	
+					<xen:textboxunit label="{xen:phrase image_replacement_url}:" name="redactor_image_url" value="{$code.redactor_image_url}" explain="{xen:phrase bbm_buttons_redactor_image_url}" />
+			    
+					<xen:checkboxunit label="{xen:phrase sprite_mode}:">
+						<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
+					</xen:checkboxunit>
+					
+					<xen:controlunit label="{xen:phrase sprite_position}:">
+						<xen:spinbox name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" inputclass="Tooltip OptOut" />
+						<xen:spinbox name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" inputclass="Tooltip OptOut" />
+						px
+					</xen:controlunit>
 
-				<xen:textboxunit label="{xen:phrase image_replacement_url}:" name="redactor_image_url" value="{$code.redactor_image_url}" explain="{xen:phrase bbm_buttons_redactor_image_url}" />
-		    
-				<xen:checkboxunit label="{xen:phrase sprite_mode}:">
-					<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
-				</xen:checkboxunit>
-				
-				<xen:controlunit label="{xen:phrase sprite_position}:">
-					<xen:spinbox name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" inputclass="Tooltip OptOut" />
-					<xen:spinbox name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" inputclass="Tooltip OptOut" />
-					px
-				</xen:controlunit>
-			</fieldset>
+					<div id="redactorIconsHelper" class="secondaryContent JsOnly">
+						<p class="rih_title">{xen:phrase bbm_redactor_sprite_helper}</p>
+						<img class="rih_src" alt="" src="styles/default/xenforo/editor/icons.png"></img>
+					</div>					
+				</fieldset>
+			</xen:if>
 
 			<xen:checkboxunit label="{xen:phrase bbm_buttons_killcmd_activate}:" explain="{xen:phrase bbm_buttons_killcmd_activate_Desc}">
 				<xen:option name="killCmd" selected="{$code.killCmd}">{xen:phrase bbm_buttons_killcmd_activate_question}</xen:option>
@@ -414,6 +440,18 @@
 .xenOverlay .secondaryContent{
 	background: rgb(255, 161, 48) !important;
 	background: rgba(255, 161, 48, 0.9) !important;
+}
+
+.xenOverlay #redactorIconsHelper.secondaryContent{
+	background-color: #F2F2F2 !important;
+}
+
+.xenOverlay #redactorIconsHelper .rih_title{
+	color: black;
+}
+
+.xenOverlay #quattro_icon_helper{
+	margin-left: 188px;
 }
 
 .xenOverlay .ctrlUnit dd .explain b, .ctrlUnit dd .explain strong {
@@ -500,7 +538,49 @@
 	color: {xen:property mutedTextColor};
 	font-size:9pt;
 	text-align:right;
-}]]></template>
+}
+
+#quattro_icon_helper {
+	margin-left: 305px;
+}
+
+#redactorIconsHelper {
+	margin-left: auto;
+}
+
+#redactorIconsHelper .rih_title{
+	font-weight: 600;
+	text-align: center;
+	cursor:pointer;
+}
+
+#redactorIconsHelper .rih_src {
+	display: none;
+}
+
+#redactorIconsHelper .rih_list {
+	padding-top: 12px;
+	margin: auto;
+	text-align: center;
+	width: 80%;
+	display: none;
+}
+
+#redactorIconsHelper .rih_list li{
+	display: inline-block;
+}
+
+#redactorIconsHelper .rih_list img{
+	background: url('styles/default/xenforo/editor/icons.png') no-repeat;
+	height: 24px;
+	width: 24px;
+	cursor:pointer;
+	border: 1px solid transparent;
+}
+
+#redactorIconsHelper .rih_list img:hover{
+	border: 1px dashed orange;
+};]]></template>
     <template title="bbm_bb_codes_edit_overlay"><![CDATA[<xen:title>{xen:if '{$code.tag}', '{xen:phrase bbm_edit_bbcode_tag}: {$code.title}', '{xen:phrase bbm_add_bbcode}'}</xen:title>
 
 <xen:require css="bbm_bb_codes_edit.css" />
@@ -752,56 +832,85 @@
 		</dl>
 
 		<fieldset>
-			<xen:selectunit name="quattro_button_type" value="{$code.quattro_button_type}" label="{xen:phrase bbm_buttons_type_title}:">	
-				<xen:option value="manual" label="{xen:phrase bbm_buttons_btn_type_manual}" />
-				<xen:option value="text" label="{xen:phrase bbm_buttons_btn_type_text}" />
-				<xen:option value="icons_mce" label="{xen:phrase bbm_buttons_btn_type_icons_tinymce}" />
-				<xen:option value="icons_xen" label="{xen:phrase bbm_buttons_btn_type_icons_xenforo}" />
-				<xen:explain>{xen:phrase bbm_buttons_type_desc}</xen:explain>
-			</xen:selectunit>
-			<xen:textboxunit label="{xen:phrase bbm_btn_quattro_button_type_opt}:" name="quattro_button_type_opt" value="{$code.quattro_button_type_opt}" explain="{xen:phrase bbm_buttons_quattro_btn_type_opt_desc}" />
-
-			<xen:selectunit name="quattro_button_return" value="{$code.quattro_button_return}" label="{xen:phrase bbm_buttons_return_title}:">	
-				<xen:option value="direct" label="{xen:phrase bbm_buttons_btn_return_direct}" />
-				<xen:option value="template" label="{xen:phrase bbm_buttons_btn_return_template}" />
-				<xen:explain>{xen:phrase bbm_buttons_return_desc}</xen:explain>
-			</xen:selectunit>
-			<xen:textboxunit label="{xen:phrase bbm_btn_quattro_button_return_opt}:" name="quattro_button_return_opt" value="{$code.quattro_button_return_opt}" explain="{xen:phrase bbm_btn_quattro_button_return_opt_desc}" />
 			<xen:textboxunit label="{xen:phrase bbm_buttons_buttondesc}:" name="buttonDesc" value="{$code.buttonDesc}" explain="{xen:phrase bbm_buttons_buttondesc_Desc}" />
 			<xen:textboxunit label="{xen:phrase bbm_buttons_tagoptions}:" name="tagOptions" value="{$code.tagOptions}" explain="{xen:phrase bbm_buttons_tagoptions_Desc}" />
 			<xen:textboxunit label="{xen:phrase bbm_buttons_tagcontent}:" name="tagContent" value="{$code.tagContent}" explain="{xen:phrase bbm_buttons_tagcontent_Desc}" />
 		</fieldset>
+		
+		<xen:if is="{$mceSupport}">
+			<fieldset>
+				<xen:selectunit name="quattro_button_type" value="{$code.quattro_button_type}" label="{xen:phrase bbm_buttons_type_title}:">	
+					<xen:option value="manual" label="{xen:phrase bbm_buttons_btn_type_manual}" />
+					<xen:option value="text" label="{xen:phrase bbm_buttons_btn_type_text}" />
+					<xen:option value="icons_mce" label="{xen:phrase bbm_buttons_btn_type_icons_tinymce}" />
+					<xen:option value="icons_xen" label="{xen:phrase bbm_buttons_btn_type_icons_xenforo}" />
+					<xen:explain>{xen:phrase bbm_buttons_type_desc}</xen:explain>
+				</xen:selectunit>
 
-		<fieldset id="bbm_redactor_btn_config">
-			<xen:checkboxunit label="{xen:phrase bbm_buttons_has_redactor_icon}:">
-				<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
-			</xen:checkboxunit>
+				<div id="quattro_icon_helper">
+					<xen:include template="bbm_quattro_buttons_map">
+						<xen:map from="$quattroSets.xen" to="$xenSet" />
+						<xen:map from="$quattroSets.mce" to="$mceSet" />
+					</xen:include>
+				</div>
 
-			<div id="IconEditorOutput"><div class="secondaryContent">
-				<xen:if is="{$code.redactor_has_icon}">
-					<xen:if is="{$code.redactor_sprite_mode}">
-						<img src="styles/default/xenforo/clear.png" alt="" style="
-							background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
+				<xen:textboxunit 
+					label="{xen:phrase bbm_btn_quattro_button_type_opt}:"
+					name="quattro_button_type_opt" value="{$code.quattro_button_type_opt}"
+					explain="{xen:phrase bbm_buttons_quattro_btn_type_opt_desc}" />
+	
+				<xen:selectunit name="quattro_button_return" value="{$code.quattro_button_return}" label="{xen:phrase bbm_buttons_return_title}:">	
+					<xen:option value="direct" label="{xen:phrase bbm_buttons_btn_return_direct}" />
+					<xen:option value="template" label="{xen:phrase bbm_buttons_btn_return_template}" />
+					<xen:explain>{xen:phrase bbm_buttons_return_desc}</xen:explain>
+				</xen:selectunit>
+
+				<xen:textboxunit 
+					label="{xen:phrase bbm_btn_quattro_button_return_opt}:"
+					name="quattro_button_return_opt" value="{$code.quattro_button_return_opt}"
+					explain="{xen:phrase bbm_btn_quattro_button_return_opt_desc}" />
+			</fieldset>
+		</xen:if>
+
+		<xen:if is="{$redactorSupport}">
+			<fieldset id="bbm_redactor_btn_config">
+				<xen:checkboxunit label="{xen:phrase bbm_buttons_has_redactor_icon}:">
+					<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
+				</xen:checkboxunit>
+	
+				<div id="IconEditorOutput"><div class="secondaryContent">
+					<xen:if is="{$code.redactor_has_icon}">
+						<xen:if is="{$code.redactor_sprite_mode}">
+							<img src="styles/default/xenforo/clear.png" alt="" style="
+								background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
+						<xen:else />
+							<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
+						</xen:if>
 					<xen:else />
-						<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
+						<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
 					</xen:if>
-				<xen:else />
-					<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
-				</xen:if>
-			</div></div>
+				</div></div>
+	
+				<xen:textboxunit label="{xen:phrase image_replacement_url}:" 
+					name="redactor_image_url" value="{$code.redactor_image_url}"
+					explain="{xen:phrase bbm_buttons_redactor_image_url}" />
+			    
+				<xen:checkboxunit label="{xen:phrase sprite_mode}:">
+					<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
+				</xen:checkboxunit>
+					
+				<xen:controlunit label="{xen:phrase sprite_position}:">
+					<xen:spinbox size="10" name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" />
+					<xen:spinbox size="10" name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" />
+					px
+				</xen:controlunit>
 
-			<xen:textboxunit label="{xen:phrase image_replacement_url}:" name="redactor_image_url" value="{$code.redactor_image_url}" explain="{xen:phrase bbm_buttons_redactor_image_url}" />
-		    
-			<xen:checkboxunit label="{xen:phrase sprite_mode}:">
-				<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
-			</xen:checkboxunit>
-				
-			<xen:controlunit label="{xen:phrase sprite_position}:">
-				<xen:spinbox size="10" name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" />
-				<xen:spinbox size="10" name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" />
-				px
-			</xen:controlunit>
-		</fieldset>
+				<div id="redactorIconsHelper" class="secondaryContent JsOnly">
+					<p class="rih_title">{xen:phrase bbm_redactor_sprite_helper}</p>
+					<img class="rih_src" alt="" src="styles/default/xenforo/editor/icons.png"></img>
+				</div>					
+			</fieldset>
+		</xen:if>
 
 		<xen:checkboxunit label="{xen:phrase bbm_buttons_killcmd_activate}:" explain="{xen:phrase bbm_buttons_killcmd_activate_Desc}">
 			<xen:option name="killCmd" selected="{$code.killCmd}">{xen:phrase bbm_buttons_killcmd_activate_question}</xen:option>
@@ -1957,6 +2066,117 @@ li.buttons span{
 		{xen:raw $editLink}
 	</xen:html>
 </xen:radiounit>]]></template>
+    <template title="bbm_quattro_buttons_map"><![CDATA[<xen:require css="bbm_quattro_buttons_map.css" />
+
+<div class="quattro_icons_wrapper">
+	<div id="quattro_icons_xen" class="quattro_icons_set_wrap">
+		<h2>{xen:phrase bbm_buttons_btn_type_icons_xenforo}</h2>
+		<ul class="quattro_icons_set">
+			<xen:foreach loop="$xenSet" value="$icon">
+				<li class="glyph">
+					<div class="fs1 xen-set" data-unicode="{$icon.unicode}" aria-hidden="true" data-content="{$icon.parsed}"></div>
+					<noscript><p class="smallfont">{$icon.unicode}</p></noscript>
+				</li>
+			</xen:foreach>		
+		</ul>
+	</div>
+
+	<div id="quattro_icons_mce" class="quattro_icons_set_wrap">
+		<h2>{xen:phrase bbm_buttons_btn_type_icons_tinymce}</h2>
+
+		<ul class="quattro_icons_set">
+			<xen:foreach loop="$mceSet" value="$icon">
+				<li class="glyph">
+					<div class="fs1 mce-set" data-unicode="{$icon.unicode}"  aria-hidden="true" data-content="{$icon.parsed}"></div>
+					<noscript><p class="smallfont">{$icon.unicode}</p></noscript>
+				</li>
+			</xen:foreach>
+		</ul>
+	</div>
+</div>]]></template>
+    <template title="bbm_quattro_buttons_map.css"><![CDATA[@font-face {
+	font-family:'xenforo';
+	src:url('styles/sedo/tinyquattro/fonts/xenforo.eot');
+	src:	url('styles/sedo/tinyquattro/fonts/xenforo.eot?#iefix') format('embedded-opentype'),
+		url('styles/sedo/tinyquattro/fonts/xenforo.svg#icomoon') format('svg'),
+		url('styles/sedo/tinyquattro/fonts/xenforo.woff') format('woff'),
+		url('styles/sedo/tinyquattro/fonts/xenforo.ttf') format('truetype');
+	font-weight:normal;
+	font-style:normal;
+}
+
+@font-face {
+	font-family:'tinymce';
+	src:url('styles/sedo/tinyquattro/fonts/tinymce.eot');
+	src:	url('styles/sedo/tinyquattro/fonts/tinymce.eot?#iefix') format('embedded-opentype'),
+		url('styles/sedo/tinyquattro/fonts/tinymce.svg#icomoon') format('svg'),
+		url('styles/sedo/tinyquattro/fonts/tinymce.woff') format('woff'),
+		url('styles/sedo/tinyquattro/fonts/tinymce.ttf') format('truetype');
+	font-weight:normal;
+	font-style:normal;
+}
+
+<xen:comment>Need to define again the font to make sure it works (don't know why)</xen:comment>
+
+@font-face {
+	font-family:'xenforo';
+	src:url('styles/sedo/tinyquattro/fonts/xenforo.eot');
+	src:	url('styles/sedo/tinyquattro/fonts/xenforo.eot?#iefix') format('embedded-opentype'),
+		url('styles/sedo/tinyquattro/fonts/xenforo.svg#icomoon') format('svg'),
+		url('styles/sedo/tinyquattro/fonts/xenforo.woff') format('woff'),
+		url('styles/sedo/tinyquattro/fonts/xenforo.ttf') format('truetype');
+	font-weight:normal;
+	font-style:normal;
+}
+
+.fs1.xen-set:before {
+	font-family: 'xenforo';
+	content: attr(data-content);
+	speak: none;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.fs1.mce-set:before {
+	font-family: 'tinymce';
+	content: attr(data-content);
+	speak: none;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.quattro_icons_set{
+
+}
+
+.quattro_icons_set li{
+	display:inline-block;
+	font-size: 20px;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.quattro_icons_set li.active,
+.quattro_icons_set li:hover{
+	color: orange;
+}
+
+.quattro_icons_set li .smallfont{
+	font-size:10px;
+}
+
+.quattro_icons_set_wrap h2{
+	font-size: 18px;
+	padding: 5px;
+}]]></template>
     <template title="option_bbm_bm_cust"><![CDATA[<xen:require css="option_bbm_bm_cust.css" />
 <xen:include template="option_bbm_bm_cust_js" />
 
@@ -2432,6 +2652,7 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_bbcode_hl_desc" global_cache="1" version_id="0" version_string="1.0"><![CDATA[Highlight some text!]]></phrase>
     <phrase title="bbm_bbcode_html_desc" global_cache="1" version_id="0" version_string="1.0"><![CDATA[Inserts html code]]></phrase>
     <phrase title="bbm_bbcode_id" version_id="40" version_string="2.5.0"><![CDATA[Bb Code Unique IDentifier]]></phrase>
+    <phrase title="bbm_bbcode_id_desc" version_id="40" version_string="2.5.0"><![CDATA[This identifier must be unique.]]></phrase>
     <phrase title="bbm_bbcode_not_found" version_id="0" version_string="1.0"><![CDATA[Requested BB Code Not Found]]></phrase>
     <phrase title="bbm_bbCode_option" version_id="0" version_string="1.0"><![CDATA[Requires Option]]></phrase>
     <phrase title="bbm_bbcode_protected_cant_view_bbcode" version_id="0" version_string="1.0"><![CDATA[Subscribe and get exclusive access to our premium content!]]></phrase>
@@ -2725,6 +2946,7 @@ That's all.
     <phrase title="bbm_please_enter_a_configtype_using_only_alphanumeric" version_id="0" version_string="1.0"><![CDATA[You must only use alphanumeric for the configuration short code.]]></phrase>
     <phrase title="bbm_please_enter_a_phrase_for_constant_type" version_id="0" version_string="1.0"><![CDATA[You forgot to enter a phrase when setting the editor type. If you are not setting the editor type when you have this error, this is a bug that needs to be fixed (the ControllerAdmin of the Buttons must set an extra parameter before saving with the DataWriter). Let a message on the XenForo forum then. Thank you.]]></phrase>
     <phrase title="bbm_please_enter_valid_desc" version_id="0" version_string="1.0"><![CDATA[Please Enter Valid Description]]></phrase>
+    <phrase title="bbm_redactor_sprite_helper" version_id="40" version_string="2.5.0"><![CDATA[Redactor Sprite Helper]]></phrase>
     <phrase title="bbm_regex" version_id="0" version_string="1.0"><![CDATA[Regex option]]></phrase>
     <phrase title="bbm_regex_desc" version_id="0" version_string="1.0"><![CDATA[Optional PHP Regex to be used by the Parser.]]></phrase>
     <phrase title="bbm_save_bbcode" version_id="0" version_string="1.0"><![CDATA[Save BB Code]]></phrase>

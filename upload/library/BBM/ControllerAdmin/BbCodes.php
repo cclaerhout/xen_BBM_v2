@@ -175,6 +175,7 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 			'mceSupport' => $mceSupport,
 			'redactorSupport' => $redactorSupport,
 			'code' => $code,
+			'quattroSets' => BBM_Helper_QuattroUnicode::getunicodeSets(),
 			'activeTags' => $this->_getBbmBBCodeModel()->getActiveTags($code)
 		);
 
