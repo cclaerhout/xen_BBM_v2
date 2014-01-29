@@ -422,21 +422,42 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 
 	protected function _xenRedactorButtons($configType)
 	{
-		$redactorButtonsMap = array(
-			array('switchmode'),
-			array('removeformat'),
-			array('bold', 'italic', 'underline', 'deleted'),
-			array('fontcolor', 'fontsize', 'fontfamily'),
-			array('createlink', 'unlink'),
-			array('alignment'),
-			array('unorderedlist', 'orderedlist', 'outdent', 'indent'),
-			array('smilies', 'image', 'media'),
-			array('code', 'quote'),
-			array('draft'),
-			array('undo', 'redo')
-		);
+		if(XenForo_Application::get('options')->get('currentVersionId') < 1030031) 
+		{
+			/* XenForo 1.2 */
+			$redactorButtonsMap = array(
+				array('switchmode'),
+				array('removeformat'),
+				array('bold', 'italic', 'underline', 'deleted'),
+				array('fontcolor', 'fontsize', 'fontfamily'),
+				array('createlink', 'unlink'),
+				array('alignment'),
+				array('unorderedlist', 'orderedlist', 'outdent', 'indent'),
+				array('smilies', 'image', 'media'),
+				array('code', 'quote'),
+				array('draft'),
+				array('undo', 'redo')
+			);
+		}
+		else
+		{
+			/* XenForo 1.3 */
+			$redactorButtonsMap = array(
+				array('removeformat', 'switchmode'),
+				array('bold', 'italic', 'underline'), //'deleted'
+				array('fontcolor', 'fontsize', 'fontfamily'),
+				array('createlink', 'unlink'),
+				array('alignment'),
+				array('unorderedlist', 'orderedlist', 'outdent', 'indent'),
+				array('smilies', 'image', 'media'),
+				array('insert'),
+				//array('code', 'quote'),
+				array('draft'),
+				array('undo', 'redo')
+			);		
+		}
 		
-		$prefix = '-';//to prevent clashes with bbm bbcodes
+		$prefix = '-';//to prevent clashes with bbm bbcodes // to do: check if still needed
 		$list = '';
 		
 		foreach($redactorButtonsMap as $i => $buttonsGroup)
