@@ -309,14 +309,15 @@ class BBM_Helper_Buttons
 			}
 
 			/*Check if button has a code - should not be needed*/
+
 			if(empty($button['button_code']))
 			{
-				$button['button_code'] = (!empty($button['custCmd'])) ? $button['custCmd'] : 'bbm_'.$button['tag'];
+				$preCode =  (!empty($button['bbcode_id'])) ? $button['bbcode_id'] : $button['tag'];
+				$button['button_code'] = (!empty($button['custCmd'])) ? $button['custCmd'] : "bbm_{$preCode}";
 			}
 
 			$tag = self::_cleanOrphan($button['tag']);
 			$code = self::_cleanOrphan($button['button_code']);
-
 
 			/*Bake the extra CSS for custom Buttons*/
 			if(!empty($button['quattro_button_type']) && !in_array($button['quattro_button_type'], array('manual', 'text')))
@@ -433,7 +434,12 @@ class BBM_Helper_Buttons
 			{
 				$button['tag'] = $button['button_code'] = str_replace('-', '', $button['tag']);
 			}
-				
+
+			if(!empty($button['bbcode_id']))
+			{
+				$button['button_code'] = 'bbm_'.$button['bbcode_id'];
+			}
+
 			$tag = self::_cleanOrphan($button['tag']);
 			$code = self::_cleanOrphan($button['button_code']);
 

@@ -75,7 +75,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       			{
       				$this->_preLoadTemplatesFromCallback($bbm['phpcallback_class'], $bbm['phpcallback_method']);
       				
-      				if( method_exists($bbm['phpcallback_class'], $bbm['phpcallback_method']) )
+      				if( $this->_bbmCallbackChecker($bbm['phpcallback_class'], $bbm['phpcallback_method']) )
       				{
       					$allBbmTags[$bbm['tag']]['phpcallback_class'] = $bbm['phpcallback_class'];
     	  				$allBbmTags[$bbm['tag']]['phpcallback_method'] = $bbm['phpcallback_method'];
@@ -103,7 +103,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
       				if($bbm['template_callback_class'])
       				{
-    	  				if( method_exists($bbm['template_callback_class'], $bbm['template_callback_method']) )
+    	  				if( $this->_bbmCallbackChecker($bbm['template_callback_class'], $bbm['template_callback_method']) )
     	  				{
     		  				$allBbmTags[$bbm['tag']]['template_callback']['class'] = $bbm['template_callback_class'];
     		  				$allBbmTags[$bbm['tag']]['template_callback']['method'] = $bbm['template_callback_method'];
@@ -271,7 +271,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		if( 	(!empty($options->Bbm_wrapper_callback) && $options->Bbm_wrapper_callback != 'none')
-			 && method_exists($xenWrapperCallback['class'], $xenWrapperCallback['method'])
+			 && $this->_bbmCallbackChecker($xenWrapperCallback['class'], $xenWrapperCallback['method'])
 		)
 		{
 			$xenWrapperCallback = $options->get('Bbm_wrapper_callback', false);
@@ -281,6 +281,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 			$this->_prepareClassToLoad($xenWrapperCallback['class']);
 		}
+	}
+
+	protected function _bbmCallbackChecker($class, $method)
+	{
+		if(!empty($method))
+		{
+			return (class_exists($class) && method_exists($class, $method));
+		}
+		
+		return class_exists($class);
 	}
 
 	protected function _filterXenTags($parentTags)
@@ -1273,7 +1283,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected function _preLoadTemplatesFromCallback($class, $method)
 	{
       		//Search if the callback has some templates to preload (from the method "preloadTemplates")
-      		if(method_exists($class, 'preloadTemplates'))
+      		if( $this->_bbmCallbackChecker($class, 'preloadTemplates') )
       		{
       			//$templateNames = $class::preloadTemplates($method); //Only after php 5.3
       			$templateNames = call_user_func(array($class, 'preloadTemplates'), $method);

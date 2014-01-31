@@ -299,11 +299,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 	*/   
 	public function getBbCodesWithButton()
 	{
-		$fields = 'tag_id, tag, active, hasButton,';
-		$fields.= 'button_has_usr, button_usr, killCmd, custCmd,';
-		$fields.= 'buttonDesc, tagOptions, tagContent, options_separator,'; //imgMethod has been depreciated - no need to add it here
-		$fields.= 'quattro_button_type, quattro_button_type_opt, quattro_button_return, quattro_button_return_opt,';
-		$fields.= 'redactor_has_icon, redactor_sprite_mode, redactor_image_url, redactor_sprite_params_x, redactor_sprite_params_y';
+		$fields = implode(", ", BBM_Helper_Bbm::getColumnsToKeepInRegistry());
 	
 		return $this->fetchAllKeyed("
 			SELECT $fields

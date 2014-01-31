@@ -173,10 +173,10 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 	
 	protected function _verifyCallback($class, $method)
 	{
-			if (!XenForo_Application::autoload($class) || !method_exists($class, $method))
-			{
-				$this->error(new XenForo_Phrase('please_enter_valid_callback_method'), 'callback_method');
-			}
+		if (!XenForo_Application::autoload($class) || !method_exists($class, $method))
+		{
+			$this->error(new XenForo_Phrase('please_enter_valid_callback_method'), 'callback_method');
+		}
 	}
 
 	protected function _verifyTemplate($templateName)

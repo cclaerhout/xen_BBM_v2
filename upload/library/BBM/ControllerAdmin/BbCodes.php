@@ -81,7 +81,7 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 			}
 			
 			$classCheck = ( class_exists($class) ) ? 0 : 1;
-			$methodCheck = ( method_exists($class, $method) ) ? 0 : 1;
+			$methodCheck = ( BBM_Helper_Bbm::callbackChecker($class, $method) ) ? 0 : 1;
 			
 			if( ($classCheck + $methodCheck) == 0 )
 			{

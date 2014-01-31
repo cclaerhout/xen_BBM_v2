@@ -3,9 +3,8 @@
 class BBM_Model_Buttons extends XenForo_Model
 {
 	/**
-	* Get TinyQuattro buttons - To do: check if Quattro is installed
+	* Get TinyQuattro buttons
 	*/
-	
 	public function checkQuattroTable(){
 		$db = $this->_getDb();
 		return ($db->query("SHOW TABLES LIKE 'bbm_tinyquattro'")->rowCount() > 0) ? true : false;
@@ -178,13 +177,7 @@ class BBM_Model_Buttons extends XenForo_Model
 
 	protected function _manageButtonInAllConfigs($buttonData, $mode)
 	{
-		$datasToKeep = array_flip(array(
-			'tag', 'tag_id', 'hasButton', 'button_has_usr',
-			'killCmd', 'custCmd', 'buttonDesc', 'tagOptions', 'tagContent', //imgMethod has been depreciated
-			'quattro_button_type', 'quattro_button_type_opt', 'quattro_button_return', 'quattro_button_return_opt',
-			'button_usr', 'active', 'options_separator', 'redactor_has_icon', 'redactor_sprite_mode', 'redactor_sprite_params_x',
-			'redactor_sprite_params_y', 'redactor_image_url')
-		);
+		$datasToKeep = array_flip(BBM_Helper_Bbm::getColumnsToKeepInRegistry());
 
 		$buttonData = array_intersect_key($buttonData, $datasToKeep);
 		$button_tag = $buttonData['tag'];

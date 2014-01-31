@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.5.2" version_id="42" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.6.0" version_id="43" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -1928,6 +1928,70 @@ li.buttons span{
     <template title="bbm_buttons_homepage_error"><![CDATA[<xen:if is="{$error} == 'quattro'">
 	{xen:phrase bbm_buttons_homepage_error_quattro}
 </xen:if>]]></template>
+    <template title="bbm_db_integrity_check"><![CDATA[<xen:title>{xen:phrase bbm_db_integrity}</xen:title>
+<xen:require css="bbm_db_integrity_check.css" />
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink bbm-index}">{xen:phrase bbm_bbcode_button_manager}</xen:breadcrumb>
+</xen:navigation>
+
+<div id="bbm_db_integrity" class="section">
+	<xen:if is="!{$errors.tables} AND !{$errors.fields} AND !{$errors.class}">
+		<p>{xen:phrase bbm_no_error_was_found}</p>
+	<xen:elseif is="{$errors.class}" />
+		<p>{xen:phrase bbm_sql_missing_bbm_class, 'class={$errors.class}'}</p>
+	<xen:else />
+		<div class="tables_check section">
+			<p class="heading">{xen:phrase bbm_sql_table_checker}</p>
+			<div class="primaryContent">
+				<xen:if is="!{$errors.tables}">
+					<p>{xen:phrase bbm_no_missing_table}</p>
+				<xen:else />
+					<ul class="bbm_sql_tables">
+						<xen:foreach loop="$errors.tables" key="$table" value="$toFix">
+							<li>{xen:phrase bbm_missing_table}: <b>{$table}</b> {xen:if "!{$toFix}", "- <span class='fixed'>{xen:phrase bbm_problem_fixed}</span>"}</li>
+						</xen:foreach>
+					</ul>
+				</xen:if>
+			</div>
+		</div>
+		<div class="fields_check section">
+			<p class="heading">{xen:phrase bbm_sql_columns_checker}</p>		
+			<div class="primaryContent">
+				<xen:if is="!{$errors.fields}">	
+					<p>{xen:phrase bbm_no_missing_fields}</p>
+				<xen:else />
+					<ul class="bbm_sql_columns_tables">
+						<xen:foreach loop="$errors.fields" key="$tableName" value="$fields">
+							<li>
+								<p class="subHeading">{xen:phrase bbm_sql_table}: <b>{$tableName}</b></p>
+								<ul class="bbm_sql_columns_items">
+									<xen:foreach loop="$fields" key="$fieldName" value="$toFix">
+										<li>{xen:phrase bbm_missing_column}: <b>{$fieldName}</b> {xen:if "!{$toFix}", "- <span class='fixed'>{xen:phrase bbm_problem_fixed}</span>"}</li>
+									</xen:foreach>
+								</ul>
+							</li>
+						</xen:foreach>
+					</ul>
+				</xen:if>
+			</div>
+		</div>
+		
+		<br />
+		
+		<p>{xen:phrase bbm_db_fix_disclaimer}</p><br />
+		
+		<xen:if is="!{$fixMode}">
+			<p><a class="button" href="{xen:adminlink 'bbm-index/db-integrity-fix'}">{xen:phrase bbm_go_to_check_db_fix}</a></p>
+		<xen:else />
+			<p><a class="button" href="{xen:adminlink 'bbm-index/db-integrity-check'}">{xen:phrase bbm_go_to_check_db_integrity}</a></p>
+		</xen:if>
+	</xen:if>
+</div>]]></template>
+    <template title="bbm_db_integrity_check.css"><![CDATA[#bbm_db_integrity .bbm_sql_columns_items li{
+	list-style: circle inside none;
+	margin-left: 5px;
+}]]></template>
     <template title="bbm_forum_edit_bbm_editor"><![CDATA[			<fieldset>
 				<xen:selectunit label="{xen:phrase bbm_bm_option_config_editor}:" class="bbm_editor" name="bbm_bm_editor" value="{$forum.bbm_bm_editor}">	
 					<xen:foreach loop="$bbm_bm_editors" value="$bbm_bm_editor">
@@ -1981,6 +2045,18 @@ li.buttons span{
 			</li>
 		</ul>
 	</div>
+
+	<div class="miu" class="sectionMain">
+		<div class="subHeading">{xen:phrase bbm_all_options_tools}</div>
+		<ul class="secondaryContent container">
+			<li>
+				<a href="{xen:adminlink 'bbm-index/db-integrity-check'}">
+					<p class="sectionMain buttons">{xen:phrase bbm_go_to_check_db_integrity}</p>
+				</a>
+			</li>
+		</ul>
+	</div>
+	
 	<xen:if is="{$hasBbcm}">
 		<div class="miu" class="sectionMain">
 			<div class="subHeading">{xen:phrase bbm_bbcm_tools}</div>
@@ -2589,30 +2665,6 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_buttonmanager" display_order="10"/>
     </option>
-    <option option_id="sedo_adv_premium_tag1" edit_format="textbox" data_type="string" can_backup="1">
-      <default_value>premium</default_value>
-      <edit_format_params></edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="AdvBBcodeBar" display_order="2100"/>
-    </option>
-    <option option_id="sedo_adv_premium_tag2" edit_format="textbox" data_type="string" can_backup="1">
-      <default_value>premium2</default_value>
-      <edit_format_params></edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="AdvBBcodeBar" display_order="2110"/>
-    </option>
-    <option option_id="sedo_adv_private_tag1" edit_format="textbox" data_type="string" can_backup="1">
-      <default_value>private</default_value>
-      <edit_format_params></edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="AdvBBcodeBar" display_order="2120"/>
-    </option>
-    <option option_id="sedo_adv_private_tag2" edit_format="textbox" data_type="string" can_backup="1">
-      <default_value>private2</default_value>
-      <edit_format_params></edit_format_params>
-      <sub_options></sub_options>
-      <relation group_id="AdvBBcodeBar" display_order="2130"/>
-    </option>
   </optiongroups>
   <permissions>
     <permission_groups/>
@@ -2636,6 +2688,7 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_advanced_configuration_title" version_id="0" version_string="1.0"><![CDATA[Parser configuration]]></phrase>
     <phrase title="bbm_all_options_bbcodes" version_id="0" version_string="1.0"><![CDATA[Bb Codes Options]]></phrase>
     <phrase title="bbm_all_options_buttons" version_id="0" version_string="1.0"><![CDATA[Buttons Options]]></phrase>
+    <phrase title="bbm_all_options_tools" version_id="42" version_string="2.5.2"><![CDATA[Bbm tools]]></phrase>
     <phrase title="bbm_authorised_usergroups_desc" version_id="0" version_string="1.0"><![CDATA[Authorised usergroups - The user  <span style="font-style:italic">secondary usergroupid</span> will be also checked.]]></phrase>
     <phrase title="bbm_bbcm_converted" version_id="0" version_string="1.0"><![CDATA[BBCM Converted]]></phrase>
     <phrase title="bbm_bbcm_converter" version_id="0" version_string="1.0"><![CDATA[Click here to convert your previous Bb Codes]]></phrase>
@@ -2813,6 +2866,8 @@ Your callback must return the parsed Bb Code.]]></phrase>
     <phrase title="bbm_create_bbcode" version_id="0" version_string="1.0"><![CDATA[Create New Bb Code]]></phrase>
     <phrase title="bbm_custom_options_separator" version_id="4" version_string="1.1.3"><![CDATA[Custom options separator]]></phrase>
     <phrase title="bbm_custom_options_separator_desc" version_id="4" version_string="1.1.3"><![CDATA[You can set here a custom separator for your Bb Codes options. Let this field blank if you want to use your global options.]]></phrase>
+    <phrase title="bbm_db_fix_disclaimer" version_id="42" version_string="2.5.2"><![CDATA[It might be more prudent to backup your database before executing this tool. Thank you.]]></phrase>
+    <phrase title="bbm_db_integrity" version_id="42" version_string="2.5.2"><![CDATA[BBM database integrity]]></phrase>
     <phrase title="bbm_delete_bbcode" version_id="0" version_string="1.0"><![CDATA[Delete BB Code]]></phrase>
     <phrase title="bbm_delete_config" version_id="0" version_string="1.0"><![CDATA[Delete configuration]]></phrase>
     <phrase title="bbm_dev_settings" version_id="40" version_string="2.5.0"><![CDATA[Development settings]]></phrase>
@@ -2854,11 +2909,16 @@ Please enter a valid template name.]]></phrase>
     <phrase title="bbm_go_to_bbcodes_options" version_id="0" version_string="1.0"><![CDATA[Bb Codes global options]]></phrase>
     <phrase title="bbm_go_to_buttons" version_id="0" version_string="1.0"><![CDATA[Buttons Manager]]></phrase>
     <phrase title="bbm_go_to_buttons_options" version_id="0" version_string="1.0"><![CDATA[Buttons global options]]></phrase>
+    <phrase title="bbm_go_to_check_db_fix" version_id="42" version_string="2.5.2"><![CDATA[Fix Bbm database]]></phrase>
+    <phrase title="bbm_go_to_check_db_integrity" version_id="42" version_string="2.5.2"><![CDATA[Check Bbm database integrity]]></phrase>
     <phrase title="bbm_go_to_xenforo_bbcodes_options" version_id="0" version_string="1.0"><![CDATA[XenForo Bb Codes Control]]></phrase>
     <phrase title="bbm_import" version_id="0" version_string="1.0"><![CDATA[Import BB Code]]></phrase>
     <phrase title="bbm_import_override" version_id="0" version_string="1.0"><![CDATA[Override existed Bb Codes?]]></phrase>
     <phrase title="bbm_import_override_desc" version_id="0" version_string="1.0"><![CDATA[Check this option if you want to override existed Bb Codes to update them. No need to check this option for a single Bb Code Import: a new window will appear to let you the choice.]]></phrase>
     <phrase title="bbm_import_results" version_id="0" version_string="1.0"><![CDATA[Import results]]></phrase>
+    <phrase title="bbm_missing_column" version_id="42" version_string="2.5.2"><![CDATA[Missing column]]></phrase>
+    <phrase title="bbm_missing_field" version_id="42" version_string="2.5.2"><![CDATA[Missing field]]></phrase>
+    <phrase title="bbm_missing_table" version_id="42" version_string="2.5.2"><![CDATA[Missing table]]></phrase>
     <phrase title="bbm_mobilestyleselector_addon_not_installed" version_id="0" version_string="1.0"><![CDATA[Not available]]></phrase>
     <phrase title="bbm_multi_export_file_name" version_id="0" version_string="1.0"><![CDATA[MultiBbCodes]]></phrase>
     <phrase title="bbm_must_select_atleast_one_bbcode" version_id="0" version_string="1.0"><![CDATA[You must select at least one Bb  Code.]]></phrase>
@@ -2876,6 +2936,9 @@ Please enter a valid template name.]]></phrase>
     <phrase title="bbm_notupdated_bbcodes" version_id="0" version_string="1.0"><![CDATA[Not updated Bb Codes]]></phrase>
     <phrase title="bbm_no_bbcodes" version_id="0" version_string="1.0"><![CDATA[You have no bbm BB Codes]]></phrase>
     <phrase title="bbm_no_editor_available" version_id="0" version_string="1.0"><![CDATA[No bbm editor available]]></phrase>
+    <phrase title="bbm_no_error_was_found" version_id="42" version_string="2.5.2"><![CDATA[No error was found]]></phrase>
+    <phrase title="bbm_no_missing_fields" version_id="42" version_string="2.5.2"><![CDATA[No Bbm column is missing]]></phrase>
+    <phrase title="bbm_no_missing_table" version_id="42" version_string="2.5.2"><![CDATA[No Bbm table is missing]]></phrase>
     <phrase title="bbm_options_no" version_id="0" version_string="1.0"><![CDATA[No]]></phrase>
     <phrase title="bbm_options_number" version_id="0" version_string="1.0"><![CDATA[Number of options]]></phrase>
     <phrase title="bbm_options_number_desc" version_id="0" version_string="1.0"><![CDATA[The number of options you want to use with your Bb Codes. If someone uses a number of options higher to the one above, the Bb Code will not parse.<br />
@@ -2946,6 +3009,7 @@ That's all.
     <phrase title="bbm_please_enter_a_configtype_using_only_alphanumeric" version_id="0" version_string="1.0"><![CDATA[You must only use alphanumeric for the configuration short code.]]></phrase>
     <phrase title="bbm_please_enter_a_phrase_for_constant_type" version_id="0" version_string="1.0"><![CDATA[You forgot to enter a phrase when setting the editor type. If you are not setting the editor type when you have this error, this is a bug that needs to be fixed (the ControllerAdmin of the Buttons must set an extra parameter before saving with the DataWriter). Let a message on the XenForo forum then. Thank you.]]></phrase>
     <phrase title="bbm_please_enter_valid_desc" version_id="0" version_string="1.0"><![CDATA[Please Enter Valid Description]]></phrase>
+    <phrase title="bbm_problem_fixed" version_id="42" version_string="2.5.2"><![CDATA[Problem fixed]]></phrase>
     <phrase title="bbm_redactor_sprite_helper" version_id="40" version_string="2.5.0"><![CDATA[Redactor Sprite Helper]]></phrase>
     <phrase title="bbm_regex" version_id="0" version_string="1.0"><![CDATA[Regex option]]></phrase>
     <phrase title="bbm_regex_desc" version_id="0" version_string="1.0"><![CDATA[Optional PHP Regex to be used by the Parser.]]></phrase>
@@ -2959,6 +3023,10 @@ That's all.
     <phrase title="bbm_sd_bbcode_stop_autolink_strict" version_id="0" version_string="1.0"><![CDATA[Disable AutoLinking if the content is only an url]]></phrase>
     <phrase title="bbm_select_bbcodes_to_convert" version_id="0" version_string="1.0"><![CDATA[Select the Bb Codes to convert]]></phrase>
     <phrase title="bbm_select_bbcodes_to_export" version_id="0" version_string="1.0"><![CDATA[Select the Bb Codes to export]]></phrase>
+    <phrase title="bbm_sql_columns_checker" version_id="42" version_string="2.5.2"><![CDATA[Bbm columns check]]></phrase>
+    <phrase title="bbm_sql_missing_bbm_class" version_id="42" version_string="2.5.2"><![CDATA[It looks some Bbm classes are missing: {class}. Be sure to have uploaded the files on your server or contact me to check this error.]]></phrase>
+    <phrase title="bbm_sql_table" version_id="42" version_string="2.5.2"><![CDATA[Sql table]]></phrase>
+    <phrase title="bbm_sql_table_checker" version_id="42" version_string="2.5.2"><![CDATA[Bbm tables check]]></phrase>
     <phrase title="bbm_start_range" version_id="0" version_string="1.0"><![CDATA[Replacement - Start range]]></phrase>
     <phrase title="bbm_start_range_Desc" version_id="0" version_string="1.0"><![CDATA[This range will replace the Bb Code opening tag.]]></phrase>
     <phrase title="bbm_status" version_id="1" version_string="1.1"><![CDATA[Status]]></phrase>
@@ -3154,14 +3222,6 @@ If you use "true" as second parameter, the option will be output with lower case
     <phrase title="option_group_bbm_buttonmanager_description" version_id="0" version_string="1.0"><![CDATA[Buttons Manager Options]]></phrase>
     <phrase title="option_group_bbm_xenforo_bbcodes_control" version_id="0" version_string="1.0"><![CDATA[[Bb Codes & Buttons Manager] XenForo Bb Codes Control]]></phrase>
     <phrase title="option_group_bbm_xenforo_bbcodes_control_description" version_id="0" version_string="1.0"><![CDATA[Some configuration options for the XenForo default Bb Codes & system]]></phrase>
-    <phrase title="option_sedo_adv_premium_tag1" version_id="4" version_string="1.1.3"><![CDATA[Premium Bb Code (1) - Tag Name]]></phrase>
-    <phrase title="option_sedo_adv_premium_tag1_explain" version_id="4" version_string="1.1.3"><![CDATA[Please enter here the tag name of one of your premium Bb Codes. This Bb Code <b>must</b> exist. Once you click on the editor button, the tag name will be used to wrap your content.]]></phrase>
-    <phrase title="option_sedo_adv_premium_tag2" version_id="4" version_string="1.1.3"><![CDATA[Premium Bb Code (2) - Tag Name]]></phrase>
-    <phrase title="option_sedo_adv_premium_tag2_explain" version_id="4" version_string="1.1.3"><![CDATA[Please enter here the tag name of one of your premium Bb Codes. This Bb Code <b>must</b> exist. Once you click on the editor button, the tag name will be used to wrap your content.]]></phrase>
-    <phrase title="option_sedo_adv_private_tag1" version_id="4" version_string="1.1.3"><![CDATA[Private Bb Code (1) - Tag Name]]></phrase>
-    <phrase title="option_sedo_adv_private_tag1_explain" version_id="4" version_string="1.1.3"><![CDATA[Please enter here the tag name of one of your private Bb Codes. This Bb Code <b>must</b> exist. Once you click on the editor button, the tag name will be used to wrap your content.]]></phrase>
-    <phrase title="option_sedo_adv_private_tag2" version_id="4" version_string="1.1.3"><![CDATA[Private Bb Code (2) - Tag Name]]></phrase>
-    <phrase title="option_sedo_adv_private_tag2_explain" version_id="4" version_string="1.1.3"><![CDATA[Please enter here the tag name of one of your private Bb Codes. This Bb Code <b>must</b> exist. Once you click on the editor button, the tag name will be used to wrap your content.]]></phrase>
     <phrase title="style_property_bbm_bb_authorised_content_description_master" version_id="0" version_string="1.0"><![CDATA[Protected Bb Code - Authorised state - Content]]></phrase>
     <phrase title="style_property_bbm_bb_authorised_content_master" version_id="0" version_string="1.0"><![CDATA[Protected Bb Code - Authorised content]]></phrase>
     <phrase title="style_property_bbm_bb_authorised_desc_description_master" version_id="0" version_string="1.0"><![CDATA[Protected Bb Code - Authorised state - Description]]></phrase>
@@ -3419,4 +3479,5 @@ $0]]></replace>
     </modification>
   </public_template_modifications>
   <bb_code_media_sites/>
+  <bb_codes/>
 </addon>
