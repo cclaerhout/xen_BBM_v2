@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.6.0.1" version_id="44" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.6.1" version_id="44" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -2588,7 +2588,7 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
       <default_value></default_value>
       <edit_format_params>size=40</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="250"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="241"/>
     </option>
     <option option_id="Bbm_wrapper_callback" edit_format="template" data_type="array" can_backup="1" validation_class="BBM_Options_Verification" validation_method="xenWrapperCallback">
       <default_value>a:1:{s:20:"Bbm_wrapper_callback";s:4:"none";}</default_value>
@@ -2607,6 +2607,18 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
       <edit_format_params>size=40</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_xenforo_bbcodes_control" display_order="210"/>
+    </option>
+    <option option_id="Bbm_wrapper_media" edit_format="callback" data_type="string" can_backup="1">
+      <default_value>none</default_value>
+      <edit_format_params>BBM_Options_XenOptions::render_active_tags</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="250"/>
+    </option>
+    <option option_id="Bbm_wrapper_media_option" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>size=40</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="251"/>
     </option>
     <option option_id="Bbm_xenTags_disabled" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
@@ -3194,6 +3206,11 @@ Once activated, It will automatically override the private function "_parseTag()
     <phrase title="option_Bbm_wrapper_img_option" version_id="0" version_string="1.0"><![CDATA[XenForo Img wrapper option]]></phrase>
     <phrase title="option_Bbm_wrapper_img_option_explain" version_id="0" version_string="1.0"><![CDATA[You can enter here some options for the Img wrapping tag:<br />
 [wrappingTag=<b>options</b>][img]content[/img][/wrappingTag]]]></phrase>
+    <phrase title="option_Bbm_wrapper_media" version_id="43" version_string="2.6.0"><![CDATA[XenForo Media wrapper]]></phrase>
+    <phrase title="option_Bbm_wrapper_media_explain" version_id="43" version_string="2.6.0"><![CDATA[If you want to embed the default media tag inside another tag, just select above which wrapping tag to use.]]></phrase>
+    <phrase title="option_Bbm_wrapper_media_option" version_id="43" version_string="2.6.0"><![CDATA[XenForo Media wrapper option]]></phrase>
+    <phrase title="option_Bbm_wrapper_media_option_explain" version_id="43" version_string="2.6.0"><![CDATA[You can enter here some options for the Media wrapping tag:<br />
+[wrappingTag=<b>options</b>][media]content[/media][/wrappingTag]]]></phrase>
     <phrase title="option_Bbm_XenContentCheck" version_id="0" version_string="1.0"><![CDATA[Xen tags - Empty Content Check]]></phrase>
     <phrase title="option_Bbm_XenContentCheck_explain" version_id="0" version_string="1.0"><![CDATA[This option will check if a XenForo default Bb Code (b, i, s, img, code, etc.) has an empty content. If the content is empty, the Bb Code will not be parsed.]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled" version_id="0" version_string="1.0"><![CDATA[XenForo Tags to disable]]></phrase>

@@ -270,6 +270,17 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 		}
 
+		if($options->Bbm_wrapper_media != 'none' && !in_array('media', $disabledXenTags))
+		{
+			$this->_xenWrappers['media'] = $options->Bbm_wrapper_media;		
+
+			if(!empty($options->Bbm_wrapper_media_option))
+			{
+				$this->_xenWrappersOption['media'] = $options->Bbm_wrapper_media_option;
+			}
+		}
+
+
 		if( 	(!empty($options->Bbm_wrapper_callback) && $options->Bbm_wrapper_callback != 'none')
 			 && $this->_bbmCallbackChecker($xenWrapperCallback['class'], $xenWrapperCallback['method'])
 		)
