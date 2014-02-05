@@ -69,7 +69,11 @@ class BBM_Helper_Buttons
 		{
 			$extraParams['loadQuattro'] = false;
 		}
-		
+		else
+		{
+			$extraParams['loadQuattro'] = true;		
+		}
+
 		return $extraParams;
 	}
 
@@ -292,7 +296,7 @@ class BBM_Helper_Buttons
 			/*Detect new lines & proceed to some changes to the grid*/
 			if($button['tag'] == 'carriage')
 			{
-				$quattroGrid[$lineID] = implode(' ', $quattroGrid[$lineID]);
+				$quattroGrid[$lineID] = $quattroGrid[$lineID];
 				$lineID++;
 				continue;
 			}
@@ -372,11 +376,11 @@ class BBM_Helper_Buttons
 
 			/*Bake the grid*/
 			$quattroGrid[$lineID][] = $code;
-
-			if($key == $lastButtonKey)
-			{
-				$quattroGrid[$lineID] = implode(' ', $quattroGrid[$lineID]);
-			}
+		}
+		
+		foreach($quattroGrid as &$buttons)
+		{
+			$buttons = implode(" ", $buttons);
 		}
 
 		return array(
@@ -538,7 +542,7 @@ class BBM_Helper_Buttons
 
 	protected static function _fallBack($debug)
 	{
-//		var_dump($debug);
+		//var_dump($debug);
 		if(self::$editor == 'mce')
 		{
 			return self::_mceFallback();
