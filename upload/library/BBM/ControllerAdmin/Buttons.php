@@ -327,7 +327,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       		$buttons = $this->_getBbmBbCodeModel()->getBbCodesWithButton();
       		$buttons = $this->_addButtonCodeAndClass($buttons);	
       		$buttons = array_merge($xen['buttons'], $buttons);		
-		
+
 		//If user has disable javascript... prevent to register a blank config in database
 		if(empty($config_buttons_order))		
 		{

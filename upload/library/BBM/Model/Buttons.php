@@ -289,6 +289,7 @@ class BBM_Model_Buttons extends XenForo_Model
 		//Registre structure:  bbm_buttons=>configEditor=>configType=>config
 		$allConfigs = $this->getAllConfigs('config_type');
 		$allConfigs = $this->_setEditorAsPrefixForConfigs($allConfigs);
+
 		$config['bbm_buttons'] = $allConfigs;
 		XenForo_Model::create('XenForo_Model_DataRegistry')->set('bbm_buttons', $config);
 	}

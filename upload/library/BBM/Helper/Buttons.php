@@ -65,7 +65,7 @@ class BBM_Helper_Buttons
 
 		$extraParams = self::_bakeExtraParams($myConfigs[$config_ed][$config_type]['config_buttons_full'], $options, $visitor);
 		
-		if($editor == 'mce' && $editor != $config_ed)
+		if( ($editor == 'mce' && $editor != $config_ed) || $editor == 'xen')
 		{
 			$extraParams['loadQuattro'] = false;
 		}
@@ -282,10 +282,12 @@ class BBM_Helper_Buttons
 			$key = $key+1;
 
 			/*Check if button has a tag - should not be needed*/
-			if(!isset($button['tag']))
+			if(empty($button['tag']))
 			{
 				continue;
 			}
+
+			$tag = $button['tag'];
 
 			/*Don't display disable buttons*/
 			if(isset($button['active']) && !$button['active'])
@@ -294,7 +296,7 @@ class BBM_Helper_Buttons
 			}
 
 			/*Detect new lines & proceed to some changes to the grid*/
-			if($button['tag'] == 'carriage')
+			if($tag == 'carriage')
 			{
 				$quattroGrid[$lineID] = $quattroGrid[$lineID];
 				$lineID++;
@@ -311,17 +313,29 @@ class BBM_Helper_Buttons
 					continue;
 				}
 			}
-
-			/*Check if button has a code - should not be needed*/
-
-			if(empty($button['button_code']))
+			/*Button Code Formatter*/
+			if(!empty($button['button_code']))
 			{
-				$preCode =  (!empty($button['bbcode_id'])) ? $button['bbcode_id'] : $button['tag'];
-				$button['button_code'] = (!empty($button['custCmd'])) ? $button['custCmd'] : "bbm_{$preCode}";
+				$code = $button['button_code'];
+			}
+			else
+			{
+				$code = "bbm_$tag";		
+
+			}
+			
+			if(!empty($button['bbcode_id']))
+			{
+				$code = "bbm_".$button['bbcode_id'];
 			}
 
-			$tag = self::_cleanOrphan($button['tag']);
-			$code = self::_cleanOrphan($button['button_code']);
+			if(!empty($button['custCmd']))
+			{
+				$code = $button['custCmd'];
+			}
+
+			$tag = self::_cleanOrphan($tag);
+			$code = self::_cleanOrphan($code);
 
 			/*Bake the extra CSS for custom Buttons*/
 			if(!empty($button['quattro_button_type']) && !in_array($button['quattro_button_type'], array('manual', 'text')))
@@ -377,7 +391,7 @@ class BBM_Helper_Buttons
 			/*Bake the grid*/
 			$quattroGrid[$lineID][] = $code;
 		}
-		
+
 		foreach($quattroGrid as &$buttons)
 		{
 			$buttons = implode(" ", $buttons);
@@ -406,10 +420,12 @@ class BBM_Helper_Buttons
 		foreach($buttons as $button)
 		{
 			/*Check if button has a tag - should not be needed*/
-			if(!isset($button['tag']))
+			if(empty($button['tag']))
 			{
 				continue;
 			}
+
+			$tag = $button['tag'];
 
 			/*Don't display disable buttons*/
 			if(isset($button['active']) && !$button['active'])
@@ -428,26 +444,36 @@ class BBM_Helper_Buttons
 				}
 			}
 
-			/*Check if button has a code*/
-			if(empty($button['button_code']))
+			/*Button Code Formatter*/
+			if(!empty($button['button_code']))
 			{
-				$button['button_code'] = (!empty($button['custCmd'])) ? $button['custCmd'] : 'bbm_'.$button['tag'];
+				$code = $button['button_code'];
+			}
+			else
+			{
+				$code = "bbm_$tag";		
+
+			}
+			
+			if(!empty($button['bbcode_id']))
+			{
+				$code = "bbm_".$button['bbcode_id'];
+			}
+
+			if(!empty($button['custCmd']))
+			{
+				$code = $button['custCmd'];
 			}
 
 			if(!empty($button['class']) && $button['class'] == 'xenButton')
 			{
-				$button['tag'] = $button['button_code'] = str_replace('-', '', $button['tag']);
+				$tag = $code = str_replace('-', '', $tag);
 			}
 
-			if(!empty($button['bbcode_id']))
-			{
-				$button['button_code'] = 'bbm_'.$button['bbcode_id'];
-			}
+			$tag = self::_cleanOrphan($tag);
+			$code = self::_cleanOrphan($code);
 
-			$tag = self::_cleanOrphan($button['tag']);
-			$code = self::_cleanOrphan($button['button_code']);
-
-			if($button['tag'] == 'separator')
+			if($tag == 'separator')
 			{
 				$btn_group_id++;
 			}
@@ -482,8 +508,6 @@ class BBM_Helper_Buttons
 				);
 			}
 		}
-
-
 
 		return array(
 			'bbmButtonsJsGrid' => self::flattenRedactorButtonsGrid($buttonsGrid),
