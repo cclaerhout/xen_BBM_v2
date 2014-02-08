@@ -53,6 +53,14 @@ class BBM_Helper_BbCodes
 	}
 
 	/***
+	 * Strip noscript tags (needed because noscript tags can't be nested)
+	 **/
+	public static function stripNoscript($html)
+	{
+		return preg_replace('#<noscript>.*?</noscript>#sui', '', $html);
+	}
+
+	/***
 	 * Responsive RESS (Responsive Web Design with Server-Side Component) Checker
 	 **/
 	public static function useResponsiveMode()

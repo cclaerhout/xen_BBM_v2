@@ -101,7 +101,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 	/**
 	* Gets all bbm Bb Codes by...
 	**/
-	public function getAllBbCodesBy(array $params)
+	public function getAllBbCodesBy(array $params, $sortByAddonId)
 	{
 		$selection = implode(', ', $params);
 		
@@ -115,8 +115,37 @@ class BBM_Model_BbCodes extends XenForo_Model
 		{
 			return array();
 		}
+
+		if($sortByAddonId)
+		{
+			$bbcodes = $this->sortByAddonId($bbcodes);
+		}
 		
 		return $bbcodes;
+	}
+
+	/**
+	* Sort by AddonId
+	**/
+	public function sortByAddonId(array $bbCodes)
+	{
+		$output = array(
+			'none' => array()
+		);
+		
+		foreach($bbCodes as $bbCode)
+		{
+			if(!empty($bbCode['bbcode_addon']))
+			{
+				$output[$bbCode['bbcode_addon']][] = $bbCode;
+			}
+			else
+			{
+				$output['none'][] = $bbCode;
+			}
+		}
+		
+		return $output;
 	}
 
 	/**

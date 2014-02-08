@@ -1,6 +1,81 @@
 <?php
-class BBM_Listeners_Editor
+class BBM_Listeners_AllInOne
 {
+	/***
+	 * BB CODES LISTENER
+	 **/
+	public static function BbCodes($class, array &$extend)
+	{
+		if (!class_exists('KingK_BbCodeManager_BbCodeManager'))
+		{
+			if ($class == 'XenForo_BbCode_Formatter_BbCode_AutoLink')
+		      	{
+		      		$extend[] = 'BBM_BbCode_Formatter_BbCode_AutoLink';
+		      	}
+		
+		        if ($class == 'XenForo_BbCode_Formatter_Base')
+		        {
+				$extend[] = 'BBM_BbCode_Formatter_Base';
+		        }
+		        
+		      	if ($class == 'XenForo_ControllerPublic_Help')
+		      	{
+		      		$extend[] = 'BBM_ControllerPublic_Help';
+		      	}
+		}
+	}
+
+	/***
+	 * DATAWRITER FORUM LISTENER
+	 **/
+	public static function DataWriterAdmin($class, array &$extend)
+	{
+		if ($class == 'XenForo_DataWriter_Forum' && XenForo_Application::get('options')->get('Bbm_Bm_Forum_Config'))
+	      	{
+      			$extend[] = 'BBM_DataWriter_Forum';
+	      	}
+	}
+
+
+	/***
+	 * SET APPLICATIONS
+	 **/
+	public static function setApplications(
+		XenForo_FrontController $fc,
+		XenForo_ControllerResponse_Abstract &$controllerResponse, 
+		XenForo_ViewRenderer_Abstract &$viewRenderer, array &$containerParams
+	)
+	{
+		//SET BBM BM EDITOR BY FORUM LISTENER
+		$bbmEditor = (isset($controllerResponse->params['forum']['bbm_bm_editor'])) ? $controllerResponse->params['forum']['bbm_bm_editor'] : false;
+		XenForo_Application::set('bbm_bm_editor', $bbmEditor);
+	}
+
+
+	/***
+	 * OVERRIDE A PART OF THE BB CODE PARSER
+	 **/
+	public static function modifyParser($class, array &$extend)
+	{
+		if ($class == 'XenForo_BbCode_Parser' && XenForo_Application::get('options')->get('Bbm_modify_parser'))
+	      	{
+			$extend[] = 'BBM_BbCode_Parser';
+	      	}
+	}
+
+	/***
+	 * INIT TEMPLATE HELPERS
+	 **/
+	public static function initTemplateHelpers(XenForo_Dependencies_Abstract $dependencies, array $data)
+	{
+		XenForo_Template_Helper_Core::$helperCallbacks += array(
+			'bbm_strip_noscript' => array('BBM_Helper_BbCodes', 'stripNoscript')
+		);
+	}
+
+	/***
+	 * SETUP EDITOR LISTENER
+	 **/
 	public static function addRedactorButtons(XenForo_View $view, $formCtrlName, &$message, array &$editorOptions, &$showWysiwyg)
 	{
 		if (!$showWysiwyg)
@@ -186,6 +261,6 @@ class BBM_Listeners_Editor
 		}
 		
 		return true;
-	}
+	}	
+	
 }
-//Zend_Debug::dump($bbmEditor);

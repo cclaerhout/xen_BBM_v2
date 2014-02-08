@@ -33,10 +33,24 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 			if($code['tag'][0] == '@')
 			{
 				$code['class'] = 'orphanButton';
+				$code['orphanButton'] = true;
 			}
 			else
 			{
 				$code['class'] = 'normalButton';			
+				$code['orphanButton'] = false;
+			}
+			
+			$code['disableAddon'] = false;
+			
+			if (XenForo_Application::isRegistered('addOns'))
+			{
+				$enableAddons = XenForo_Application::get('addOns');
+				if( !empty($code['bbcode_addon']) && !isset($enableAddons[$code['bbcode_addon']]) )
+				{
+					$code['class'] .= ' disableAddon';
+					$code['disableAddon'] = true;
+				}
 			}
 		}
 
@@ -777,12 +791,41 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 	***/	
 	public function actionBulkExportPage()
 	{
-		$params = array('tag', 'tag_id');
-		$codes = $this->_getBbmBBCodeModel()->getAllBbCodesBy($params);
+		$params = array('tag', 'tag_id', 'bbcode_addon');
+		$codes = $this->_getBbmBBCodeModel()->getAllBbCodesBy($params, true);
+		$addOnModel = $this->_getAddOnModel();
+		$addOnOptions = $addOnModel->getAddOnOptionsListIfAvailable();
+		$hasBbCodes = false;
+		
+		if( count($codes) > 1 || !empty($codes['none']) )
+		{
+			$hasBbCodes = true;
+		}
+
+		$BbCodesByAddon = array();
+		foreach($codes as $addon => $BbCodes)
+		{
+			if($addon == 'none')
+			{
+				$BbCodesByAddon[$addon] = $BbCodes;
+			}
+			elseif( isset($addOnOptions[$addon]) && !isset($BbCodesByAddon[$addOnOptions[$addon]]) )
+			{
+				$newKey = $addOnOptions[$addon];
+				
+				$BbCodesByAddon[$newKey] = $BbCodes;
+			}
+			else
+			{
+				$BbCodesByAddon[$addon] = $BbCodes;
+			}
+		}
 		
 		$viewParams = array(
-			'codes' => $codes
+			'BbCodesByAddon' => $BbCodesByAddon,
+			'hasBbCodes' => $hasBbCodes
  		);
+
 		return $this->responseView('BBM_ViewAdmin_Bbm_BbCodes_ExportList', 'bbm_bb_codes_export_list', $viewParams);
 	}
 

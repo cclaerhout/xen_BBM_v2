@@ -21,4 +21,19 @@ class BBM_Helper_Bbm
 			'redactor_has_icon', 'redactor_sprite_mode', 'redactor_image_url', 'redactor_sprite_params_x', 'redactor_sprite_params_y'
 		);
 	}
+	
+	public static function getBbmBbCodes()
+	{
+		if (XenForo_Application::isRegistered('bbm_bbcodes'))
+		{
+			$bbmTags = XenForo_Application::get('bbm_bbcodes');
+		}
+		else
+		{
+			$bbmTags = XenForo_Model::create('BBM_Model_BbCodes')->getAllBbCodes('strict');
+			XenForo_Application::set('bbm_bbcodes', $bbmTags);
+		}
+		
+		return 	$bbmTags;
+	}
 }

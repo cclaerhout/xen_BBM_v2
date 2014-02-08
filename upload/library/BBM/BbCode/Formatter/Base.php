@@ -42,9 +42,19 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function bakeBbmTags()
 	{
-		$bbmTags = XenForo_Model::create('BBM_Model_BbCodes')->getAllBbCodes('strict');
+		if (XenForo_Application::isRegistered('bbm_bbcodes'))
+		{
+			$bbmTags = XenForo_Application::get('bbm_bbcodes');
+		}
+		else
+		{
+			$bbmTags = XenForo_Model::create('BBM_Model_BbCodes')->getAllBbCodes('strict');
+			XenForo_Application::set('bbm_bbcodes', $bbmTags);
+		}
+
+		$activeAddons = (XenForo_Application::isRegistered('addOns')) ? XenForo_Application::get('addOns') : array();
 		$visitor = XenForo_Visitor::getInstance();
-		 
+		
 		if(!is_array($bbmTags))
 		{
 			return false;
@@ -57,6 +67,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			if(!$bbm['active'])
 			{
 				continue;
+			}
+
+			if( !empty($activeAddons) && !empty($bbm['bbcode_addon']))
+			{
+				if( !isset($activeAddons[$bbm['bbcode_addon']]) )
+				{
+					//Skip Bb Codes linked to an addon when this addon is disabled
+					continue;
+				}
 			}
 
       			if($bbm['start_range'])
