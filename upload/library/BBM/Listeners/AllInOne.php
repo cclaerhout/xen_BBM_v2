@@ -203,19 +203,45 @@ class BBM_Listeners_AllInOne
 			return false;
 		}
 
+		if(empty($editorOptions['json']['buttonConfig']))
+		{
+			$editorOptions['json']['buttonConfig'] = array();
+		}
+
 		$xenDefaultButtonConfig = &$editorOptions['json']['buttonConfig'];
-		$xenConfigStack = array(
-			'basic'	=> 	array('bold', 'italic', 'underline', 'deleted'),
-			'extended' => 	array('fontcolor', 'fontsize', 'fontfamily'),
-			'link' => 	array('fontcolor', 'fontsize', 'fontfamily'),
-			'align' =>	array('alignment'),
-			'list' =>	array('unorderedlist', 'orderedlist', 'outdent', 'indent'),
-			'indent' =>	array('outdent', 'indent'),
-			'block' => 	array('code', 'quote'),
-			'media' => 	array('media'),
-			'image' => 	array('image'),				
-			'smilies' => 	array('smilies')
-		);
+
+		if(XenForo_Application::get('options')->get('currentVersionId') < 1030031) 
+		{
+			//XenForo 1.2
+			$xenConfigStack = array(
+				'basic'	=> 	array('bold', 'italic', 'underline', 'deleted'),
+				'extended' => 	array('fontcolor', 'fontsize', 'fontfamily'),
+				'link' => 	array('createlink', 'unlink'),
+				'align' =>	array('alignment'),
+				'list' =>	array('unorderedlist', 'orderedlist', 'outdent', 'indent'),
+				'indent' =>	array('outdent', 'indent'),
+				'block' => 	array('code', 'quote'),
+				'media' => 	array('media'),
+				'image' => 	array('image'),				
+				'smilies' => 	array('smilies')
+			);
+		}
+		else
+		{
+			//XenForo 1.3 beta1-beta2
+			$xenConfigStack = array(
+				'basic'	=> 	array('bold', 'italic', 'underline'),
+				'extended' => 	array('fontcolor', 'fontsize', 'fontfamily'),
+				'link' => 	array('createlink', 'unlink'),
+				'align' =>	array('alignment'),
+				'list' =>	array('unorderedlist', 'orderedlist', 'outdent', 'indent'),
+				'indent' =>	array('outdent', 'indent'),
+				'smilies' => 	array('smilies'),
+				'image' => 	array('image'),
+				'media' => 	array('media'),
+				'block' => 	array('insert')
+			);
+		}
 
 		foreach($xenConfigStack as $groupName => $stackBtnGroup)
 		{
@@ -236,7 +262,7 @@ class BBM_Listeners_AllInOne
 				}
 			}				
 		}
-		
+
 		if(!empty($xenConfigStack))
 		{
 			foreach($xenConfigStack as $groupName => $stackBtnGroup)
@@ -264,3 +290,4 @@ class BBM_Listeners_AllInOne
 	}	
 	
 }
+//Zend_Debug::dump($abc);
