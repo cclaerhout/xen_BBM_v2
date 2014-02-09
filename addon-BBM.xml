@@ -2475,7 +2475,7 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
     <listener event_id="init_dependencies" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="initTemplateHelpers" active="1" hint="" description="Init template helpers"/>
     <listener event_id="load_class" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="ModifyParser" active="1" hint="XenForo_BbCode_Parser" description="Modify Parser"/>
     <listener event_id="load_class_bb_code" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="" description="Listener for Formatter_Base, Autolink &amp; help"/>
-    <listener event_id="load_class_controller" execute_order="10" callback_class="BBM_Listeners_BbCode" callback_method="listen" active="1" hint="" description="Adds support for display in Help Section"/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="" description="Adds support for display in Help Section"/>
     <listener event_id="load_class_datawriter" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="DataWriterAdmin" active="1" hint="" description="DataWriter Admin"/>
     <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="" description="BbCode content protection: models"/>
     <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="" description="Templates preloader"/>
@@ -3460,7 +3460,7 @@ span.mce_bbm_spoiler {
     <template title="bbm_editor_extra_info" version_id="0" version_string="1.0"><![CDATA[<p>{xen:phrase bbm_controller_name} <b>{$controllerName}</b></p>
 <p>{xen:phrase bbm_controller_action} <b>{$controllerAction}</b></p>
 <p>{xen:phrase bbm_view_name} <b>{$viewName}</b></p>]]></template>
-    <template title="bbm_editor_js_setup" version_id="35" version_string="2.3.5"><![CDATA[<xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
+    <template title="bbm_editor_js_setup" version_id="45" version_string="2.6.2"><![CDATA[<xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
     <template title="bbm_editor_redactor_autocss" version_id="28" version_string="2.3.0 Preview II"><![CDATA[<xen:if is="{$bbmCustomCss}">
 	<style type="text/css">
 		<xen:foreach loop="$bbmCustomCss" value="$button">
