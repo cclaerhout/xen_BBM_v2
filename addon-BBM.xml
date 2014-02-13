@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.6.2.1" version_id="46" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.6.2.2" version_id="47" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -1259,24 +1259,24 @@
 			<xen:foreach loop="$buttonsAvailable" value="$button">
 				<xen:if is="{$button.class} == 'xenButton'">
 					<xen:if is='{$button.icon_set}'>
-						<li id="button_{$button.tag}" class="icon_box {$button.class}">
+						<li id="button_{$button.tag}" class="icon_box {$button.class} {$button.extraClass}">
 							<i class="{$button.icon_class} {$button.icon_set_class} mce-i-{$button.tag}" title="{$button.tag}"></i>
 						</li>
 					<xen:else />
-						<li id="button_{$button.tag}" class="buttons {$button.class}">
+						<li id="button_{$button.tag}" class="buttons {$button.class} {$button.extraClass}">
 							<span>{$button.tag}</span>
 						</li>
 					</xen:if>
 				<xen:else/>
 					<xen:if is='{$button.icon_set}'>
-						<li id="button_{$button.tag}" class="icon_box {$button.class}">
+						<li id="button_{$button.tag}" class="icon_box {$button.class} {$button.extraClass}">
 							<i class="{$button.icon_class} {$button.icon_set_class} mce-i-{$button.safetag}" title="{$button.tag}"></i>
 							<span><a 	
 								href="{xen:adminlink bbm-bbcodes}{$button.tag_id}/edit&bm={$config.config_type}" 
 								class="OverlayTrigger" data-overlayoptions="{&quot;fixed&quot;:false}">[+]</a></span>
 						</li>
 					<xen:else />
-						<li id="button_{$button.tag}" class="buttons {$button.class}">
+						<li id="button_{$button.tag}" class="buttons {$button.class} {$button.extraClass}">
 							<span>{$button.tag}&nbsp;<a 
 								href="{xen:adminlink bbm-bbcodes}{$button.tag_id}/edit&bm={$config.config_type}" 
 								class="OverlayTrigger" data-overlayoptions="{&quot;fixed&quot;:false}">[+]</a></span>
@@ -1299,17 +1299,17 @@
 				<xen:foreach loop="$lineButtons" value="$button">
 					<xen:if is="{$button.class} == 'xenButton'">
 						<xen:if is='{$button.icon_set}'>
-							<li id="button_{$button.tag}" class="icon_box {$button.class}">
+							<li id="button_{$button.tag}" class="icon_box {$button.class} {$button.extraClass}">
 								<i class="{$button.icon_class} {$button.icon_set_class}  mce-i-{$button.tag}" title="{$button.tag}"></i>
 							</li>
 						<xen:else />
-							<li id="button_{$button.tag}" class="{xen:if '{$button.tag} == "separator"', 'separator', 'buttons {$button.class}'}">
+							<li id="button_{$button.tag}" class="{xen:if '{$button.tag} == "separator"', 'separator', 'buttons {$button.class} {$button.extraClass}'}">
 								<span>{xen:if '{$button.tag} == "separator"', '|', '{$button.tag}'}</span>
 							</li>
 						</xen:if>
 					<xen:else/>
 						<xen:if is='{$button.icon_set}'>
-							<li id="button_{$button.tag}" class="icon_box {$button.class}">
+							<li id="button_{$button.tag}" class="icon_box {$button.class} {$button.extraClass}">
 								<i class="{$button.icon_class} {$button.icon_set_class} mce-i-{$button.safetag}" title="{$button.tag}"></i>
 								<span><a 	
 									href="{xen:adminlink 'bbm-bbcodes/edit'}&bm={$config.config_type}&tag={$button.tag}"
@@ -1317,7 +1317,7 @@
 									data-overlayoptions="{&quot;fixed&quot;:false}">[+]</a></span>
 							</li>
 						<xen:else />
-							<li id="button_{$button.tag}" class="{xen:if '{$button.tag} == "separator"', 'separator', 'buttons {$button.class}'}">
+							<li id="button_{$button.tag}" class="{xen:if '{$button.tag} == "separator"', 'separator', 'buttons {$button.class} {$button.extraClass}'}">
 									<xen:if is="{$button.tag} == 'separator'">
 									<span>|</span>
 								<xen:else />
@@ -1573,6 +1573,10 @@
 	box-shadow: 2px 2px 4px 1px {xen:property dimmedTextColor};
 }
 
+.buttons span a {
+	margin:1px 2px 0 0;
+}
+
 .buttons span a:hover {
 	color:white;
 }
@@ -1620,6 +1624,41 @@ i.mce-text {
 
 li.buttons span{
 	white-space: nowrap;
+}
+
+.buttons.unactiveButton.addonDisabled span:before {
+	background-color: #C3B540;
+	border: 1px outset #808080;
+	border-radius: 4px;
+	color: #FFF;
+	content: "{xen:phrase bbm_addon_disabled}";
+	font-style: italic;
+	margin: 3px;
+	padding: 2px 5px;
+	text-align: center;
+}
+
+.buttons.menu span:before {
+	background-color: #3D6F92;
+	border: 1px outset #808080;
+	border-radius: 4px;
+	color: #FFFFFF;
+	content: "{xen:phrase menu}";
+	font-weight: 600;
+	margin: 3px;
+	padding: 2px 5px;
+	text-align: center;
+}
+
+.buttons.solo span:before {
+	background-color: #2e8b57;
+	border: 1px outset #808080;
+	border-radius: 4px;
+	color: #FFFFFF;
+	content: "{xen:phrase bbm_solo}";
+	margin: 3px;
+	padding: 2px 5px;
+	text-align: center;
 }
 
 /*! jQuery UI - v1.10.3 - 2013-06-20
@@ -3081,6 +3120,7 @@ That's all.
     <phrase title="bbm_sd_bbcode_stop_autolink_strict" version_id="0" version_string="1.0"><![CDATA[Disable AutoLinking if the content is only an url]]></phrase>
     <phrase title="bbm_select_bbcodes_to_convert" version_id="0" version_string="1.0"><![CDATA[Select the Bb Codes to convert]]></phrase>
     <phrase title="bbm_select_bbcodes_to_export" version_id="0" version_string="1.0"><![CDATA[Select the Bb Codes to export]]></phrase>
+    <phrase title="bbm_solo" version_id="46" version_string="2.6.2.1"><![CDATA[Solo]]></phrase>
     <phrase title="bbm_sql_columns_checker" version_id="42" version_string="2.5.2"><![CDATA[Bbm columns check]]></phrase>
     <phrase title="bbm_sql_missing_bbm_class" version_id="42" version_string="2.5.2"><![CDATA[It looks some Bbm classes are missing: {class}. Be sure to have uploaded the files on your server or contact me to check this error.]]></phrase>
     <phrase title="bbm_sql_table" version_id="42" version_string="2.5.2"><![CDATA[Sql table]]></phrase>
@@ -3542,6 +3582,31 @@ span.mce_bbm_spoiler {
 </xen:foreach>]]></template>
   </templates>
   <public_template_modifications>
+    <modification template="editor_ui.css" modification_key="bbm_edui_missingcss" description="Add missing css for independent buttons" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#^.*$#su]]></find>
+      <replace><![CDATA[$0
+
+<xen:comment>Missing css</xen:comment>
+html .redactor_toolbar li a.redactor_btn_insertspoiler{
+	background-position: 3px -1565px;
+}
+
+html .redactor_toolbar li a.redactor_btn_insertquote{
+	background-position: 3px -285px;
+}
+
+html .redactor_toolbar li a.redactor_btn_insertcode{
+	background-position: 3px -2429px;
+}
+
+html .redactor_toolbar li a.redactor_btn_draftsave{
+	background-position: 3px -2237px;
+}
+
+html .redactor_toolbar li a.redactor_btn_draftdelete{
+	background-position: 3px -1853px;
+}]]></replace>
+    </modification>
     <modification template="editor" modification_key="bbm_redactor_autocss" description="Auto css for Custom Buttons" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(^.*$)#s]]></find>
       <replace><![CDATA[<xen:include template="bbm_editor_redactor_autocss" />

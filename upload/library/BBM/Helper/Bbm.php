@@ -36,4 +36,16 @@ class BBM_Helper_Bbm
 		
 		return 	$bbmTags;
 	}
+	
+	public static function checkIfAddonActive($addonId)
+	{
+		if(!XenForo_Application::isRegistered('addOns'))
+		{
+			return true; //XenForo 1.1
+		}
+
+		$activeAddons = XenForo_Application::get('addOns');
+		
+		return isset($activeAddons[$addonId]);
+	}
 }

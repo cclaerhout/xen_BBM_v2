@@ -207,7 +207,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		$this->checkEditorConfigCompatibility($configEd);
 
 		//Get config and all buttons
-		$xen = $this->_xenButtons($configType, $configEd);
+		$xen = $this->_getXenButtons($configType, $configEd);
 
 		$buttons = $this->_getBbmBbCodeModel()->getBbCodesWithButton();
 		$buttons = $this->_addButtonCodeAndClass($buttons);
@@ -323,7 +323,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		$config_buttons_order = str_replace('button_', '', $config_buttons_order); // 'buttons_' prefix was only use for pretty css		
 
       		//Get buttons
-      		$xen = $this->_xenButtons($config_type, $config_ed);
+      		$xen = $this->_getXenButtons($config_type, $config_ed);
       		$buttons = $this->_getBbmBbCodeModel()->getBbCodesWithButton();
       		$buttons = $this->_addButtonCodeAndClass($buttons);	
       		$buttons = array_merge($xen['buttons'], $buttons);		
@@ -408,7 +408,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		);
 	}
 
-	protected function _xenButtons($configType, $configEd)
+	protected function _getXenButtons($configType, $configEd)
 	{
 		if($configEd == 'mce')
 		{
@@ -419,12 +419,18 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 			return $this->_xenRedactorButtons($configType);		
 		}
 	}
+	
+	protected $bbmAvailableButtons = array();
 
 	protected function _xenRedactorButtons($configType)
 	{
-		if(XenForo_Application::get('options')->get('currentVersionId') < 1030031) 
+		$xenCurrentVersionId = XenForo_Application::get('options')->get('currentVersionId');
+		$defaultMenuButtons = array();
+		$extraButtons = array();
+		
+		if($xenCurrentVersionId < 1030031) 
 		{
-			/* XenForo 1.2 */
+			/* XenForo 1.2 - max: 1020570*/
 			$redactorButtonsMap = array(
 				array('switchmode'),
 				array('removeformat'),
@@ -438,23 +444,34 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 				array('draft'),
 				array('undo', 'redo')
 			);
+			
+			array_push($defaultMenuButtons, 'alignment', 'draft');
 		}
 		else
 		{
 			/* XenForo 1.3 */
 			$redactorButtonsMap = array(
 				array('removeformat', 'switchmode'),
-				array('bold', 'italic', 'underline'), //'deleted'
+				array('bold', 'italic', 'underline'),
 				array('fontcolor', 'fontsize', 'fontfamily'),
 				array('createlink', 'unlink'),
-				array('alignment'),
+				array('alignment'), //menu
 				array('unorderedlist', 'orderedlist', 'outdent', 'indent'),
 				array('smilies', 'image', 'media'),
-				array('insert'),
-				//array('code', 'quote'),
-				array('draft'),
+				array('insert'), //menu
+				array('draft'), //menu
 				array('undo', 'redo')
-			);		
+			);
+
+			array_push($defaultMenuButtons, 'alignment', 'draft', 'insert');
+			
+			if($xenCurrentVersionId >= 1030033) //1.3 beta 3
+			{
+				$extraButtons = array(
+					'draftsave', 'draftdelete',
+					'insertquote', 'insertspoiler', 'insertcode'
+				);
+			}
 		}
 		
 		$prefix = '-';//to prevent clashes with bbm bbcodes // to do: check if still needed
@@ -462,15 +479,15 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		
 		foreach($redactorButtonsMap as $i => $buttonsGroup)
 		{
-			$separator = ($i == 0) ? '' : ',separator,';
-
 			foreach($buttonsGroup as &$buttonCode)
 			{
 				$buttonCode = $prefix.$buttonCode;
 			}
 			
-			$buttons = implode(',', $buttonsGroup);
-			$list .= $separator . $buttons;
+			$buttonsGroup = implode(',', $buttonsGroup);
+
+			$separator = ($i == 0) ? '' : ',separator,';
+			$list .= $separator.$buttonsGroup;
 		}
 	
 		$arrayLines = array('1' => $list);
@@ -485,6 +502,15 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       			
       			foreach($xen_buttons as $xen_code)
       			{
+				$extraClass = '';
+				$tag = ($xen_code[0] == $prefix) ? substr($xen_code, 1) : $xen_code;
+				
+				
+				if(in_array($tag, $defaultMenuButtons))
+				{
+					$extraClass = 'menu';	
+				}
+
       				if($xen_code != 'separator')
       				{
       					$blankConfig[$i][] = $buttons[$xen_code] = array(
@@ -493,7 +519,8 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       						'icon_set' => '',
       						'icon_class' =>  '',
       						'icon_set_class' => '',
-      						'class' => 'xenButton'
+      						'class' => 'xenButton',
+      						'extraClass' => $extraClass
       					);
       				}
       				else
@@ -501,12 +528,33 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       					$blankConfig[$i][] = array(
       						'tag' => 'separator',
       						'button_code' => $xen_code,
-      						'class' => 'xenButton'
+      						'class' => 'xenButton',
+      						'extraClass' => $extraClass
       					);					
       				}
       			}
       		}	
-	
+
+		/*Extra buttons*/
+		if(!empty($extraButtons))
+		{
+      			foreach($extraButtons as $xen_code)
+      			{
+				$xen_code = $prefix.$xen_code;
+     				$buttons[$xen_code] = array(
+      					'tag' => $xen_code,
+      					'button_code' => $xen_code,
+      					'icon_set' => '',
+      					'icon_class' =>  '',
+      					'icon_set_class' => '',
+      					'class' => 'xenButton',
+      					'extraClass' => 'solo'
+      				);
+      			}
+		}
+
+		$this->bbmAvailableButtons = $buttons;
+
 		return array(
 			'list' => $list,		//will be used as a fallback if user has disable javascript - to do: (or if user wants to reset)
 			'buttons' => $buttons, 		//will be merged with other buttons
@@ -542,7 +590,8 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       						'icon_set' => ($iconSet == 'text') ? '' : $iconSet,
       						'icon_class' =>  'mce-ico',
       						'icon_set_class' => $this->_getMceClass($iconSet),
-      						'class' => 'xenButton'
+      						'class' => 'xenButton',
+      						'extraClass' => ''
       					);
       				}
       				else
@@ -550,12 +599,15 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       					$blankConfig[$i][] = array(
       						'tag' => 'separator',
       						'button_code' => $xen_code,
-      						'class' => 'xenButton'
+      						'class' => 'xenButton',
+      						'extraClass' => ''
       					);					
       				}
       			}
       		}	
 	
+		$this->bbmAvailableButtons = $buttons;
+		
 		return array(
 			'list' => $list,		//will be used as a fallback if user has disable javascript - to do: (or if user wants to reset)
 			'buttons' => $buttons, 		//will be merged with other buttons
@@ -574,6 +626,13 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 			
 			if(isset($button['class']) && $button['class'] == 'xenButton')
 			{
+				$tag = $button['tag'];
+		
+				if( isset($this->bbmAvailableButtons[$tag]) && !empty($this->bbmAvailableButtons[$tag]['extraClass']) )
+				{
+					$button['extraClass'] = $this->bbmAvailableButtons[$tag]['extraClass'];
+				}
+
 				//Needed when check the "config" array
 				continue;
 			}
@@ -587,13 +646,47 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 				$button['class'] = 'activeButton';			
 			}
 
-			if(isset($button['active']) && !$button['active'])
+			$addonDisable = ($this->_checkAddonStateForButton($button) === false);
+			
+			if((isset($button['active']) && !$button['active']) || $addonDisable)
 			{
 				$button['class'] = 'unactiveButton';
+
+				if($addonDisable)
+				{
+					$button['class'] .= ' addonDisabled';
+				}
 			}
 		}
 		
 		return $buttons;
+	}
+	
+	
+	protected $allDataButtons = array();
+	
+	protected function _checkAddonStateForButton($button)
+	{
+		if( !isset($button['tag']) )
+		{
+			return null;
+		}
+
+		$tag = $button['tag'];
+
+		if(empty($this->allDataButtons))
+		{
+			$this->allDataButtons = $this->_getBbmBbCodeModel()->getBbCodesWithButton(true);
+		}
+		
+		if( !isset($this->allDataButtons[$tag]) || empty($this->allDataButtons[$tag]['bbcode_addon']) )
+		{
+			return null;
+		}
+
+		$addonId = $this->allDataButtons[$tag]['bbcode_addon'];
+		
+		return BBM_Helper_Bbm::checkIfAddonActive($addonId);
 	}
 
 	protected $_buttonsWithCustomCss = array();

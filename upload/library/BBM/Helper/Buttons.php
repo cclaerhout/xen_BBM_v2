@@ -46,7 +46,7 @@ class BBM_Helper_Buttons
 
 		//Get buttons config
 		$myConfigs = XenForo_Model::create('XenForo_Model_DataRegistry')->get('bbm_buttons');
-							
+						
 		if(empty($myConfigs))
 		{
 			return self::_fallBack(2);
@@ -566,7 +566,6 @@ class BBM_Helper_Buttons
 
 	protected static function _fallBack($debug)
 	{
-		//var_dump($debug);
 		if(self::$editor == 'mce')
 		{
 			return self::_mceFallback();

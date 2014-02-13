@@ -326,9 +326,9 @@ class BBM_Model_BbCodes extends XenForo_Model
 	/**
 	* 	Get bbcodes with a button option
 	*/   
-	public function getBbCodesWithButton()
+	public function getBbCodesWithButton($allFields = false)
 	{
-		$fields = implode(", ", BBM_Helper_Bbm::getColumnsToKeepInRegistry());
+		$fields = ($allFields) ? '*' : implode(", ", BBM_Helper_Bbm::getColumnsToKeepInRegistry());
 	
 		return $this->fetchAllKeyed("
 			SELECT $fields
