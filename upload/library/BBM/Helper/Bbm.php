@@ -36,12 +36,27 @@ class BBM_Helper_Bbm
 		
 		return 	$bbmTags;
 	}
+
+	public static function getBbmButtons()
+	{
+		if (XenForo_Application::isRegistered('bbm_buttons'))
+		{
+			$bbmButtons = XenForo_Application::get('bbm_buttons');
+		}
+		else
+		{
+			$bbmButtons = XenForo_Model::create('XenForo_Model_DataRegistry')->get('bbm_buttons');
+			XenForo_Application::set('bbm_buttons', $bbmButtons);
+		}
+		
+		return 	$bbmButtons;
+	}
 	
-	public static function checkIfAddonActive($addonId)
+	public static function checkIfAddonActive($addonId, $realReturn = false)
 	{
 		if(!XenForo_Application::isRegistered('addOns'))
 		{
-			return true; //XenForo 1.1
+			return ($realReturn) ? false : true; //XenForo 1.1
 		}
 
 		$activeAddons = XenForo_Application::get('addOns');

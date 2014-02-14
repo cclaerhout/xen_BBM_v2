@@ -31,8 +31,7 @@ class BBM_Helper_Buttons
 		self::$viewName = $viewName;
 
 		//Check if Quattro is enable
-		$activeAddons = XenForo_Model::create('XenForo_Model_DataRegistry')->get('addOns');
-		$quattroEnable = (!empty($activeAddons['sedo_tinymce_quattro'])) ? true : false;
+		$quattroEnable = BBM_Helper_Bbm::checkIfAddonActive('sedo_tinymce_quattro', true);
 
 		//Which editor is being used? $options->quattro_iconsize is only use to check if the addon is installed or enable
 		$editor = (empty($visitor->permissions['sedo_quattro']['display']) || !$quattroEnable) ? 'xen' : 'mce';
@@ -45,7 +44,7 @@ class BBM_Helper_Buttons
 		self::$editor = $editor;
 
 		//Get buttons config
-		$myConfigs = XenForo_Model::create('XenForo_Model_DataRegistry')->get('bbm_buttons');
+		$myConfigs = BBM_Helper_Bbm::getBbmButtons();
 						
 		if(empty($myConfigs))
 		{
