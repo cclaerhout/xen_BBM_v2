@@ -2805,7 +2805,7 @@ none={xen:phrase none}</edit_format_params>
     <phrase title="bbm_bbcode_protected_cant_view_bbcode" version_id="0" version_string="1.0"><![CDATA[Subscribe and get exclusive access to our premium content!]]></phrase>
     <phrase title="bbm_bbcode_protected_content_title" version_id="0" version_string="1.0"><![CDATA[Premium Content]]></phrase>
     <phrase title="bbm_bbcode_spoiler_close" version_id="0" version_string="1.0"><![CDATA[ (close)]]></phrase>
-    <phrase title="bbm_bbcode_spoiler_desc" version_id="0" version_string="1.0"><![CDATA[Inserts a spoiler!]]></phrase>
+    <phrase title="bbm_bbcode_spoiler_desc" global_cache="1" version_id="0" version_string="1.0"><![CDATA[Inserts a spoiler!]]></phrase>
     <phrase title="bbm_bbcode_spoiler_hidespoiler" version_id="0" version_string="1.0"><![CDATA[Hide Spoiler]]></phrase>
     <phrase title="bbm_bbcode_spoiler_noscript_desc" version_id="0" version_string="1.0"><![CDATA[(Move your mouse to the spoiler area to reveal the content)]]></phrase>
     <phrase title="bbm_bbcode_spoiler_noscript_desc_generic" version_id="0" version_string="1.0"><![CDATA[(Move your mouse to reveal the content)]]></phrase>
