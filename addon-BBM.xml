@@ -3542,7 +3542,7 @@ span.mce_bbm_spoiler {
     <template title="bbm_js" version_id="0" version_string="1.0"><![CDATA[<xen:require css="bbm_buttons.css" />
 
 ]]></template>
-    <template title="bbm_page_container_js_head" version_id="47" version_string="2.6.2.2"><![CDATA[<xen:if is="!{$xenOptions.bbm_debug_tinymcehookdisable} AND !{$quattroIntegration} AND ({$visitor.user_id} OR !{$xenOptions.bbm_debug_redactor_js_loader_novisitor})">
+    <template title="bbm_page_container_js_head" version_id="48" version_string="2.6.2.3"><![CDATA[<xen:if is="!{$xenOptions.bbm_debug_tinymcehookdisable} AND ({$visitor.user_id} OR !{$xenOptions.bbm_debug_redactor_js_loader_novisitor})">
 	<xen:if is="{$xenOptions.bbm_debug_redactor_js_loader} == 'main'">
 		<script src="{xen:helper javaScriptUrl, '{$javaScriptSource}/bbm/redactor/bbm_redactor.js?_v={$xenOptions.jsVersion}'}"></script>	
 	</xen:if>
