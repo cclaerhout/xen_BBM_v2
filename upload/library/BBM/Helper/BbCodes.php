@@ -61,6 +61,32 @@ class BBM_Helper_BbCodes
 	}
 
 	/***
+	 * Get a color with and only with the hexa format (needed for Microsoft DX Filters)
+	 * Code source: http://forum.codecall.net/php-tutorials/22589-rgb-hex-colors-hex-colors-rgb-php.html
+	 **/
+	public static function getHexaColor($color, $fallback = 'FFFFFF', $prefix = '#')
+	{
+		if(in_array($color, array('transparent', 'none')))
+		{
+			return  $prefix.$fallback;
+		}
+		
+		$color = XenForo_Helper_Color::unRgba($color);
+
+		if(preg_match('#^rgb\((?P<r>\d{1,3}).+?(?P<g>\d{1,3}).+?(?P<b>\d{1,3})\)$#i', $color, $rgb))
+		{
+			$color = sprintf("%x", ($rgb['r'] << 16) + ($rgb['g'] << 8) + $rgb['b']);		
+		}
+
+		if(!empty($color[0]) && $color[0] == '#')
+		{
+			$color = substr($color, 1);
+		}
+
+		return $prefix.$color;
+	}
+
+	/***
 	 * Responsive RESS (Responsive Web Design with Server-Side Component) Checker
 	 **/
 	public static function useResponsiveMode()
@@ -183,3 +209,4 @@ class BBM_Helper_BbCodes
        		return $output;
 	}
 }
+//Zend_Debug::dump($abc);

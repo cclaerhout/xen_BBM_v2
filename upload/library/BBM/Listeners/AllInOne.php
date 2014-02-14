@@ -36,7 +36,6 @@ class BBM_Listeners_AllInOne
 	      	}
 	}
 
-
 	/***
 	 * SET APPLICATIONS
 	 **/
@@ -69,7 +68,8 @@ class BBM_Listeners_AllInOne
 	public static function initTemplateHelpers(XenForo_Dependencies_Abstract $dependencies, array $data)
 	{
 		XenForo_Template_Helper_Core::$helperCallbacks += array(
-			'bbm_strip_noscript' => array('BBM_Helper_BbCodes', 'stripNoscript')
+			'bbm_strip_noscript' => array('BBM_Helper_BbCodes', 'stripNoscript'),
+			'bbm_color_hexa' => array('BBM_Helper_BbCodes', 'getHexaColor')
 		);
 	}
 
