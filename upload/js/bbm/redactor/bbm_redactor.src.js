@@ -52,11 +52,12 @@
 		{
 			var self = this;
 			this.redactor = this.$textarea.data('redactor');
-			this.customButtons = this.redactor.opts.buttonsCustom;
 
 			if(typeof this.redactor === undefined){
 				return false;
 			}
+
+			this.customButtons = this.redactor.opts.buttonsCustom;
 
 			//Override callbacks if needed
 			if(typeof self.bbmButtons !== undefined)
