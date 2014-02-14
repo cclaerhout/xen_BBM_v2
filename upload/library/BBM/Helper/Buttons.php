@@ -565,6 +565,7 @@ class BBM_Helper_Buttons
 
 	protected static function _fallBack($debug)
 	{
+		//var_dump($debug);
 		if(self::$editor == 'mce')
 		{
 			return self::_mceFallback();
@@ -584,7 +585,8 @@ class BBM_Helper_Buttons
 		return array(
 			'quattroGrid' => array(),
 			'customQuattroButtonsCss' => array(),
-			'customQuattroButtonsJs' => array()
+			'customQuattroButtonsJs' => array(),
+			'loadQuattro' => true			
 		);	
 	}
 
@@ -594,7 +596,8 @@ class BBM_Helper_Buttons
 			'bbmButtonsJsGrid' => '',
 			'bbmButtonsJsGridArray' => array(),
 			'bbmCustomButtons' => array(),
-			'bbmCustomCss' => array()
+			'bbmCustomCss' => array(),
+			'loadQuattro' => false
 		);	
 	}
 
@@ -607,7 +610,8 @@ class BBM_Helper_Buttons
 			'bbmButtonsJsGrid' => '',
 			'bbmButtonsJsGridArray' => array(),
 			'bbmCustomButtons' => array(),
-			'bbmCustomCss' => array()
+			'bbmCustomCss' => array(),
+			'loadQuattro' => null			
 		);	
 	}		
 }
