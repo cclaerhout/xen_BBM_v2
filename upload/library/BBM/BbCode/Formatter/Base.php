@@ -1161,7 +1161,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_dontWrapMeParentTags = array('url');
 	protected $_wrapMeContent = '';
 
-	public function wrapMe(array $currentTag, array &$rendererStates, $content, $isXenTag = false)
+	public function wrapMe(array $currentTag, array $rendererStates, $content, $isXenTag = false)
 	{
 		/****
 		*	Don't use the wrapMe function if the previous tag was the Url tag
