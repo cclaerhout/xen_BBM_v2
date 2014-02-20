@@ -404,11 +404,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		$content = $this->renderSubTree($tag['children'], $rendererStates);
 
-		if($this->_bbmContentForceHtmlCharsDecode)
-		{
-			$content = htmlspecialchars_decode($content);
-		}
-		
 		$fallBack = htmlspecialchars($tag['original'][0]) . $content . htmlspecialchars($tag['original'][1]);
 
 		$startRange = $tagInfo['start_range'];
@@ -517,11 +512,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		$content = $this->renderSubTree($tag['children'], $rendererStates);
 		
-		if($this->_bbmContentForceHtmlCharsDecode)
-		{
-			$content = htmlspecialchars_decode($content);
-		}
-
 		$options = array();
 		$templateName = $tagInfo['template_name'];
 
@@ -748,7 +738,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
       		//Parent function 
 		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
-		
+
     		/***
 		*	Empty content check: do NOT use the function "renderSubTree" => it will do some problematic loops
 		*	0 check content solutions: is_numeric() or  $content !== '0'
@@ -1017,11 +1007,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return $dir;
 	}
 
-	protected $_bbmContentForceHtmlCharsDecode = false;
+	protected $_bbmWrapMeBypassContent = false;
 	
-	public function getBbmContentHtmlCharsState()
+	public function getBbmWrapMeBypassContentState()
 	{
-		return $this->_bbmContentForceHtmlCharsDecode;
+		return $this->_bbmWrapMeBypassContent;
 	}
 
 	/****
@@ -1169,8 +1159,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_xenWrappersOption;
 	protected $_xenWrappersCallback = null;
 	protected $_dontWrapMeParentTags = array('url');
+	protected $_wrapMeContent = '';
 
-	public function wrapMe(array $currentTag, array $rendererStates, $content, $isXenTag = false)
+	public function wrapMe(array $currentTag, array &$rendererStates, $content, $isXenTag = false)
 	{
 		/****
 		*	Don't use the wrapMe function if the previous tag was the Url tag
@@ -1191,6 +1182,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$wrappingTagInfo = $this->_tags[$wrappingTag];
+		$this->_wrapMeContent = $content;
+		
+		$uniqContent = uniqid('wrapme_content_');
 
 		/****
 		*	Create the wrapper Tag information for the parser
@@ -1198,7 +1192,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$wrapper = array(
 			'tag' => $wrappingTag,
 			'original' => array(0 => "[$wrappingTag]", 1 => "[/$wrappingTag]"),
-			'children' => array(0 => $content)
+			'children' => array(0 => $uniqContent)
 		);
 		
 			if( $isXenTag == false && isset($this->_tags[$currentTag['tag']]['wrappingTag']['option']) )
@@ -1227,7 +1221,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		*	Return manager
 		***/
 		$rendererStates['isWrapper'] = true;
-		$this->_bbmContentForceHtmlCharsDecode = true;
+		$this->_bbmWrapMeBypassContent = true;
+		$rendererStates['stopWhiteSpaceEmulation'] = true;
 		
       		if( isset($wrappingTagInfo['callback'][1]) )
       		{
@@ -1259,9 +1254,22 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$output = $this->renderValidTag($wrappingTagInfo, $wrapper, $rendererStates);
 		}
 
-		$this->_bbmContentForceHtmlCharsDecode = false;
+		$this->_bbmWrapMeBypassContent = false;
+		//$output = str_replace($uniqContent, $content, $output);
 
 		return $this->bbmMethodOutputFilter($output, 'bbm_wrapme');
+	}
+
+
+	//Extended
+	public function renderSubTree(array $tree, array $rendererStates)
+	{
+		if($this->_bbmWrapMeBypassContent)
+		{
+			return $this->_wrapMeContent;
+		}
+
+		return parent::renderSubTree($tree, $rendererStates);
 	}
 
 	public function addWrapper($wrapperTag, $wrapperOptions = false, $separator = false)
