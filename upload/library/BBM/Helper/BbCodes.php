@@ -13,6 +13,17 @@ class BBM_Helper_BbCodes
 	public static $colorRegex = '/^(rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)|#[a-f0-9]{6}|#[a-f0-9]{3})$/i';
 
 	/***
+	 * Get special tags ({tag}...{/tag} from content
+	 **/
+	public static function getSpecialTags($content, array $tags = array('slide'))
+	{
+		$tags = implode('|', $tags);
+		preg_match_all('#{(?P<tag>'.$tags.')(=(?P<option>\[([\w\d]+)(?:=.+?)?\].+?\[/\4\]|[^{}]+)+?)?}(?P<content>.*?){/\1}(?!(?:\W+)?{/\1})#is', $content, $matches, PREG_SET_ORDER);
+
+		return $matches;
+	}
+
+	/***
 	 * Emulate white space
 	 **/
 	public static function emulateWhiteSpace($string)
@@ -37,7 +48,7 @@ class BBM_Helper_BbCodes
 	/***
 	 * Clean option - to use for example in the options loop
 	 **/
-	public static function cleanOption($string, $strtolower = false)
+	public static function cleanOption($string, $strtolower = false, $trim = true)
 	{
 		if(XenForo_Application::get('options')->get('Bbm_ZenkakuConv'))
 		{
@@ -49,7 +60,12 @@ class BBM_Helper_BbCodes
 			$string = strtolower($string);
 		}
 		
-		return $string;
+		if(!$trim)
+		{
+			return $string;
+		}
+		
+		return trim($string);
 	}
 
 	/***
@@ -70,12 +86,16 @@ class BBM_Helper_BbCodes
 		{
 			return  $prefix.$fallback;
 		}
-		
+
 		$color = XenForo_Helper_Color::unRgba($color);
 
 		if(preg_match('#^rgb\((?P<r>\d{1,3}).+?(?P<g>\d{1,3}).+?(?P<b>\d{1,3})\)$#i', $color, $rgb))
 		{
-			$color = sprintf("%x", ($rgb['r'] << 16) + ($rgb['g'] << 8) + $rgb['b']);		
+			$color = str_pad(dechex($rgb['r']), 2, "0", STR_PAD_LEFT);
+			$color .= str_pad(dechex($rgb['g']), 2, "0", STR_PAD_LEFT);
+			$color .= str_pad(dechex($rgb['b']), 2, "0", STR_PAD_LEFT);
+			
+			//$color = sprintf("%x", ($rgb['r'] << 16) + ($rgb['g'] << 8) + $rgb['b']); // Not accurate if red starts with 0
 		}
 
 		if(!empty($color[0]) && $color[0] == '#')

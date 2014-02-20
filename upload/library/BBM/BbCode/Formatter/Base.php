@@ -20,7 +20,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_bbmImgAllowedUsergroups;
 	protected $_bbmUrlAllowedUsergroups;
 	protected $_bbmMediaAllowedUsergroups;
-
+	
 	//@extended
 	public function getTags()
 	{
@@ -403,6 +403,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$content = $this->renderSubTree($tag['children'], $rendererStates);
+
+		if($this->_bbmContentForceHtmlCharsDecode)
+		{
+			$content = htmlspecialchars_decode($content);
+		}
+		
 		$fallBack = htmlspecialchars($tag['original'][0]) . $content . htmlspecialchars($tag['original'][1]);
 
 		$startRange = $tagInfo['start_range'];
@@ -452,7 +458,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 		}
 		
-		return $startRange.$content.$endRange;
+		return $this->bbmMethodOutputFilter(
+			$startRange.$content.$endRange, 'bbm_direct'
+		);
 	}
 
 	public function TemplateMethodRenderer(array $tag, array $rendererStates, $increment = true)
@@ -508,6 +516,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$content = $this->renderSubTree($tag['children'], $rendererStates);
+		
+		if($this->_bbmContentForceHtmlCharsDecode)
+		{
+			$content = htmlspecialchars_decode($content);
+		}
+
 		$options = array();
 		$templateName = $tagInfo['template_name'];
 
@@ -552,7 +566,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		$templateArguments = array('content' => $content, 'options' => $options, 'rendererStates' => $rendererStates);
 
-		return $this->renderBbmTemplate($templateName, $templateArguments, $fallBack);
+		return $this->bbmMethodOutputFilter(
+			$this->renderBbmTemplate($templateName, $templateArguments, $fallBack), 'bbm_template'
+		);
 	}
 	
 	public function PhpMethodRenderer(array $tag, array $rendererStates, $increment = true)
@@ -612,7 +628,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		$this->_loadClass($phpcallback_class);
 
-		return call_user_func_array(array($phpcallback_class, $phpcallback_method), array($tag, $rendererStates, &$this));		
+		return $this->bbmMethodOutputFilter(
+			call_user_func_array(array($phpcallback_class, $phpcallback_method), array($tag, $rendererStates, &$this)),
+			'bbm_php'
+		);
+	}
+
+	public function bbmMethodOutputFilter($string, $method)
+	{
+		return $string;
 	}
 
 	/****
@@ -633,6 +657,62 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		
 		$this->currentTag['tagInfo'] = $tagInfo;
 		$this->currentRendererStates = $rendererStates;
+	}
+
+	/****
+	*	Get current or previous tree element
+	***/
+
+	protected $_bbmTreeElementCurrent = array();
+	protected $_bbmTreeElementPrevious = array();
+
+	//@extended
+	public function renderTreeElement($element, array $rendererStates, &$trimLeadingLines)
+	{
+		$this->_bbmTreeElementPrevious = $this->_bbmTreeElementCurrent;
+		$this->_bbmTreeElementCurrent = $element;
+
+		$parent = parent::renderTreeElement($element, $rendererStates, $trimLeadingLines);
+		return $parent;
+	}
+
+	public function bbmGetCurrentTreeElement()
+	{
+		return $this->_bbmTreeElementCurrent;
+	}
+
+	public function bbmGetPreviousTreeElement()
+	{
+		return $this->_bbmTreeElementPrevious;	
+	}
+
+	public function bbmGetPreviousTag()
+	{
+		if(!empty($this->_bbmTreeElementPrevious) && !empty($this->_bbmTreeElementPrevious['tag']))
+		{
+			return $this->_bbmTreeElementPrevious['tag'];
+		}
+		
+		return null;	
+	}
+
+	public function bbmGetParentTag()
+	{
+		//Not 100% of this
+		if(empty($this->currentTag['tag']['tag']))
+		{
+			return null;
+		}
+		
+		$currentTag = $this->currentTag['tag']['tag'];
+		$previousTreeElement = $this->bbmGetPreviousTreeElement();
+
+		if(!empty($previousTreeElement['children'][0]['tag']) && $previousTreeElement['children'][0]['tag'] == $currentTag)
+		{
+			return $previousTreeElement['tag'];
+		}
+
+		return null;
 	}
 
 	/****
@@ -668,7 +748,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
       		//Parent function 
 		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
-					
+		
     		/***
 		*	Empty content check: do NOT use the function "renderSubTree" => it will do some problematic loops
 		*	0 check content solutions: is_numeric() or  $content !== '0'
@@ -937,6 +1017,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return $dir;
 	}
 
+	protected $_bbmContentForceHtmlCharsDecode = false;
+	
+	public function getBbmContentHtmlCharsState()
+	{
+		return $this->_bbmContentForceHtmlCharsDecode;
+	}
+
 	/****
 	*	PERMISSIONS TOOLS
 	***/
@@ -1080,10 +1167,19 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	***/
 	protected $_xenWrappers;
 	protected $_xenWrappersOption;
-	protected $_xenWrappersCallback = null;	
+	protected $_xenWrappersCallback = null;
+	protected $_dontWrapMeParentTags = array('url');
 
 	public function wrapMe(array $currentTag, array $rendererStates, $content, $isXenTag = false)
 	{
+		/****
+		*	Don't use the wrapMe function if the previous tag was the Url tag
+		***/
+		if( in_array($this->bbmGetParentTag(), $this->_dontWrapMeParentTags) )
+		{
+			return $content;
+		}
+
 		/****
 		*	Check if the wrapping tag is available and get it
 		***/
@@ -1095,14 +1191,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$wrappingTagInfo = $this->_tags[$wrappingTag];
-		
+
 		/****
 		*	Create the wrapper Tag information for the parser
 		***/
 		$wrapper = array(
 			'tag' => $wrappingTag,
 			'original' => array(0 => "[$wrappingTag]", 1 => "[/$wrappingTag]"),
-			'children' => array(0 => '{#content#}')
+			'children' => array(0 => $content)
 		);
 		
 			if( $isXenTag == false && isset($this->_tags[$currentTag['tag']]['wrappingTag']['option']) )
@@ -1131,6 +1227,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		*	Return manager
 		***/
 		$rendererStates['isWrapper'] = true;
+		$this->_bbmContentForceHtmlCharsDecode = true;
 		
       		if( isset($wrappingTagInfo['callback'][1]) )
       		{
@@ -1158,11 +1255,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		else
 		{
 			//XenForo Replacement Method
-			$rendererStates['stopIncrement'] = true;					
+			$rendererStates['stopIncrement'] = true;		
 			$output = $this->renderValidTag($wrappingTagInfo, $wrapper, $rendererStates);
 		}
-		
-		return str_replace('{#content#}', $content, $output);
+
+		$this->_bbmContentForceHtmlCharsDecode = false;
+
+		return $this->bbmMethodOutputFilter($output, 'bbm_wrapme');
 	}
 
 	public function addWrapper($wrapperTag, $wrapperOptions = false, $separator = false)
