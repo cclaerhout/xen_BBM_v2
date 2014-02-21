@@ -633,8 +633,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	*	Current tag datas (easy access in this class or in callbacks to tag datas)
 	***/
 	
-	public $currentTag;
-	public $currentRendererStates;	
+	public $currentTag = array();
+	public $currentRendererStates = array();	
 	
 	protected function _createCurrentTag($tag, array $tagInfo, array $rendererStates)
 	{
@@ -650,44 +650,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	}
 
 	/****
-	*	Get current or previous tree element
+	*	Get advanced tag data
 	***/
-
-	protected $_bbmTreeElementCurrent = array();
-	protected $_bbmTreeElementPrevious = array();
-
-	//@extended
-	public function renderTreeElement($element, array $rendererStates, &$trimLeadingLines)
+	public function bbmGetParentTag($rendererStates = null)
 	{
-		$this->_bbmTreeElementPrevious = $this->_bbmTreeElementCurrent;
-		$this->_bbmTreeElementCurrent = $element;
-
-		$parent = parent::renderTreeElement($element, $rendererStates, $trimLeadingLines);
-		return $parent;
-	}
-
-	public function bbmGetCurrentTreeElement()
-	{
-		return $this->_bbmTreeElementCurrent;
-	}
-
-	public function bbmGetPreviousTreeElement()
-	{
-		return $this->_bbmTreeElementPrevious;	
-	}
-
-	public function bbmGetPreviousTag()
-	{
-		if(!empty($this->_bbmTreeElementPrevious) && !empty($this->_bbmTreeElementPrevious['tag']))
+		if($rendererStates == null)
 		{
-			return $this->_bbmTreeElementPrevious['tag'];
+			$rendererStates = $this->bbmGetCurrentRendererStates();
 		}
 		
-		return null;	
-	}
-
-	public function bbmGetParentTag(array $rendererStates)
-	{
 		if( isset($rendererStates['tagDataStack'], $rendererStates['tagDataStack'][0], $rendererStates['tagDataStack'][0]['tag']) )
 		{
 			return $rendererStates['tagDataStack'][0]['tag'];
@@ -696,27 +667,24 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return null;
 	}
 
-	public function bbmGetSupposedParentTag()
+	public function bbmGetCurrentTag()
 	{
-		//Will only work to a n-1 level
-		if(empty($this->currentTag['tag']['tag']))
+		if( isset($this->currentTag['tag'], $this->currentTag['tag']['tag']) )
 		{
-			return null;
+			return $this->currentTag['tag']['tag'];
 		}
 		
-		$currentTag = $this->currentTag['tag']['tag'];
-		$previousTreeElement = $this->bbmGetPreviousTreeElement();
-
-		if(	isset($previousTreeElement['children'], $previousTreeElement['children'][0], $previousTreeElement['children'][0]['tag'])
-			&& is_string($previousTreeElement['children'][0]['tag'])
-			&& $previousTreeElement['children'][0]['tag'] == $currentTag
-			&& !empty($previousTreeElement['tag'])
-		)
-		{
-			return $previousTreeElement['tag'];
-		}
-
 		return null;
+	}
+
+	public function bbmGetCurrentTagData()
+	{
+		return $this->currentTag;
+	}
+
+	public function bbmGetCurrentRendererStates()
+	{
+		return $this->currentRendererStates;
 	}
 
 	/****
@@ -895,7 +863,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	
 	public function addTagExtra($infoKey, $info, $arrayMode = false)
 	{
-		$tag = $this->currentTag['tag']['tag'];
+		$tag = $this->bbmGetCurrentTag();
 		if($arrayMode)
 		{
 			$this->_tagNewInfo[$tag][$infoKey][] = $info;
@@ -913,7 +881,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			return $this->_tagNewInfo;
 		}
 
-		$tag = $this->currentTag['tag']['tag'];
+		$tag = $this->bbmGetCurrentTag();
 		
 		if( !isset($this->_tagNewInfo[$tag])|| !isset($this->_tagNewInfo[$tag][$infoKey]) )
 		{
@@ -938,8 +906,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function getAttachmentParams($id, array $validExtensions = null, array $fallbackVisitorPerms = null)
 	{
-		$rendererStates = $this->currentRendererStates;
-
+		$rendererStates = $this->bbmGetCurrentRendererStates();
+		
 		if (isset($rendererStates['attachments'][$id]))
 		{
 			$attachment = $rendererStates['attachments'][$id];
@@ -1180,7 +1148,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		/****
 		*	Don't use the wrapMe function if the previous tag was the Url tag
 		***/
-		$parentTag = $this->bbmGetParentTag($rendererStates);
+		$parentTag = $this->bbmGetParentTag();
 		
 		if( in_array($parentTag, $this->_dontWrapMeParentTags) )
 		{
@@ -1303,7 +1271,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			return false;
 		}
 
-		$tag = $this->currentTag['tag']['tag'];
+		$tag = $this->bbmGetCurrentTag();
 
 		/*Set wrapper tag*/
 		if(in_array($tag, $this->_xenOriginalTags))
@@ -1340,7 +1308,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function removeWrapper()
 	{
-		$tag = $this->currentTag['tag']['tag'];
+		$tag = $this->bbmGetCurrentTag();
 
 		if(in_array($tag, $this->_xenOriginalTags))
 		{
