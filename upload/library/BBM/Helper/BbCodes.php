@@ -285,5 +285,25 @@ class BBM_Helper_BbCodes
 
        		return $output;
 	}
+
+	/***
+	 * Check if an addon is installed
+	 **/	
+	public static function installedAddon($addonKey)
+	{
+		$isInstalled = false;
+		
+		if(XenForo_Application::get('options')->get('currentVersionId') >= 1020031)
+		{
+			$addons = XenForo_Application::get('addOns');
+
+			if(isset($addons[$addonKey]))
+			{
+				$isInstalled = true;
+			}
+		}
+		
+		return $isInstalled;	
+	}
 }
 //Zend_Debug::dump($abc);
