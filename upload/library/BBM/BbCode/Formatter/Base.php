@@ -686,9 +686,19 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return null;	
 	}
 
-	public function bbmGetParentTag()
+	public function bbmGetParentTag(array $rendererStates)
 	{
-		//Not 100% of this
+		if( isset($rendererStates['tagDataStack'], $rendererStates['tagDataStack'][0], $rendererStates['tagDataStack'][0]['tag']) )
+		{
+			return $rendererStates['tagDataStack'][0]['tag'];
+		}
+		
+		return null;
+	}
+
+	public function bbmGetSupposedParentTag()
+	{
+		//Will only work to a n-1 level
 		if(empty($this->currentTag['tag']['tag']))
 		{
 			return null;
@@ -697,7 +707,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$currentTag = $this->currentTag['tag']['tag'];
 		$previousTreeElement = $this->bbmGetPreviousTreeElement();
 
-		if(!empty($previousTreeElement['children'][0]['tag']) && $previousTreeElement['children'][0]['tag'] == $currentTag)
+		if(	isset($previousTreeElement['children'], $previousTreeElement['children'][0], $previousTreeElement['children'][0]['tag'])
+			&& is_string($previousTreeElement['children'][0]['tag'])
+			&& $previousTreeElement['children'][0]['tag'] == $currentTag
+			&& !empty($previousTreeElement['tag'])
+		)
 		{
 			return $previousTreeElement['tag'];
 		}
@@ -1166,7 +1180,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		/****
 		*	Don't use the wrapMe function if the previous tag was the Url tag
 		***/
-		if( in_array($this->bbmGetParentTag(), $this->_dontWrapMeParentTags) )
+		$parentTag = $this->bbmGetParentTag($rendererStates);
+		
+		if( in_array($parentTag, $this->_dontWrapMeParentTags) )
 		{
 			return $content;
 		}
@@ -1220,9 +1236,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		/****
 		*	Return manager
 		***/
+	
 		$rendererStates['isWrapper'] = true;
-		$this->_bbmWrapMeBypassContent = true;
 		$rendererStates['stopWhiteSpaceEmulation'] = true;
+
+		if($parentTag == $wrappingTag)
+		{
+			$rendererStates['wrapMeIndenticalParent'] = true;		
+		}
+	
+		$this->_bbmWrapMeBypassContent = true;
 		
       		if( isset($wrappingTagInfo['callback'][1]) )
       		{
@@ -1266,6 +1289,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		if($this->_bbmWrapMeBypassContent)
 		{
+			//With this implementation, the listeners/callbacks can be normally executed with the proper content
 			return $this->_wrapMeContent;
 		}
 
