@@ -13,6 +13,20 @@ class BBM_Helper_BbCodes
 	public static $colorRegex = '/^(rgb\(\s*\d+%?\s*,\s*\d+%?\s*,\s*\d+%?\s*\)|#[a-f0-9]{6}|#[a-f0-9]{3})$/i';
 
 	/***
+	 * Get picture source
+	 * http://css-tricks.com/snippets/html/base64-encode-of-1x1px-transparent-gif/
+	 **/
+	public static function getEmptyImageSource($base64 = true, $fallback = 'styles/default/xenforo/clear.png')
+	{
+		if($base64)
+		{
+			return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEHAAEALAAAAAABAAEAAAICTAEAOw==';
+		}
+		
+		return $fallback;
+	}
+
+	/***
 	 * Get special tags ({tag}...{/tag} from content
 	 **/
 	public static function getSpecialTags($content, array $tags = array('slide'))
@@ -26,16 +40,36 @@ class BBM_Helper_BbCodes
 	/***
 	 * Emulate white space
 	 **/
-	public static function emulateWhiteSpace($string)
+	public function emulateAllWhiteSpace($string)
 	{
 		return preg_replace_callback(
-			'#[\t]+#', 
-			array('BBM_Helper_BbCodes', '_emulateWhiteSpaceRegexCallback'), 
+			//The below regew will match whitespaces (start from 2 and exclude the last one of a line) + exclude match if a ending html tag is detected
+			'#[ ]{2,}+(?<! $)(?![^<]*?>)#', 
+			array($this, '_emulateAllWhiteSpaceRegexCallback'), 
 			$string
 		);
 	}
 	
-	protected static function _emulateWhiteSpaceRegexCallback($matches)
+	protected function _emulateAllWhiteSpaceRegexCallback($matches)
+	{
+		$breaksX = substr_count($matches[0], " ");
+		$breakPattern = '&nbsp;'; //other possible UTF8 solutions = http://www.cs.tut.fi/~jkorpela/chars/spaces.html
+		$breakOutput = str_repeat($breakPattern, $breaksX);
+					
+		return "{$breakOutput}";
+	}
+
+	//Be sure to use the below function in the content of an html tag (without any other html tags - will improve this later)
+	public function emulateWhiteSpaceTabs($string)
+	{
+		return preg_replace_callback(
+			'#[\t]+#', 
+			array($this, '_emulateWhiteSpaceTabsRegexCallback'), 
+			$string
+		);
+	}
+	
+	protected function _emulateWhiteSpaceTabsRegexCallback($matches)
 	{
 		$breaksX = substr_count($matches[0], "\t");
 		$breakPattern = '    ';
@@ -43,7 +77,6 @@ class BBM_Helper_BbCodes
 					
 		return "<span style='white-space:pre'>{$breakOutput}</span>";	
 	}
-
 
 	/***
 	 * Clean option - to use for example in the options loop
@@ -74,6 +107,30 @@ class BBM_Helper_BbCodes
 	public static function stripNoscript($html)
 	{
 		return preg_replace('#<noscript>.*?</noscript>#sui', '', $html);
+	}
+
+
+	/***
+	 * Strip Bb Codes
+	 **/
+	public static function stripBbCodes($string, $stripHtmlTags = false, $regexMethod = true)
+	{
+		if($stripHtmlTags)
+		{
+			$string = strip_tags($string);
+		}
+
+		if($regexMethod)
+		{
+			//Seems to use less memory
+			return XenForo_Helper_String::bbCodeStrip($string, true);
+		}
+
+		$formatter = XenForo_BbCode_Formatter_Base::create('XenForo_BbCode_Formatter_BbCode_Strip', false);
+		$formatter->stripAllBbCode(true, 0);
+		$parser = XenForo_BbCode_Parser::create($formatter);
+
+		return $parser->render($string);
 	}
 
 	/***
