@@ -68,7 +68,11 @@ class BBM_Protection_Helper_ContentProtection
 		self::$_responseType = $routeMatch->getResponseType();
 	}
 
-	public static function controllerPreView(XenForo_FrontController $fc, XenForo_ControllerResponse_Abstract &$controllerResponse, XenForo_ViewRenderer_Abstract &$viewRenderer, array &$containerParams)
+	public static function controllerPreView(XenForo_FrontController $fc, 
+		XenForo_ControllerResponse_Abstract &$controllerResponse,
+		XenForo_ViewRenderer_Abstract &$viewRenderer,
+		array &$containerParams
+	)
 	{
 		/* Listener - Execution order: #2 */
 		self::$_isControllerAdmin = (strstr($controllerResponse->controllerName, 'ControllerAdmin')) ? true : false;
@@ -160,8 +164,14 @@ class BBM_Protection_Helper_ContentProtection
 		{
 			$formatter = XenForo_BbCode_Formatter_Base::create('BBM_Protection_BbCode_Formatter_BbCode_Eradicator', false);
 			$formatter->setCheckVisitorPerms($checkVisitorPerms);
-			$parser = new XenForo_BbCode_Parser($formatter);
-			$string = $parser->render($string);
+
+			$parser = XenForo_BbCode_Parser::create($formatter);
+
+			$extraStates = array(
+				'bbmContentProtection' => true
+			);
+			
+			$string = $parser->render($string, $extraStates);
 
 			if($src == 'quotes')
 			{

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.6.2.3" version_id="48" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.7.0" version_id="49" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -2454,6 +2454,20 @@ li.buttons span{
   </admin_templates>
   <admin_template_modifications/>
   <code_events>
+    <event event_id="bbm_callback_precache"><![CDATA[<p>If you need to make a database request for a  Bb Code, the problem is it will be executes several times. This preCache system executes the formatter twice before parsing your text. The first time you can add some info in this preCache, then this listener will be executed. You can make your database request here and modified the preCache again so that when the formatter will be executed the second time, you can use the new data.</p>
+<p>During the first execution, the $rendererStates will have the key 'bbmPreCacheInit'. During the second execution, it will have the key 'bbmPreCacheComplete'</p>
+
+<p>To be effective, this event needs the admin to enable the Bbm precache in the Bbm Bb Codes options</p>
+
+<blockquote style="overflow-x:auto;height:35px">
+	<code><em>array</em> &$preCache, <em>array</em> &$rendererStates</code>
+</blockquote>
+
+<p>Arguments:</p>
+<ol>
+	<li><code><em>array</em> &$preCache</code> - the preCache data}.</li>
+	<li><code><em>array</em> $rendererStates</code> - rendering options for the XenForo renderer engine.</li>
+</ol>]]></event>
     <event event_id="bbm_callback_template_cache"><![CDATA[<p>This listener allows to cache extra templates that must be rendered with your Bb Codes. You don't need to cache the template you have specified inside the Bb Code options. It is already automatically cached.</p>
 
 <blockquote>
@@ -2593,6 +2607,12 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
       <sub_options></sub_options>
       <relation group_id="bbm_bbcodemanager" display_order="9002"/>
     </option>
+    <option option_id="Bbm_PreCache_Enable" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="600"/>
+    </option>
     <option option_id="Bbm_TagsMap_DebugInfo" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
@@ -2729,11 +2749,10 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
       <sub_options>*</sub_options>
       <relation group_id="bbm_xenforo_bbcodes_control" display_order="430"/>
     </option>
-    <option option_id="bbm_debug_redactor_js_loader" edit_format="select" data_type="string" can_backup="1">
-      <default_value>main</default_value>
-      <edit_format_params>main={xen:phrase bbm_redactor_main_js}
-loader={xen:phrase bbm_redactor_loader}
-none={xen:phrase none}</edit_format_params>
+    <option option_id="bbm_debug_redactor_js_global" edit_format="radio" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params>1={xen:phrase bbm_options_yes}
+0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_buttonmanager" display_order="9000"/>
     </option>
@@ -3257,9 +3276,8 @@ If this option is set on "<b>Transparent</b>" and a tablet is being used then th
 The Bb Code content protection is working nice on a default XenForo installation but please note this is not 100% safe. If you have added new XenForo extensions, they might reveal the content. The protection system will try to avoid this, but it's not 100% leaks proof. <br />
 <br />
 The Protection content has been successfully tested with: Posts (quote/edit), Conversations (quote/edit), Search, ThreadWatch (email), NewsFeed, Thread (first post ajax preview).]]></phrase>
-    <phrase title="option_bbm_debug_redactor_js_loader" version_id="45" version_string="2.6.2"><![CDATA[Redactor Js Loader]]></phrase>
-    <phrase title="option_bbm_debug_redactor_js_loader_explain" version_id="45" version_string="2.6.2"><![CDATA[The Bbm JavaScript file that extends the XenForo Redactor editor must be executed before the XenForo Redactor loader. When the editor is triggered with the XenForo templates tag "require" and this template is dynamically loaded (json request), the order of JavaScript files can't be controlled. So the Bbm JavaScript or its loader must be included in the main header.<br />
-Included the Bbm Redactor loader will add only a few bytes of code, but included the main Bbm Redactor Javascript is the safest solution. Both should work. Select "none", if you use another editor.]]></phrase>
+    <phrase title="option_bbm_debug_redactor_js_global" version_id="49" version_string="2.7.0"><![CDATA[Bbm Redactor Js - Load globally]]></phrase>
+    <phrase title="option_bbm_debug_redactor_js_global_explain" version_id="49" version_string="2.7.0"><![CDATA[This option will force the Bbm Redactor JavaScript file to load globally.]]></phrase>
     <phrase title="option_bbm_debug_redactor_js_loader_novisitor" version_id="45" version_string="2.6.2"><![CDATA[Don't include any of them with visitors]]></phrase>
     <phrase title="option_bbm_debug_redactor_js_loader_novisitor_explain" version_id="45" version_string="2.6.2"><![CDATA[]]></phrase>
     <phrase title="option_bbm_debug_tinymcehookcontent" version_id="0" version_string="1.0"><![CDATA[[DEBUG] Display TinyMCE hook content]]></phrase>
@@ -3275,6 +3293,8 @@ Default option is: no.]]></phrase>
 Once activated, It will automatically override the private function "_parseTag()" of the class "XenForo_BbCode_Parser". If you prefer to modify yourself the XenForo php file to avoid to override the function, just go <a href="http://xenforo.com/community/resources/bbcode-options-nested-tags-fix.1983/" target="_blank">here</a> and follow the instructions.]]></phrase>
     <phrase title="option_Bbm_Params_DebugInfo" version_id="0" version_string="1.0"><![CDATA[[DEBUG] Display available params in the formatter]]></phrase>
     <phrase title="option_Bbm_Params_DebugInfo_explain" version_id="0" version_string="1.0"><![CDATA[If activate, these debug information can only be seen by admins.]]></phrase>
+    <phrase title="option_Bbm_PreCache_Enable" version_id="48" version_string="2.6.2.3"><![CDATA[Enable the Bbm PreCache System for Bb Codes]]></phrase>
+    <phrase title="option_Bbm_PreCache_Enable_explain" version_id="48" version_string="2.6.2.3"><![CDATA[The Bbm PreCache can be used by developers to cache some data (from database) before parsing a content. If you don't need it, just disable it.]]></phrase>
     <phrase title="option_Bbm_TagsMap_DebugInfo" version_id="0" version_string="1.0"><![CDATA[[DEBUG] Display Tags Map]]></phrase>
     <phrase title="option_Bbm_TagsMap_DebugInfo_explain" version_id="0" version_string="1.0"><![CDATA[This option will display the Tags Map and some debug information. This information can only be seen by admins.]]></phrase>
     <phrase title="option_Bbm_TagsMap_Disable" version_id="0" version_string="1.0"><![CDATA[Disable the Tags Map System]]></phrase>
@@ -3521,7 +3541,7 @@ span.mce_bbm_spoiler {
     <template title="bbm_editor_extra_info" version_id="0" version_string="1.0"><![CDATA[<p>{xen:phrase bbm_controller_name} <b>{$controllerName}</b></p>
 <p>{xen:phrase bbm_controller_action} <b>{$controllerAction}</b></p>
 <p>{xen:phrase bbm_view_name} <b>{$viewName}</b></p>]]></template>
-    <template title="bbm_editor_js_setup" version_id="45" version_string="2.6.2"><![CDATA[<xen:require js="js/bbm/redactor/bbm_redactor.js" />]]></template>
+    <template title="bbm_editor_js_setup" version_id="49" version_string="2.7.0"><![CDATA[<xen:require js="js/bbm/redactor/bbm_5_redactor.js" />]]></template>
     <template title="bbm_editor_redactor_autocss" version_id="28" version_string="2.3.0 Preview II"><![CDATA[<xen:if is="{$bbmCustomCss}">
 	<style type="text/css">
 		<xen:foreach loop="$bbmCustomCss" value="$button">
@@ -3542,12 +3562,11 @@ span.mce_bbm_spoiler {
     <template title="bbm_js" version_id="0" version_string="1.0"><![CDATA[<xen:require css="bbm_buttons.css" />
 
 ]]></template>
-    <template title="bbm_page_container_js_head" version_id="48" version_string="2.6.2.3"><![CDATA[<xen:if is="!{$xenOptions.bbm_debug_tinymcehookdisable} AND ({$visitor.user_id} OR !{$xenOptions.bbm_debug_redactor_js_loader_novisitor})">
-	<xen:if is="{$xenOptions.bbm_debug_redactor_js_loader} == 'main'">
+    <template title="bbm_page_container_js_head" version_id="49" version_string="2.7.0"><![CDATA[<script src="{xen:helper javaScriptUrl, '{$javaScriptSource}/bbm/zloader.js?_v={$xenOptions.jsVersion}'}"></script>
+
+<xen:if is="!{$xenOptions.bbm_debug_tinymcehookdisable} AND ({$visitor.user_id} OR !{$xenOptions.bbm_debug_redactor_js_loader_novisitor})">
+	<xen:if is="{$xenOptions.bbm_debug_redactor_js_global}">
 		<script src="{xen:helper javaScriptUrl, '{$javaScriptSource}/bbm/redactor/bbm_redactor.js?_v={$xenOptions.jsVersion}'}"></script>	
-	</xen:if>
-	<xen:if is="{$xenOptions.bbm_debug_redactor_js_loader} == 'loader'">
-		<script src="{xen:helper javaScriptUrl, '{$javaScriptSource}/bbm/redactor/init.js?_v={$xenOptions.jsVersion}'}"></script>
 	</xen:if>
 </xen:if>]]></template>
     <template title="bbm_viewer_content_protected" version_id="0" version_string="1.0"><![CDATA[<xen:require css="bbm_viewer_content_protected.css" />

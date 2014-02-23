@@ -42,16 +42,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function bakeBbmTags()
 	{
-		if (XenForo_Application::isRegistered('bbm_bbcodes'))
-		{
-			$bbmTags = XenForo_Application::get('bbm_bbcodes');
-		}
-		else
-		{
-			$bbmTags = XenForo_Model::create('BBM_Model_BbCodes')->getAllBbCodes('strict');
-			XenForo_Application::set('bbm_bbcodes', $bbmTags);
-		}
-
+		$bbmTags = BBM_Helper_Bbm::getBbmBbCodes();
 		$activeAddons = (XenForo_Application::isRegistered('addOns')) ? XenForo_Application::get('addOns') : array();
 		$visitor = XenForo_Visitor::getInstance();
 		
@@ -1323,15 +1314,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	/****
 	*	PARSER TOOLS
 	***/
-	protected $_parser;
-	
+	protected $_bbmParser;
+
 	public function getParser()
 	{
-		if (!isset($this->_parser))
+		if (!isset($this->_bbmParser))
 		{
-			$this->_parser = new XenForo_BbCode_Parser($this);
+			$this->_bbmParser = new XenForo_BbCode_Parser($this);
 		}
-		return $this->_parser;
+		return $this->_bbmParser;
 	}
 
 	public function secureBbCodesInOptions(array $options)

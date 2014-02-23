@@ -8,20 +8,31 @@ class BBM_Listeners_AllInOne
 	{
 		if (!class_exists('KingK_BbCodeManager_BbCodeManager'))
 		{
-			if ($class == 'XenForo_BbCode_Formatter_BbCode_AutoLink')
-		      	{
-		      		$extend[] = 'BBM_BbCode_Formatter_BbCode_AutoLink';
-		      	}
-		
-		        if ($class == 'XenForo_BbCode_Formatter_Base')
-		        {
-				$extend[] = 'BBM_BbCode_Formatter_Base';
-		        }
-		        
-		      	if ($class == 'XenForo_ControllerPublic_Help')
-		      	{
-		      		$extend[] = 'BBM_ControllerPublic_Help';
-		      	}
+			switch($class)
+			{
+				case 'XenForo_BbCode_Formatter_BbCode_AutoLink':
+					$extend[] = 'BBM_BbCode_Formatter_BbCode_AutoLink';
+				break;
+				  	
+				case 'XenForo_BbCode_Formatter_Base':
+					$extend[] = 'BBM_BbCode_Formatter_Base';
+					if(XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
+					{
+						$extend[] = 'BBM_BbCode_Formatter_Extensions_PreCacheBase'; //must come after
+					}
+				break;
+
+				case 'XenForo_BbCode_Formatter_Wysiwyg':
+					if(XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
+					{
+						$extend[] = 'BBM_BbCode_Formatter_Extensions_PreCacheWysiwyg';
+					}
+				break;
+				
+				case 'XenForo_ControllerPublic_Help':
+					$extend[] = 'BBM_ControllerPublic_Help';				
+				break;
+			}
 		}
 	}
 
@@ -31,9 +42,9 @@ class BBM_Listeners_AllInOne
 	public static function DataWriterAdmin($class, array &$extend)
 	{
 		if ($class == 'XenForo_DataWriter_Forum' && XenForo_Application::get('options')->get('Bbm_Bm_Forum_Config'))
-	      	{
-      			$extend[] = 'BBM_DataWriter_Forum';
-	      	}
+		{
+	  		$extend[] = 'BBM_DataWriter_Forum';
+		}
 	}
 
 	/***
@@ -57,9 +68,9 @@ class BBM_Listeners_AllInOne
 	public static function modifyParser($class, array &$extend)
 	{
 		if ($class == 'XenForo_BbCode_Parser' && XenForo_Application::get('options')->get('Bbm_modify_parser'))
-	      	{
+		{
 			$extend[] = 'BBM_BbCode_Parser';
-	      	}
+		}
 	}
 
 	/***
