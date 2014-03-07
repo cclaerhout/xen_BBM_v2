@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.7.0" version_id="49" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.7.1" version_id="50" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -2779,7 +2779,13 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
   </optiongroups>
   <permissions>
     <permission_groups/>
-    <permissions/>
+    <permissions>
+      <permission permission_group_id="forum" permission_id="bbm_disable_attach" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="32456"/>
+      <permission permission_group_id="forum" permission_id="bbm_disable_email" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="32456"/>
+      <permission permission_group_id="forum" permission_id="bbm_disable_img" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="32456"/>
+      <permission permission_group_id="forum" permission_id="bbm_disable_media" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="32456"/>
+      <permission permission_group_id="forum" permission_id="bbm_disable_url" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="32456"/>
+    </permissions>
     <interface_groups/>
   </permissions>
   <phrases>
@@ -3351,6 +3357,11 @@ If you use "true" as second parameter, the option will be output with lower case
     <phrase title="option_group_bbm_buttonmanager_description" version_id="0" version_string="1.0"><![CDATA[Buttons Manager Options]]></phrase>
     <phrase title="option_group_bbm_xenforo_bbcodes_control" version_id="0" version_string="1.0"><![CDATA[[Bb Codes & Buttons Manager] XenForo Bb Codes Control]]></phrase>
     <phrase title="option_group_bbm_xenforo_bbcodes_control_description" version_id="0" version_string="1.0"><![CDATA[Some configuration options for the XenForo default Bb Codes & system]]></phrase>
+    <phrase title="permission_forum_bbm_disable_attach" version_id="49" version_string="2.7.0"><![CDATA[Disable attach Bb Code]]></phrase>
+    <phrase title="permission_forum_bbm_disable_email" version_id="49" version_string="2.7.0"><![CDATA[Disable email Bb Code]]></phrase>
+    <phrase title="permission_forum_bbm_disable_img" version_id="49" version_string="2.7.0"><![CDATA[Disable img Bb Code]]></phrase>
+    <phrase title="permission_forum_bbm_disable_media" version_id="49" version_string="2.7.0"><![CDATA[Disable media Bb Code]]></phrase>
+    <phrase title="permission_forum_bbm_disable_url" version_id="49" version_string="2.7.0"><![CDATA[Disable url Bb Code]]></phrase>
     <phrase title="style_property_bbm_bb_authorised_content_description_master" version_id="0" version_string="1.0"><![CDATA[Protected Bb Code - Authorised state - Content]]></phrase>
     <phrase title="style_property_bbm_bb_authorised_content_master" version_id="0" version_string="1.0"><![CDATA[Protected Bb Code - Authorised content]]></phrase>
     <phrase title="style_property_bbm_bb_authorised_desc_description_master" version_id="0" version_string="1.0"><![CDATA[Protected Bb Code - Authorised state - Description]]></phrase>
