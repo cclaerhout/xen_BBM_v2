@@ -45,7 +45,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$bbmTags = BBM_Helper_Bbm::getBbmBbCodes();
 		$activeAddons = (XenForo_Application::isRegistered('addOns')) ? XenForo_Application::get('addOns') : array();
 		$visitor = XenForo_Visitor::getInstance();
-
+		
 		if(!is_array($bbmTags))
 		{
 			return false;
@@ -304,9 +304,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 	}
 
-	protected function _bbmCallbackChecker($class, $method = null)
+	protected function _bbmCallbackChecker($class, $method)
 	{
-		if($method != null)
+		if(!empty($method))
 		{
 			return (class_exists($class) && method_exists($class, $method));
 		}
@@ -707,7 +707,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
       		//Check if xen tags content can be displayed 
-		$tagInfo = $this->_disableXenTag($tag['tag'], $tagInfo);
+		$tagInfo = $this->_disableXenTagByUserGroups($tag['tag'], $tagInfo);
 
       		//Parent function 
 		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
@@ -761,53 +761,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return $parent;
 	}
 
-	protected function _disableXenTag($tagName, $tagInfo)
+	protected function _disableXenTagByUserGroups($tagName, $tagInfo)
 	{
 		$tagName = strtolower($tagName);
-		$disable = false;
 		
 		if(!in_array($tagName, array('attach', 'email', 'img', 'media', 'url')))
 		{
 			return $tagInfo;
 		}
 
-		$node_id = $this->getThreadParam('node_id');
-		$nodePerms = array();
-
-		if($node_id)
-		{
-			$nodePerms = XenForo_Visitor::getInstance()->getNodePermissions($node_id);
-
-			if($this->_disableXenTagByNodes($tagName, $nodePerms))
-			{
-				return $this->_disableXenTagExecution($tagName, $tagInfo);
-			}
-		}
-
-		return $this->_disableXenTagByUserGroups($tagName, $tagInfo);
-	}
-
-	protected function _disableXenTagByNodes($tagName, $nodePerms)
-	{
-		if(	($tagName == 'attach' && !empty($nodePerms['bbm_disable_attach']))	
-			||
-			($tagName == 'email' && !empty($nodePerms['bbm_disable_email']))
-			||
-			($tagName == 'img' && !empty($nodePerms['bbm_disable_img'])) 
-			||
-			($tagName == 'media' && !empty($nodePerms['bbm_disable_media']))
-			||
-			($tagName == 'url' && !empty($nodePerms['bbm_disable_url']))
-		)
-		{
-			return true;
-		}
-		
-		return false;
-	}
-
-	protected function _disableXenTagByUserGroups($tagName, $tagInfo)
-	{
 		$usergroup = $this->getPostParam('user_group_id');
 
 		if($usergroup === NULL)
@@ -851,24 +813,17 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		if(array_intersect($posterUserGroupIds, $postersOk))
 		{
-			return $this->_disableXenTagExecution($tagName, $tagInfo);
+			if($this->_bbmDisableMethod == 'real')
+			{
+				//This time the real method is faker than the fake one
+				$tagInfo = array('replace' => array("[$tagName]", "[/$tagName]"));
+			}
+			else
+			{
+				$tagInfo = array('replace' => array('', ''));				
+			}
 		}
 	
-		return $tagInfo;
-	}
-
-	protected function _disableXenTagExecution($tagName, $tagInfo)
-	{
-		if($this->_bbmDisableMethod == 'real')
-		{
-			//This time the real method is faker than the fake one
-			$tagInfo = array('replace' => array("[$tagName]", "[/$tagName]"));
-		}
-		else
-		{
-			$tagInfo = array('replace' => array('', ''));				
-		}
-		
 		return $tagInfo;
 	}
 
