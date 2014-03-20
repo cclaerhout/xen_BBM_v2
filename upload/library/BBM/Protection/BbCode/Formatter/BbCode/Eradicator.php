@@ -43,6 +43,7 @@ class BBM_Protection_BbCode_Formatter_BbCode_Eradicator extends XenForo_BbCode_F
 	public function _bakeProtectedTags()
 	{
 		$bbmCached = XenForo_Application::getSimpleCacheData('bbm_active');
+		$visitor = XenForo_Visitor::getInstance();
 
 		if(	!is_array($bbmCached) 
 			|| !isset($bbmCached['protected']) 
@@ -58,7 +59,6 @@ class BBM_Protection_BbCode_Formatter_BbCode_Eradicator extends XenForo_BbCode_F
 
 		if($this->_checkVisitorPerms == true)
 		{
-			$visitor = XenForo_Visitor::getInstance();
 			$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
 		}
 
@@ -73,13 +73,26 @@ class BBM_Protection_BbCode_Formatter_BbCode_Eradicator extends XenForo_BbCode_F
 			);
 		}
 
-		 $this->_protectedTags = $allProtectedTags;
+		/*XenForo protected tags check*/
+		$xenProtectedTags = array('attach', 'email', 'img', 'media', 'url');
+		
+		foreach($xenProtectedTags as $tagName)
+		{
+			$permKey = "bbm_hide_{$tagName}";
+			
+			if($visitor->hasPermission('bbm_bbcodes_grp', $permKey))
+			{
+				$allProtectedTags[$tagName] = array(
+					'callback' => $this->_generalTagCallback
+				);			
+			}
+		}
+		
+		$this->_protectedTags = $allProtectedTags;
 	}
-
 
 	public function deleteAllTagsContent(array $tag, array $rendererStates)
 	{
-
 		return new XenForo_Phrase('bbm_viewer_content_protected');
 	}
 }

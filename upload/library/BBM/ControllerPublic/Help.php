@@ -4,17 +4,12 @@ class BBM_ControllerPublic_Help extends XFCP_BBM_ControllerPublic_Help
 {
 	public function actionBbCodes()
 	{
-		$wrap = parent::actionBbCodes();
+		$parent = parent::actionBbCodes();
 		$bbmBbCodes = $this->getModelFromCache('BBM_Model_BbCodes')->getAllActiveBbCodes('strict');
 		
-		if( empty($bbmBbCodes) )
-		{
-			return $wrap;
-		}
+		$bbmBbCodesInCache = XenForo_Application::getSimpleCacheData('bbm_active');
 
-		$bbmBbCodesInCache = XenForo_Application::getSimpleCacheData('bbm_active');;
-
-		if( isset($bbmBbCodesInCache['nohelp']) && !empty($bbmBbCodesInCache['nohelp']) )
+		if( !empty($bbmBbCodesInCache['nohelp']) )
 		{
 			foreach($bbmBbCodesInCache['nohelp'] as $tag)
 			{
@@ -22,8 +17,8 @@ class BBM_ControllerPublic_Help extends XFCP_BBM_ControllerPublic_Help
 			}
 		}
 
-		$wrap->subView->params['bbmBbCodes'] = $bbmBbCodes;
+		$parent->subView->params['bbmBbCodes'] = $bbmBbCodes;
 
-		return $wrap;
+		return $parent;
 	}
 }

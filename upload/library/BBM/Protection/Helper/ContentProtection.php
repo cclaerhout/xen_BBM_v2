@@ -35,12 +35,10 @@ class BBM_Protection_Helper_ContentProtection
 							In some case the parameter must be set on false. For example with email or alerts => even if the visitor has the permission
 							to see the content it doesn't mean the one who will receive the email or the alert has also this permission
 			
-			2) The regex protection - This is the... regex way: search & destroy. It will not work with identical nested Bb Codes (shouldn't occur)
-				Arguments are the same than the two above but with a third one:
-				
-				> $processOneByOne	Optional. Default is false. If true is passed, then the search & destroy will be done one by one protected Bb Code
-	
-	
+			2) The mini parser protection - An alternative to the XenForo parser/formatter 
+				Reason: with an incomplete closing tag, the XenForo parser will eat all the remaining text... if you apply this to the html output, it's really a problem
+				Arguments are the same than the two above
+
 	**************************************/
 
 	/****
@@ -59,7 +57,7 @@ class BBM_Protection_Helper_ContentProtection
 	protected static $_controllerName = NULL;
 	protected static $_controllerAction = NULL;
 	protected static $_viewName = NULL;
-	protected static $_processRegex = false;	
+	protected static $_processMiniParser = false;	
 	protected static $_processParsing = true;
 		
 	public static function controllerPreDispatch(XenForo_FrontController $fc, XenForo_RouteMatch &$routeMatch)
@@ -137,11 +135,14 @@ class BBM_Protection_Helper_ContentProtection
 		{
 	      		if(self::$_responseType == 'html' && self::$_isJson != true && self::$_processParsing == true)
 	      		{
-	      			$output = self::parsingProtection($output);
+		      		//Don't use the parser method, if it finds an opening tag it will "eat" all the page. Use instead the regex method
+		      		//$output = self::parsingProtection($output);
+	      		
+	      			$output = self::miniParserProtection($output, true);
 	      		}
-	      		elseif(self::$_processRegex == true)
+	      		elseif(self::$_processMiniParser == true)
 	      		{
-	      			$output = self::regexProtection($output, true, false); 
+	      			$output = self::miniParserProtection($output, true); 
 	      		}
 		}
 
@@ -182,8 +183,9 @@ class BBM_Protection_Helper_ContentProtection
 		return $string;
 	}
 	
-	public static function regexProtection($string, $checkVisitorPerms = true, $processOneByOne = false)
+	public static function miniParserProtection($string, $checkVisitorPerms = true)
 	{
+		$visitor = XenForo_Visitor::getInstance();
 		$options = XenForo_Application::get('options');
 
 		if(!$options->Bbm_ContentProtection)
@@ -199,18 +201,44 @@ class BBM_Protection_Helper_ContentProtection
 			|| empty($bbmCached['protected'])
 		)
 		{
-			return false;
+			return $string;
 		}
 
 		if($checkVisitorPerms === true)
 		{
-			$visitor = XenForo_Visitor::getInstance();
 			$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
 		}
 		
 		$protectedTags = $bbmCached['protected'];
 		$replace = new XenForo_Phrase('bbm_viewer_content_protected');
 		$openTags = array();
+
+		$xenProtectedTags = array('attach', 'email', 'img', 'media', 'url');
+		$xenProtectedTagsNoPermsDisplay = false;//make another phrase inviting the user to log to see the content?
+		
+		foreach($xenProtectedTags as $tagName)
+		{
+			$permKey = "bbm_hide_{$tagName}";
+			$permsVal = $visitorUserGroupIds;
+
+			if($checkVisitorPerms === true)
+			{
+				if($visitor->hasPermission('bbm_bbcodes_grp', $permKey))
+				{
+					$permsVal = array();
+				}
+			}
+			else
+			{
+				//ie: for alerts, mails
+				if($xenProtectedTagsNoPermsDisplay)
+				{
+					$permsVal = array();
+				}
+			}
+				
+			$protectedTags[$tagName] = $permsVal;
+		}
 
 		foreach($protectedTags AS $tag => $perms)
 		{
@@ -219,23 +247,33 @@ class BBM_Protection_Helper_ContentProtection
 				continue;
 			}
 			
-			if($processOneByOne === true)
-			{
-				$string = preg_replace('#\[(' . $tag . ')(?:=.+?)?\].+?\[\\\/\1\]#sui', $replace, $string);
-			}
-			else
-			{
-				$openTags[] = $tag;
-			}
+			$openTags[] = $tag;
 		}
 		
-		if($processOneByOne === false)
+		$tagRules = array();
+			
+		foreach($openTags as $tag)
 		{
-			$openTags = implode('|', $openTags);
-			$string = preg_replace('#\[(' . $openTags . ')(?:=.+?)?\].+?\[\\\/\1\]#sui', $replace, $string);
+			$tagRules[$tag] = array(
+				'stringReplace'  => new XenForo_Phrase('bbm_viewer_content_protected')
+			);
 		}
+
+		$parserOptions = array(
+			'parserOpeningCharacter' => '[',
+			'parserClosingCharacter' => ']',
+			'htmlspecialcharsForContent' => false,
+			'htmlspecialcharsForOptions' => false,
+			'nl2br' => false,
+			'checkClosingTag' => true,
+			'preventHtmlBreak' => true
+		);
+
+		$miniParser = new BBM_Protection_Helper_MiniParser($string, $tagRules, array(), $parserOptions);
+
+		$string = $miniParser->render();
 
 		return $string;		
 	}
 }
-//Zend_Debug::dump(self::$_controllerInfo);
+//Zend_Debug::dump($string);

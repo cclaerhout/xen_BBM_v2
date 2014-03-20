@@ -282,6 +282,17 @@ class BBM_Helper_BbCodes
 	       			}
 	       		}
        		}
+       		elseif(strpos($useragent, 'like gecko') !== false && preg_match('#trident/(\d{1,2})\.(\d{1,2})#', $useragent, $match))
+       		{
+	       		//IE11
+	       		if(intval($match[1]) == 7)
+	       		{
+	       			if($method == 'all' || ($method == 'target' && strpos($range, '11') !== false) )
+				{
+	       				$output = true;
+	       			}
+	       		}
+       		}
 
        		return $output;
 	}

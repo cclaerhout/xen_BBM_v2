@@ -6,20 +6,18 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	*	CREATE CUSTOM TAGS
 	***/
 	protected $_bbmTags = null;
+
 	protected $_xenOriginalTags = array(
 		'b', 'i', 'u', 's', 'color', 'font', 'size', 'left', 'center', 
 		'right', 'indent', 'url', 'email', 'img', 'quote', 'code', 'php', 
-		'html', 'plain', 'media', 'attach');
+		'html', 'plain', 'media', 'attach'
+	);
+	
 	protected $_xenContentCheck;
 	protected $_bbmSeparator;
-
 	protected $_bbmDisableMethod;
-
-	protected $_bbmAttachAllowedUsergroups;
-	protected $_bbmEmailAllowedUsergroups;
-	protected $_bbmImgAllowedUsergroups;
-	protected $_bbmUrlAllowedUsergroups;
-	protected $_bbmMediaAllowedUsergroups;
+	protected $_bbmXenTagsParsingAllowedUsergroups = array();
+	protected $_bbmXenTagsParsingAllowedNodes = array();	
 	
 	//@extended
 	public function getTags()
@@ -194,10 +192,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
     				$allBbmTags[$bbm['tag']]['view_perms']['can_view_content'] = $canViewBbCode;
       				$allBbmTags[$bbm['tag']]['view_perms']['view_return'] = $bbm['view_return'];	
 
+          				/*
           				if($bbm['view_return'] == 'default_template' && array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
           				{
           					$this->_preloadBbmTemplates[] = 'bbm_viewer_content_protected';
           				}
+          				*/
 
     	  			if($bbm['view_return_delay'])
     	  			{
@@ -236,11 +236,21 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$this->_bbmSeparator = $options->Bbm_BbCode_Options_Separator;
 		$disabledXenTags = !empty($options->Bbcm_xenTags_disabled) ? $options->Bbcm_xenTags_disabled : array(); 
 
-		$this->_bbmAttachAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_attach;
-		$this->_bbmEmailAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_email;
-		$this->_bbmImgAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_img;
-		$this->_bbmUrlAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_url;
-		$this->_bbmMediaAllowedUsergroups = $options->Bbm_xenTags_disabled_usrgrp_media;
+		$this->_bbmXenTagsParsingAllowedUsergroups = array(
+			'attach' => $options->Bbm_xenTags_disabled_usrgrp_attach,
+			'email' => $options->Bbm_xenTags_disabled_usrgrp_email,
+			'img' => $options->Bbm_xenTags_disabled_usrgrp_img,
+			'url' => $options->Bbm_xenTags_disabled_usrgrp_url,
+			'media' => $options->Bbm_xenTags_disabled_usrgrp_media
+		);
+
+		$this->_bbmXenTagsParsingAllowedNodes = array(
+			'attach' => $options->Bbm_xenTags_disabled_nodes_attach,
+			'email' => $options->Bbm_xenTags_disabled_nodes_email,
+			'img' => $options->Bbm_xenTags_disabled_nodes_img,
+			'url' => $options->Bbm_xenTags_disabled_nodes_url,
+			'media' => $options->Bbm_xenTags_disabled_nodes_media
+		);
 
 		if($options->Bbm_wrapper_img != 'none' && !in_array('img', $disabledXenTags) )
 		{
@@ -287,6 +297,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			if(!empty($options->Bbm_wrapper_media_option))
 			{
 				$this->_xenWrappersOption['media'] = $options->Bbm_wrapper_media_option;
+			}
+		}
+
+		if($options->Bbm_wrapper_url != 'none' && !in_array('url', $disabledXenTags))
+		{
+			$this->_xenWrappers['url'] = $options->Bbm_wrapper_url;		
+
+			if(!empty($options->Bbm_wrapper_url_option))
+			{
+				$this->_xenWrappersOption['url'] = $options->Bbm_wrapper_url_option;
 			}
 		}
 
@@ -707,7 +727,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
       		//Check if xen tags content can be displayed 
-		$tagInfo = $this->_disableXenTag($tag['tag'], $tagInfo);
+		$tagInfo = $this->_xenTagControl($tag['tag'], $tagInfo);
+		
+		if(!empty($tagInfo['_bbmNoViewPerms']))
+		{
+			$fallBack = new XenForo_Phrase('bbm_viewer_content_protected');
+			$templateArguments = array('tagName' => $tag['tag'], 'phrase' => $fallBack, 'rendererStates' => $rendererStates);
+			return $this->renderBbmTemplate('bbm_viewer_content_protected', $templateArguments, $fallBack);					
+		}
 
       		//Parent function 
 		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
@@ -761,114 +788,105 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return $parent;
 	}
 
-	protected function _disableXenTag($tagName, $tagInfo)
+	protected function _xenTagControl($tagName, $tagInfo)
 	{
 		$tagName = strtolower($tagName);
-		$disable = false;
 		
 		if(!in_array($tagName, array('attach', 'email', 'img', 'media', 'url')))
 		{
 			return $tagInfo;
 		}
 
-		$node_id = $this->getThreadParam('node_id');
-		$nodePerms = array();
+		$tagInfo = $this->_xenTagControlParsingPerms($tagName, $tagInfo);
+		$tagInfo = $this->_xenTagControlViewingPerms($tagName, $tagInfo);
 
-		if($node_id)
-		{
-			$nodePerms = XenForo_Visitor::getInstance()->getNodePermissions($node_id);
-
-			if($this->_disableXenTagByNodes($tagName, $nodePerms))
-			{
-				return $this->_disableXenTagExecution($tagName, $tagInfo);
-			}
-		}
-
-		return $this->_disableXenTagByUserGroups($tagName, $tagInfo);
+		return $tagInfo;
 	}
 
-	protected function _disableXenTagByNodes($tagName, $nodePerms)
-	{
-		if(	($tagName == 'attach' && !empty($nodePerms['bbm_disable_attach']))	
-			||
-			($tagName == 'email' && !empty($nodePerms['bbm_disable_email']))
-			||
-			($tagName == 'img' && !empty($nodePerms['bbm_disable_img'])) 
-			||
-			($tagName == 'media' && !empty($nodePerms['bbm_disable_media']))
-			||
-			($tagName == 'url' && !empty($nodePerms['bbm_disable_url']))
-		)
-		{
-			return true;
-		}
-		
-		return false;
-	}
-
-	protected function _disableXenTagByUserGroups($tagName, $tagInfo)
+	protected function _xenTagControlParsingPerms($tagName, $tagInfo)
 	{
 		$usergroup = $this->getPostParam('user_group_id');
 
-		if($usergroup === NULL)
+		if( $usergroup === NULL || empty($this->_bbmXenTagsParsingAllowedUsergroups[$tagName]) )
 		{
 			return $tagInfo;
 		}
 
-		if(	($tagName == 'attach' && !$this->_bbmAttachAllowedUsergroups)	
-			||
-			($tagName == 'email' && !$this->_bbmEmailAllowedUsergroups)
-			||
-			($tagName == 'img' && !$this->_bbmImgAllowedUsergroups) 
-			||
-			($tagName == 'media' && !$this->_bbmMediaAllowedUsergroups)
-			||
-			($tagName == 'url' && !$this->_bbmUrlAllowedUsergroups)
-		)
-		{
-			return $tagInfo;
-		}
-
-		$targetedUsergroups = array();
-
-		switch ($tagName)
-		{
-			case 'attach': 	$targetedUsergroups = $this->_bbmAttachAllowedUsergroups; 
-					break;
-			case 'email': 	$targetedUsergroups = $this->_bbmEmailAllowedUsergroups; 
-					break;
-			case 'img': 	$targetedUsergroups = $this->_bbmImgAllowedUsergroups; 
-					break;
-			case 'media': 	$targetedUsergroups = $this->_bbmMediaAllowedUsergroups; 
-					break;
-			case 'url': 	$targetedUsergroups = $this->_bbmUrlAllowedUsergroups;
-					break;
-		}
-
+		$targetedUsergroups = $this->_bbmXenTagsParsingAllowedUsergroups[$tagName];
 		$secondaryUsergroups = $this->getPostParam('secondary_group_ids');
 		$posterUserGroupIds = array_merge(array((string)$usergroup), (explode(',', $secondaryUsergroups)));
-		$postersOk = $targetedUsergroups;
 
-		if(array_intersect($posterUserGroupIds, $postersOk))
+		if(array_intersect($posterUserGroupIds, $targetedUsergroups))
 		{
-			return $this->_disableXenTagExecution($tagName, $tagInfo);
+			$proceed = true;
+			$node_id = $this->getThreadParam('node_id');
+		
+			if($node_id)
+			{
+				$options = XenForo_Application::get('options');
+				$allowedNodes = $this->_bbmXenTagsParsingAllowedNodes[$tagName];
+				
+				if(!empty($allowedNodes) && !in_array('all', $allowedNodes))
+				{
+					if(!in_array($node_id, $allowedNodes))
+					{
+						$proceed = false;
+					}
+				}
+			}
+
+			if($proceed == true)
+			{
+				if($this->_bbmDisableMethod == 'real')
+				{
+					//This time the real method is faker than the fake one
+					$tagInfo = array('replace' => array("[$tagName]", "[/$tagName]"));
+				}
+				else
+				{
+					$tagInfo = array('replace' => array('', ''));
+				}
+			}
 		}
 	
 		return $tagInfo;
 	}
 
-	protected function _disableXenTagExecution($tagName, $tagInfo)
+	protected function _xenTagControlViewingPerms($tagName, $tagInfo)
 	{
-		if($this->_bbmDisableMethod == 'real')
+		$visitor = XenForo_Visitor::getInstance();
+
+		/*Node Ids - disable Bb Code*/
+		$permKey = "bbm_disable_{$tagName}";
+		$node_id = $this->getThreadParam('node_id');
+
+		if($node_id)
 		{
-			//This time the real method is faker than the fake one
-			$tagInfo = array('replace' => array("[$tagName]", "[/$tagName]"));
+			$nodePermissions = $visitor->getNodePermissions($node_id);
+			$disableViewPerms = XenForo_Permission::hasContentPermission($nodePermissions, $permKey);
 		}
 		else
 		{
-			$tagInfo = array('replace' => array('', ''));				
+			$disableViewPerms = $visitor->hasPermission('forum', $permKey);
 		}
 		
+		if($disableViewPerms)
+		{
+			if($this->_bbmDisableMethod == 'real')
+			{
+				$tagInfo = array('replace' => array("[$tagName]", "[/$tagName]"));
+			}
+			else
+			{
+				$tagInfo = array('replace' => array('', ''));				
+			}
+		}
+
+		/*View protection - hide content*/
+		$permKey = "bbm_hide_{$tagName}";
+
+		$tagInfo['_bbmNoViewPerms'] = $visitor->hasPermission('bbm_bbcodes_grp', $permKey);
+
 		return $tagInfo;
 	}
 
@@ -1163,7 +1181,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		elseif($perms['view_return'] == 'default_template')
 		{
 			$fallBack = new XenForo_Phrase('bbm_viewer_content_protected');
-			$templateArguments = array('phrase' => $fallBack, 'rendererStates' => $rendererStates);
+			$templateArguments = array('tagName' => $tag['tag'], 'phrase' => $fallBack, 'rendererStates' => $rendererStates);
 			return $this->renderBbmTemplate('bbm_viewer_content_protected', $templateArguments, $fallBack);			
 		}
 		
@@ -1179,14 +1197,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_dontWrapMeParentTags = array('url');
 	protected $_wrapMeContent = '';
 
-	public function wrapMe(array $currentTag, array $rendererStates, $content, $isXenTag = false)
+	public function wrapMe(array $currentTagData, array $rendererStates, $content, $isXenTag = false)
 	{
 		/****
 		*	Don't use the wrapMe function if the previous tag was the Url tag
 		***/
 		$parentTag = $this->bbmGetParentTag();
 		
-		if( in_array($parentTag, $this->_dontWrapMeParentTags) )
+		if( in_array($parentTag, $this->_dontWrapMeParentTags) && !in_array($currentTagData['tag'], $this->_dontWrapMeParentTags) )
 		{
 			return $content;
 		}
@@ -1194,9 +1212,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		/****
 		*	Check if the wrapping tag is available and get it
 		***/
-		$wrappingTag = ($isXenTag == false) ? $this->_tags[$currentTag['tag']]['wrappingTag']['tag'] : $this->_xenWrappers[$currentTag['tag']];
+		$wrappingTag = ($isXenTag == false) ? $this->_tags[$currentTagData['tag']]['wrappingTag']['tag'] : $this->_xenWrappers[$currentTagData['tag']];
 
-		if(!isset($this->_tags[$wrappingTag]))
+		if(!isset($this->_tags[$wrappingTag]) || $wrappingTag == $currentTagData)
 		{
 			return $content;
 		}
@@ -1215,15 +1233,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			'children' => array(0 => $uniqContent)
 		);
 		
-			if( $isXenTag == false && isset($this->_tags[$currentTag['tag']]['wrappingTag']['option']) )
+			if( $isXenTag == false && isset($this->_tags[$currentTagData['tag']]['wrappingTag']['option']) )
 			{
-				$wrapper['option'] = $this->_tags[$currentTag['tag']]['wrappingTag']['option'];
+				$wrapper['option'] = $this->_tags[$currentTagData['tag']]['wrappingTag']['option'];
 
 				if($wrapper['option'] == '#clone#')
 				{
-					if(isset($currentTag['option']))
+					if(isset($currentTagData['option']))
 					{
-						$wrapper['option'] = $currentTag['option'];
+						$wrapper['option'] = $currentTagData['option'];
 					}
 					else
 					{
@@ -1232,9 +1250,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 			}
 			
-			if( $isXenTag == true && isset($this->_xenWrappersOption[$currentTag['tag']]) )
+			if( $isXenTag == true && isset($this->_xenWrappersOption[$currentTagData['tag']]) )
 			{
-				$wrapper['option'] = $this->_xenWrappersOption[$currentTag['tag']];
+				$wrapper['option'] = $this->_xenWrappersOption[$currentTagData['tag']];
 			}
 
 		/****
@@ -1286,7 +1304,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		return $this->bbmMethodOutputFilter($output, 'bbm_wrapme');
 	}
-
 
 	//Extended
 	public function renderSubTree(array $tree, array $rendererStates)
@@ -1431,7 +1448,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		
 		if(!empty($bbmListenerTemplateCache) && is_array($bbmListenerTemplateCache) && is_array($this->_preloadBbmTemplates))
 		{
-			$this->_preloadBbmTemplates = array_merge($this->_preloadBbmTemplates, $bbmListenerTemplateCache);
+			$this->_preloadBbmTemplates = array_unique(array_merge($this->_preloadBbmTemplates, $bbmListenerTemplateCache));
 		}	 
 		 
 		if($this->_view && is_array($this->_preloadBbmTemplates))
@@ -1441,6 +1458,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_view->preLoadTemplate($templateName);
 			}
 		}
+
+		$this->_view->preLoadTemplate('bbm_viewer_content_protected');
 
 		return parent::preLoadTemplates($view);
 	}
