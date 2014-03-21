@@ -33,6 +33,8 @@ class BBM_Installer
 			'wrapping_option'	=> "TEXT DEFAULT NULL",
 			'parseOptions'		=> "INT(1) NOT NULL DEFAULT '0'",
 			'emptyContent_check'	=> "INT(1) NOT NULL DEFAULT '1'",
+			'allow_signature'	=> "INT(1) NOT NULL DEFAULT '0'",
+			'preParser'		=> "INT(1) NOT NULL DEFAULT '0'",
 			'parser_has_usr'	=> "INT(1) NOT NULL DEFAULT '0'",
 			'parser_usr'		=> "TEXT DEFAULT NULL",
 			'parser_return'		=> "varchar(25) NOT NULL DEFAULT 'blank'",
@@ -219,6 +221,12 @@ class BBM_Installer
 		{
 			self::addColumnIfNotExist($db, 'bbm', 'bbcode_id', "TINYTEXT NULL DEFAULT NULL");
 			self::addColumnIfNotExist($db, 'bbm', 'bbcode_addon', "TINYTEXT NULL DEFAULT NULL");
+		}
+
+		if(empty($addon) || $addon['version_id'] < 51)
+		{
+			self::addColumnIfNotExist($db, 'bbm', 'allow_signature', "INT(1) NOT NULL DEFAULT '0'");
+			self::addColumnIfNotExist($db, 'bbm', 'preParser', "INT(1) NOT NULL DEFAULT '0'");
 		}
 
 		//Generate simple cache (users don't need anymore to edit a bbcode and save it (without operating any change) to activate the Simple Cache

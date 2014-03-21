@@ -431,6 +431,8 @@ class BBM_Model_BbCodes extends XenForo_Model
 				$ParserOptionsNode->appendChild($document->createElement('wrapping_tag', $bbcode['wrapping_tag']));
 				$ParserOptionsNode->appendChild($document->createElement('wrapping_option', $bbcode['wrapping_option']));	
 				$ParserOptionsNode->appendChild($document->createElement('emptyContent_check', $bbcode['emptyContent_check']));
+				$ParserOptionsNode->appendChild($document->createElement('allow_signature', $bbcode['allow_signature']));
+				$ParserOptionsNode->appendChild($document->createElement('preParser', $bbcode['preParser']));			
 				$ParserOptionsNode->appendChild($document->createElement('options_separator', $bbcode['options_separator']));
 				
 			$ParserPerms = $bbcodeNode->appendChild($document->createElement('ParserPerms'));
@@ -545,7 +547,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 			$bbcode = $this->getBbcmTagByTagName($tagName);
 			
 			$keysToCheck = array(	'display_help', 'template_active', 'template_name', 'template_callback_class', 'template_callback_method',
-						'stopAutoLink', 'parseOptions', 'wrapping_tag', 'wrapping_option', 'emptyContent_check',
+						'stopAutoLink', 'parseOptions', 'wrapping_tag', 'wrapping_option', 'emptyContent_check', 'allow_signature', 'preParser',
 						'parser_has_usr', 'parser_usr', 'parser_return', 'parser_return_delay', 
 						'view_has_usr', 'view_usr', 'view_return', 'view_return_delay',
 						'hasButton', 'button_has_usr', 'button_usr', 'killCmd', 'custCmd', 'imgMethod', 'buttonDesc', 'tagOptions', 'tagContent',
@@ -602,6 +604,8 @@ class BBM_Model_BbCodes extends XenForo_Model
 				$ParserOptionsNode->appendChild($document->createElement('wrapping_tag', $bbcode['wrapping_tag']));
 				$ParserOptionsNode->appendChild($document->createElement('wrapping_option', $bbcode['wrapping_option']));		
 				$ParserOptionsNode->appendChild($document->createElement('emptyContent_check', $bbcode['emptyContent_check']));
+				$ParserOptionsNode->appendChild($document->createElement('allow_signature', $bbcode['allow_signature']));
+				$ParserOptionsNode->appendChild($document->createElement('preParser', $bbcode['preParser']));
 				
 			$ParserPerms = $bbcodeNode->appendChild($document->createElement('ParserPerms'));
 				$ParserPerms->appendChild($document->createElement('parser_has_usr', $bbcode['parser_has_usr']));

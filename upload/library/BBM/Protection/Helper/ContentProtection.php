@@ -123,7 +123,12 @@ class BBM_Protection_Helper_ContentProtection
       			{
 				$formatter = XenForo_BbCode_Formatter_Base::create('BBM_Protection_BbCode_Formatter_BbCode_Lupin', false);
 				$parser = new XenForo_BbCode_Parser($formatter);
-				$controllerResponse->params['post']['message'] = $parser->render($controllerResponse->params['post']['message']);
+
+				$extraStates = array(
+					'bbmContentProtection' => true
+				);				
+				
+				$controllerResponse->params['post']['message'] = $parser->render($controllerResponse->params['post']['message'], $extraStates);
       			}		
 		}		
 	}
@@ -269,9 +274,12 @@ class BBM_Protection_Helper_ContentProtection
 			'preventHtmlBreak' => true
 		);
 
-		$miniParser = new BBM_Protection_Helper_MiniParser($string, $tagRules, array(), $parserOptions);
 
-		$string = $miniParser->render();
+		if(!preg_match('#<body[^>]*?><pre>#', $string))
+		{
+			$miniParser = new BBM_Protection_Helper_MiniParser($string, $tagRules, array(), $parserOptions);
+			$string = $miniParser->render();
+		}
 
 		return $string;		
 	}

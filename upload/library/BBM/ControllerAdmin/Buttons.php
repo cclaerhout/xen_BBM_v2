@@ -469,7 +469,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 			{
 				$extraButtons = array(
 					'draftsave', 'draftdelete',
-					'insertquote', 'insertspoiler', 'insertcode'
+					'insertquote', 'insertspoiler', 'insertcode', 'deleted'
 				);
 			}
 		}

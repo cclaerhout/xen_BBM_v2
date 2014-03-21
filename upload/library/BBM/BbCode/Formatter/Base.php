@@ -67,16 +67,18 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 			}
 
+			$tagName = $bbm['tag'];
+
       			if($bbm['start_range'])
       			{
-      				$allBbmTags[$bbm['tag']]['options_number'] = $bbm['options_number'];
-      				$allBbmTags[$bbm['tag']]['start_range'] = $bbm['start_range'];
-      				$allBbmTags[$bbm['tag']]['end_range'] = $bbm['end_range'];
-      				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'replacementMethodRenderer');
+      				$allBbmTags[$tagName]['options_number'] = $bbm['options_number'];
+      				$allBbmTags[$tagName]['start_range'] = $bbm['start_range'];
+      				$allBbmTags[$tagName]['end_range'] = $bbm['end_range'];
+      				$allBbmTags[$tagName]['callback'] = array($this, 'replacementMethodRenderer');
 
       				if($bbm['plainCallback'])
       				{
-      					$allBbmTags[$bbm['tag']]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
+      					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
       				}
       			}
       			elseif($bbm['phpcallback_class'])
@@ -85,20 +87,20 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       				
       				if( $this->_bbmCallbackChecker($bbm['phpcallback_class'], $bbm['phpcallback_method']) )
       				{
-      					$allBbmTags[$bbm['tag']]['phpcallback_class'] = $bbm['phpcallback_class'];
-    	  				$allBbmTags[$bbm['tag']]['phpcallback_method'] = $bbm['phpcallback_method'];
-    	  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'PhpMethodRenderer');
+      					$allBbmTags[$tagName]['phpcallback_class'] = $bbm['phpcallback_class'];
+    	  				$allBbmTags[$tagName]['phpcallback_method'] = $bbm['phpcallback_method'];
+    	  				$allBbmTags[$tagName]['callback'] = array($this, 'PhpMethodRenderer');
 
       					$this->_prepareClassToLoad($bbm['phpcallback_class']);
 
     	  				if($bbm['plainCallback'])
     	  				{
-    	  					$allBbmTags[$bbm['tag']]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
+    	  					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
     	  				}	  						
     	  			}
     	  			else
     	  			{
-    	  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'renderInvalidTag');
+    	  				$allBbmTags[$tagName]['callback'] = array($this, 'renderInvalidTag');
     	  			}
       			}
       			elseif($bbm['template_active'])
@@ -106,82 +108,82 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
     				//Preload template automatically
     				$this->_preloadBbmTemplates[] = $bbm['template_name'];
     				
-      				$allBbmTags[$bbm['tag']]['template_name'] = $bbm['template_name'];
-      				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'TemplateMethodRenderer');
+      				$allBbmTags[$tagName]['template_name'] = $bbm['template_name'];
+      				$allBbmTags[$tagName]['callback'] = array($this, 'TemplateMethodRenderer');
 
       				if($bbm['template_callback_class'])
       				{
     	  				if( $this->_bbmCallbackChecker($bbm['template_callback_class'], $bbm['template_callback_method']) )
     	  				{
-    		  				$allBbmTags[$bbm['tag']]['template_callback']['class'] = $bbm['template_callback_class'];
-    		  				$allBbmTags[$bbm['tag']]['template_callback']['method'] = $bbm['template_callback_method'];
+    		  				$allBbmTags[$tagName]['template_callback']['class'] = $bbm['template_callback_class'];
+    		  				$allBbmTags[$tagName]['template_callback']['method'] = $bbm['template_callback_method'];
 
     	  					$this->_prepareClassToLoad($bbm['template_callback_class']);
     	  					$this->_preLoadTemplatesFromCallback($bbm['template_callback_class'], $bbm['template_callback_method']);
     	  				}
     	  				else
     		  			{
-    		  				$allBbmTags[$bbm['tag']]['callback'] = array($this, 'renderInvalidTag');
+    		  				$allBbmTags[$tagName]['callback'] = array($this, 'renderInvalidTag');
     		  			}			  				
     	  			}
 
       				if($bbm['plainCallback'])
       				{
-      					$allBbmTags[$bbm['tag']]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
+      					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
       				}
       			}
       			
       			if($bbm['trimLeadingLinesAfter'] > 0 && $bbm['trimLeadingLinesAfter'] < 3)
       			{
-      				$allBbmTags[$bbm['tag']]['trimLeadingLinesAfter'] = $bbm['trimLeadingLinesAfter'];
+      				$allBbmTags[$tagName]['trimLeadingLinesAfter'] = $bbm['trimLeadingLinesAfter'];
       			}
       			
       			if($bbm['regex'])
       			{
-      				$allBbmTags[$bbm['tag']]['optionRegex'] = $bbm['regex'];
+      				$allBbmTags[$tagName]['optionRegex'] = $bbm['regex'];
       			}
       			
       			if($bbm['plainChildren'])
       			{
-      				$allBbmTags[$bbm['tag']]['plainChildren'] = true;
+      				$allBbmTags[$tagName]['plainChildren'] = true;
       			}
       			
       			if($bbm['stopSmilies'])
       			{
-      				$allBbmTags[$bbm['tag']]['stopSmilies'] = true;
+      				$allBbmTags[$tagName]['stopSmilies'] = true;
       			}
       			
       			if($bbm['stopLineBreakConversion'])
       			{
-      				$allBbmTags[$bbm['tag']]['stopLineBreakConversion'] = true;
+      				$allBbmTags[$tagName]['stopLineBreakConversion'] = true;
       			}
 
       			if($bbm['parseOptions'])
       			{
-      				$allBbmTags[$bbm['tag']]['parseOptions'] = true;
+      				$allBbmTags[$tagName]['parseOptions'] = true;
       			}
 
       			if($bbm['parser_has_usr'])
       			{
-      				$allBbmTags[$bbm['tag']]['parser_perms']['parser_has_usr'] = $bbm['parser_has_usr'];		  			
+      				$allBbmTags[$tagName]['parser_perms']['parser_has_usr'] = $bbm['parser_has_usr'];		  			
       			}
 
       			if($bbm['parser_usr'])
       			{
-      				$allBbmTags[$bbm['tag']]['parser_perms']['parser_usr'] = $bbm['parser_usr'];		  			
+      				$allBbmTags[$tagName]['parser_perms']['parser_usr'] = $bbm['parser_usr'];		  			
       			}
 
       			if($bbm['parser_return'])
       			{
-      				$allBbmTags[$bbm['tag']]['parser_perms']['parser_return'] = $bbm['parser_return'];		  			
+      				$allBbmTags[$tagName]['parser_perms']['parser_return'] = $bbm['parser_return'];		  			
       			}
 
       			if($bbm['parser_return_delay'])
       			{
-      				$allBbmTags[$bbm['tag']]['parser_perms']['parser_return_delay'] = $bbm['parser_return_delay'];
+      				$allBbmTags[$tagName]['parser_perms']['parser_return_delay'] = $bbm['parser_return_delay'];
       			}
 
-      			$allBbmTags[$bbm['tag']]['view_perms']['can_view_content'] = true;
+      			$allBbmTags[$tagName]['view_perms']['can_view_content'] = true;
       				
       			if($bbm['view_has_usr'])
       			{
@@ -189,8 +191,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
     				$visitorsOk = unserialize($bbm['view_usr']);
     				$canViewBbCode = (array_intersect($visitorUserGroupIds, $visitorsOk)) ? true : false;
     				
-    				$allBbmTags[$bbm['tag']]['view_perms']['can_view_content'] = $canViewBbCode;
-      				$allBbmTags[$bbm['tag']]['view_perms']['view_return'] = $bbm['view_return'];	
+    				$allBbmTags[$tagName]['view_perms']['can_view_content'] = $canViewBbCode;
+      				$allBbmTags[$tagName]['view_perms']['view_return'] = $bbm['view_return'];	
 
           				/*
           				if($bbm['view_return'] == 'default_template' && array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
@@ -201,28 +203,35 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
     	  			if($bbm['view_return_delay'])
     	  			{
-    	  				$allBbmTags[$bbm['tag']]['view_perms']['view_return_delay'] = $bbm['view_return_delay'];
+    	  				$allBbmTags[$tagName]['view_perms']['view_return_delay'] = $bbm['view_return_delay'];
     	  			}
       			}
       			
       			if($bbm['wrapping_tag'] != 'none')
       			{
-      				$allBbmTags[$bbm['tag']]['wrappingTag']['tag'] = $bbm['wrapping_tag'];
+      				$allBbmTags[$tagName]['wrappingTag']['tag'] = $bbm['wrapping_tag'];
 
       				if(!empty($bbm['wrapping_option']))
       				{
-    	  				$allBbmTags[$bbm['tag']]['wrappingTag']['option'] = $bbm['wrapping_option'];		  				
+    	  				$allBbmTags[$tagName]['wrappingTag']['option'] = $bbm['wrapping_option'];		  				
       				}
       			}
       			
       			if($bbm['emptyContent_check'])
       			{
-      				$allBbmTags[$bbm['tag']]['emptyContent_check'] = true;
+      				$allBbmTags[$tagName]['emptyContent_check'] = true;
       			}
 
-      			$allBbmTags[$bbm['tag']]['options_separator'] = $bbm['options_separator'];
+      			if(!empty($bbm['preParser']))
+      			{
+      				$this->addPreParserBbCode($tagName);
+      			}
+
+			$allBbmTags[$tagName]['allowSignature'] = $bbm['allow_signature'];
+
+      			$allBbmTags[$tagName]['options_separator'] = $bbm['options_separator'];
       			
-      			$allBbmTags[$bbm['tag']]['bbcode_id'] = $bbm['bbcode_id'];
+      			$allBbmTags[$tagName]['bbcode_id'] = $bbm['bbcode_id'];
 		}
 
 		$this->_bbmTags = $allBbmTags;
@@ -322,6 +331,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 			$this->_prepareClassToLoad($xenWrapperCallback['class']);
 		}
+		
+		if(!empty($options->Bbm_PreCache_XenTags))
+		{
+			foreach($options->Bbm_PreCache_XenTags as $tagName)
+			{
+				$this->addPreParserBbCode($tagName);
+			}
+		}
 	}
 
 	protected function _bbmCallbackChecker($class, $method = null)
@@ -360,6 +377,28 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 		
 		return $parentTags;
+	}
+
+	/****
+	*	PREPARSER BB-CODES	
+	*	Bb Codes that can use the pre-parser function. Purpose: 
+	*	limit the renderer execution to only those that need it
+	***/
+	protected $_bbmPreParserBbCodes = array();
+	
+	public function addPreParserBbCode($tagName)
+	{
+		$this->_bbmPreParserBbCodes[$tagName] = true;
+	}
+
+	public function getPreParserBbCodes()
+	{
+		return $this->_bbmPreParserBbCodes;
+	}
+	
+	public function preParserEnableFor($tagName)
+	{
+		return isset($this->_bbmPreParserBbCodes[$tagName]);
 	}
 
 	/****
@@ -784,7 +823,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       		{
       			return $this->wrapMe($tag, $rendererStates, $parent, true);
       		}
-	
+
 		return $parent;
 	}
 

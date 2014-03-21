@@ -18,11 +18,13 @@ class BBM_Listeners_AllInOne
 					$extend[] = 'BBM_BbCode_Formatter_Base';
 					if(XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
 					{
-						$extend[] = 'BBM_BbCode_Formatter_Extensions_PreCacheBase'; //must come after
+						//must come after to be loaded before (only for the same extended functions) - same execution level
+						$extend[] = 'BBM_BbCode_Formatter_Extensions_PreCacheBase';
 					}
 				break;
 
 				case 'XenForo_BbCode_Formatter_Wysiwyg':
+					$extend[] = 'BBM_BbCode_Formatter_Wysiwyg';
 					if(XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
 					{
 						$extend[] = 'BBM_BbCode_Formatter_Extensions_PreCacheWysiwyg';

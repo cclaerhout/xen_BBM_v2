@@ -4,41 +4,10 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 	/****
 	*	PRE CACHE FUNCTION
 	***/
+	protected $_bbmTextView = '';
+	
 	protected $_bbmPreCacheActive = false;
 	protected $_bbmPreCache = array();
-	protected $_bbmPreCacheFirstExec = true;
-	protected $_bbmExtraStatesDisablePreCache = array(
-		'bbmContentProtection', 'disableBbmPreCache'
-	);
-
-	protected function _bbmInitPreCache($extraStates)
-	{
-		$extraStatesKeys = array_keys($extraStates);
-		$processBbmPreCache = array_intersect($extraStatesKeys, $this->_bbmExtraStatesDisablePreCache);
-		
-		if(!XenForo_Application::get('options')->get('Bbm_PreCache_Enable') || !$this->_bbmPreCacheFirstExec)
-		{
-			$this->_bbmPreCacheActive = false;
-			return;
-		}
-		
-		if(empty($processBbmPreCache))
-		{
-			$this->_bbmPreCacheActive = true;
-		}
-		else
-		{
-			$this->_bbmPreCacheActive = false;		
-		}
-		
-		//Important only execute once (otherwise the db requests will be duplicated)
-		$this->_bbmPreCacheFirstExec = false;
-	}
-
-	public function bbmPreCacheActive()
-	{
-		return $this->_bbmPreCacheActive ;
-	}
 
 	public function getBbmPreCache()
 	{
@@ -77,25 +46,164 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 		}
 	}
 
+	protected $_bbmPreCacheDone = false;
+
 	//@extended
 	public function renderTree(array $tree, array $extraStates = array())
 	{
-		$this->_bbmInitPreCache($extraStates);
-
-		if($this->_bbmPreCacheActive)
+		if(XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
 		{
-			$extraStates += array(
-				'bbmPreCacheInit' => true
-			);
-			
-			parent::renderTree($tree, $extraStates);
-			unset($extraStates['bbmPreCacheInit']);
-			XenForo_CodeEvent::fire('bbm_callback_precache', array(&$this->_bbmPreCache, &$extraStates));
+			if(!empty($extraStates['bbmPreCacheInit']) && !$this->_bbmPreCacheDone)
+			{
+				parent::renderTree($tree, $extraStates);
+				unset($extraStates['bbmPreCacheInit']);
 
-			$extraStates['bbmPreCacheComplete'] = true;
+				XenForo_CodeEvent::fire('bbm_callback_precache', array(&$this->_bbmPreCache, &$extraStates, 'base'));
+				XenForo_Application::set('bbm_preCache_base', array($this->_bbmPreCache, $extraStates));
+
+				$this->_bbmPreCacheDone = true;
+
+				return '';
+			}
+
+			if (XenForo_Application::isRegistered('bbm_preCache_base'))
+			{
+				list($_bbmPreCache, $_extraStates) = XenForo_Application::get('bbm_preCache_base');
+				$this->_bbmPreCache = $_bbmPreCache;
+				$extraStates['bbmPreCacheComplete'] = true;
+				$extraStates += $_extraStates;
+			}
 		}
 		
 		return parent::renderTree($tree, $extraStates);
 	}
+
+	//@extended
+	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
+	{
+		$tagName = $tag['tag'];
+
+		if(!empty($rendererStates['bbmPreCacheInit']) && !$this->preParserEnableFor($tagName) )
+		{
+
+			return '';
+		}
+		else
+		{
+			return parent::renderValidTag($tagInfo, $tag, $rendererStates);		
+		}
+	}
+	
+	//@extended
+	public function setView(XenForo_View $view = null)
+	{
+		parent::setView($view);
+
+		if ($view && XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
+		{
+			/**
+			 * Purpose: get back the original text and parse it will a special rendererState
+			 * It will manage inside the renderTree function (global init), then in the 
+			 * renderValidTag function (tag init)
+			 **/
+			 
+			$params = $view->getParams();
+
+			$text = '';
+			$data = false;
+			$keys = array();
+			$multiMode = false;
+
+			/**
+			 *  For posts: check thread & posts
+			 **/
+			if(	isset($params['posts']) && is_array($params['posts']) && isset($params['thread']) 
+				&& !isset($params['bbm_config'])
+			)
+			{
+				$data = $params['posts'];
+				$keys = array('message', 'signature');
+				$multiMode = true;
+			}
+
+			/**
+			 *  For conversations: check conversation & messages
+			 *  It's not perfect, but let's use the same functions than thread & posts
+			 **/
+			if(	isset($params['messages']) && is_array($params['messages']) && isset($params['conversation']) 
+				&& !isset($params['bbm_config'])
+			)
+			{
+				$data = $params['messages'];
+				$keys = array('message', 'signature');
+				$multiMode = true;
+			}
+
+			/**
+			 *  For RM (resource & category)
+			 **/
+			if(	isset($params['resource']) && is_array($params['resource']) &&  isset($params['category'])
+				&& !isset($params['bbm_config'])
+			)
+			{
+				$data = $params['category'];
+				$keys = array('message');
+				$multiMode = false;				
+			}
+
+			/**
+			 *  For Custom Addons
+			 **/
+			if(isset($params['bbm_config']))
+			{
+				$config = $params['bbm_config'];
+				//to do later
+			}
+			
+			if(!empty($data))
+			{
+				if(!is_array($data))
+				{
+					$data = array($data);
+				}
+
+				if(!$multiMode)
+				{
+					foreach($data as $key => $value)
+					{
+						if(!in_array($key, $keys) || !is_string($value))
+						{
+							continue;
+						}
+					
+						$text .= $value;
+					}
+				}
+				else
+				{
+					foreach($data as $multi)
+					{
+						foreach($multi as $key => $value)
+						{
+							if(!in_array($key, $keys) || !is_string($value))
+							{
+								continue;
+							}
+						
+							$text .= $value;
+						}					
+					}
+				}
+			}
+			
+			$this->_bbmTextView = $text;
+			
+			if(!empty($text))
+			{
+				$parser = $this->getParser();
+				$parser->render($text, array('bbmPreCacheInit' => true));
+			}
+		}
+	}	
 }
 //Zend_Debug::dump($abc);
