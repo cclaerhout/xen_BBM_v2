@@ -219,7 +219,7 @@
 				<xen:option name="emptyContent_check" selected="{$code.emptyContent_check}">{xen:phrase bbm_check_empty_content}</xen:option>
 			</xen:checkboxunit>
 			<xen:checkboxunit label="">
-				<xen:option name="allow_signature" selected="{$code.allow_signature}">{xen:phrase allow_this_bb_code_in_signatures}</xen:option>
+				<xen:option name="allow_signature" selected="{$code.allow_signature}">{xen:phrase bbm_allow_this_bb_code_in_signatures}</xen:option>
 			</xen:checkboxunit>
 			<xen:checkboxunit label="">
 				<xen:option name="preParser" selected="{$code.preParser}">{xen:phrase bbm_bbcode_opt_preparser}</xen:option>
@@ -731,7 +731,7 @@
       			<xen:option name="emptyContent_check" selected="{$code.emptyContent_check}">{xen:phrase bbm_check_empty_content}</xen:option>
       		</xen:checkboxunit>
 		<xen:checkboxunit label="">
-			<xen:option name="allow_signature" selected="{$code.allow_signature}">{xen:phrase allow_this_bb_code_in_signatures}</xen:option>
+			<xen:option name="allow_signature" selected="{$code.allow_signature}">{xen:phrase bbm_allow_this_bb_code_in_signatures}</xen:option>
 		</xen:checkboxunit>
 		<xen:checkboxunit label="">
 			<xen:option name="preParser" selected="{$code.preParser}">{xen:phrase bbm_bbcode_opt_preparser}</xen:option>
@@ -2877,6 +2877,7 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     <phrase title="bbm_admin_error_cannot_use_protected_xen_cmd" version_id="0" version_string="1.0"><![CDATA[The tag name you have selected is similar to a XenForo Button Command name. You can't use it, unless you activate 'Bbm Button Commands' option.]]></phrase>
     <phrase title="bbm_advanced_configuration_desc" version_id="0" version_string="1.0"><![CDATA[The options below are for advanced setup. You may ignore them if you want.]]></phrase>
     <phrase title="bbm_advanced_configuration_title" version_id="0" version_string="1.0"><![CDATA[Parser configuration]]></phrase>
+    <phrase title="bbm_allow_this_bb_code_in_signatures" version_id="51" version_string="2.8.0"><![CDATA[Allow this BB Code in signatures]]></phrase>
     <phrase title="bbm_all_options_bbcodes" version_id="0" version_string="1.0"><![CDATA[Bb Codes Options]]></phrase>
     <phrase title="bbm_all_options_buttons" version_id="0" version_string="1.0"><![CDATA[Buttons Options]]></phrase>
     <phrase title="bbm_all_options_tools" version_id="42" version_string="2.5.2"><![CDATA[Bbm tools]]></phrase>
