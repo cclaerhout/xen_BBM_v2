@@ -60,7 +60,7 @@
 			this.customButtons = this.redactor.opts.buttonsCustom;
 
 			//Override callbacks if needed
-			if(typeof self.bbmButtons !== undefined)
+			if(typeof self.bbmButtons !== undefined && self.bbmButtons != null)
 			{
 				$.each(self.bbmButtons, function(name,data){
 					if(typeof self.customButtons[name] === undefined){
