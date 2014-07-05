@@ -2546,7 +2546,6 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
     <listener event_id="load_class_controller" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="" description="Adds support for display in Help Section"/>
     <listener event_id="load_class_datawriter" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="DataWriterAdmin" active="1" hint="" description="DataWriter Admin"/>
     <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="" description="BbCode content protection: models"/>
-    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="" description="BbCode content protection: models"/>
     <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="help_bb_codes" description="Templates preloader"/>
     <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="editor" description="Templates preloader"/>
     <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="forum_edit" description="Templates preloader"/>
