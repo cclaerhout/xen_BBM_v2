@@ -1891,7 +1891,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 				$target = $allPostItemsInOne;
                 
-				$this->_tagBBCodeFromTree( $this->getParser()->parse($target) );
+				$this->_tagBBCodeFromTree( $post_id, $this->getParser()->parse($target) );
 			}
 			else
 			{
@@ -1904,7 +1904,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				if (!$BbCodesTree)
 				{
 					$target = $data[$messageKey];
-					$this->_tagBBCodeFromTree( $this->getParser()->parse($target) );
+					$this->_tagBBCodeFromTree( $post_id, $this->getParser()->parse($target) );
 				}
 				
 				foreach($extraKeys as $extrakey)
@@ -1921,7 +1921,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					if (!$BbCodesTree)
 					{
 						$target = $data[$extrakey];
-						$this->_tagBBCodeFromTree( $this->getParser()->parse($target) );
+						$this->_tagBBCodeFromTree( $post_id, $this->getParser()->parse($target) );
 					}
 				}
 			}
@@ -1934,7 +1934,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 	}
 
-	protected function _tagBBCodeFromTree($BbCodesTree)
+	protected function _tagBBCodeFromTree($post_id, $BbCodesTree)
 	{
 		$BbCodesTreeIt = new RecursiveIteratorIterator( new RecursiveArrayIterator($BbCodesTree) );
 		foreach($BbCodesTreeIt as $tagKey => $tagName)
