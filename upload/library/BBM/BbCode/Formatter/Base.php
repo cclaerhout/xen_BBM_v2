@@ -1897,15 +1897,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				//Restrictive method => will only check the message & signature elements of the post array
 				$BbCodesTree = null;
-                
+
 				if (isset($data[$parsedMessageKey]))
 					$BbCodesTree = @unserialize($data[$parsedMessageKey]);
-                    
+
 				if (!$BbCodesTree)
 				{
 					$target = $data[$messageKey];
-					$this->_tagBBCodeFromTree( $post_id, $this->getParser()->parse($target) );
+					$BbCodesTree = $this->getParser()->parse($target);
 				}
+				$this->_tagBBCodeFromTree( $post_id, $BbCodesTree );
 				
 				foreach($extraKeys as $extrakey)
 				{
@@ -1921,8 +1922,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					if (!$BbCodesTree)
 					{
 						$target = $data[$extrakey];
-						$this->_tagBBCodeFromTree( $post_id, $this->getParser()->parse($target) );
+						$BbCodesTree = $this->getParser()->parse($target);
 					}
+					$this->_tagBBCodeFromTree( $post_id, $BbCodesTree );
 				}
 			}
 		}
