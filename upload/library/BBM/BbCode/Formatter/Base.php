@@ -1574,7 +1574,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	/***
 	 *  The key postpended to the message/signature key (string) which may contain pre-parsed bbcodes - Optional feature of Xenforo 1.2 upwards. Should be '%_parsed' most of the time
 	 **/
-    protected $_bbmPostfixParsedKey = '_parsed';
+	protected $_bbmPostfixParsedKey = '_parsed';
 
 
 	/***
@@ -1849,11 +1849,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$options = XenForo_Application::get('options');
-        $Bbm_TagsMap_GlobalMethod = $options->Bbm_TagsMap_GlobalMethod;
+		$Bbm_TagsMap_GlobalMethod = $options->Bbm_TagsMap_GlobalMethod;
 		$messageKey =  $this->_bbmMessageKey;
 		$extraKeys =  $this->_bbmExtraKeys;
-        $parsedKeySuffix = $this->_bbmPostfixParsedKey;
-        $parsedMessageKey = $messageKey . $parsedKeySuffix;
+		$parsedKeySuffix = $this->_bbmPostfixParsedKey;
+		$parsedMessageKey = $messageKey . $parsedKeySuffix;
 		
 		foreach($posts as $post_id => $post)
 		{
@@ -1891,38 +1891,38 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 				$target = $allPostItemsInOne;
                 
-                $this->_tagBBCodeFromTree( $this->getParser()->parse($target) );
+				$this->_tagBBCodeFromTree( $this->getParser()->parse($target) );
 			}
 			else
 			{
 				//Restrictive method => will only check the message & signature elements of the post array
-                $BbCodesTree = null;
+				$BbCodesTree = null;
                 
-                if (isset($data[$parsedMessageKey]))
-                    $BbCodesTree = @unserialize($data[$parsedMessageKey]);
+				if (isset($data[$parsedMessageKey]))
+					$BbCodesTree = @unserialize($data[$parsedMessageKey]);
                     
-                if (!$BbCodesTree)
-                {
-                    $target = $data[$messageKey];
-                    $this->_tagBBCodeFromTree( $this->getParser()->parse($target) );
-                }
+				if (!$BbCodesTree)
+				{
+					$target = $data[$messageKey];
+					$this->_tagBBCodeFromTree( $this->getParser()->parse($target) );
+				}
 				
 				foreach($extraKeys as $extrakey)
 				{
 					if(!isset($data[$extrakey]) || !is_string($data[$extrakey]))
 					{
 						continue;
-					}	
-                    $extraparsedkey = $extrakey. $parsedKeySuffix;
+					}
+					$extraparsedkey = $extrakey. $parsedKeySuffix;
 
-                    if (isset($data[$extraparsedkey]))
-                        $BbCodesTree = @unserialize($data[$extraparsedkey]);
+					if (isset($data[$extraparsedkey]))
+						$BbCodesTree = @unserialize($data[$extraparsedkey]);
                         
-                    if (!$BbCodesTree)
-                    {                    
-                        $target = $data[$extrakey];
-                        $this->_tagBBCodeFromTree( $this->getParser()->parse($target) );
-                    }
+					if (!$BbCodesTree)
+					{
+						$target = $data[$extrakey];
+						$this->_tagBBCodeFromTree( $this->getParser()->parse($target) );
+					}
 				}
 			}
 		}
@@ -1936,14 +1936,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	protected function _tagBBCodeFromTree($BbCodesTree)
 	{
-        $BbCodesTreeIt = new RecursiveIteratorIterator( new RecursiveArrayIterator($BbCodesTree) );
-        foreach($BbCodesTreeIt as $tagKey => $tagName)
-        {
-            if($tagKey === 'tag')
-            {
-                $this->_bbCodesMap[$tagName][] = $post_id;
-            }
-        }    
+		$BbCodesTreeIt = new RecursiveIteratorIterator( new RecursiveArrayIterator($BbCodesTree) );
+		foreach($BbCodesTreeIt as $tagKey => $tagName)
+		{
+			if($tagKey === 'tag')
+			{
+				$this->_bbCodesMap[$tagName][] = $post_id;
+			}
+		}
     }
     
 	protected function _bakeCurrentPostParams($tag)
