@@ -1938,14 +1938,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	protected function _tagBBCodeFromTree($post_id, $BbCodesTree)
 	{
-		$BbCodesTreeIt = new RecursiveIteratorIterator( new RecursiveArrayIterator($BbCodesTree) );
-		foreach($BbCodesTreeIt as $tagKey => $tagName)
-		{
-			if($tagKey === 'tag')
-			{
-				$this->_bbCodesMap[$tagName][] = $post_id;
-			}
-		}
+        foreach($BbCodesTree as $entry)
+        {
+            if (isset($entry['tag']))
+            {          
+                $this->_bbCodesMap[$entry['tag']][] = $post_id;
+                $children = $entry['children']; 
+                if ($children)
+                    $this->_tagBBCodeFromTree($post_id, $children);
+            }
+        }
     }
     
 	protected function _bakeCurrentPostParams($tag)
