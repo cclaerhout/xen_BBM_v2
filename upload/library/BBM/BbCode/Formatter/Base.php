@@ -891,10 +891,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return $tagInfo;
 	}
     
-    /*
-     * Use of tag-type caching means this function scales per bb code tag type rather than on the number of uses of the bb code
-     */
-    protected $viewPermCache = array();
+	/*
+	 * Use of tag-type caching means this function scales per bb code tag type rather than on the number of uses of the bb code
+	 */
+	protected $viewPermCache = array();
 
 	protected function _xenTagControlViewingPerms($tagName, $tagInfo)
 	{
