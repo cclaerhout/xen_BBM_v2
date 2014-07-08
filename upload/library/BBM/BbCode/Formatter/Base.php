@@ -900,15 +900,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		if (isset($this->viewPermCache[$tagName]))
 		{
-            $cacheEntry = $this->viewPermCache[$tagName];
-            if (isset($cacheEntry['replace']))
-                $tagInfo['replace'] = $cacheEntry['replace'];
-            if (isset($cacheEntry['_bbmNoViewPerms']))
-                $tagInfo['_bbmNoViewPerms'] = $cacheEntry['_bbmNoViewPerms'];
-                
+			$cacheEntry = $this->viewPermCache[$tagName];
+			if (isset($cacheEntry['replace']))
+				$tagInfo['replace'] = $cacheEntry['replace'];
+			if (isset($cacheEntry['_bbmNoViewPerms']))
+				$tagInfo['_bbmNoViewPerms'] = $cacheEntry['_bbmNoViewPerms'];
 			return $tagInfo;
 		}
-        $cacheEntry = array();
+		$cacheEntry = array();
 
 		$visitor = XenForo_Visitor::getInstance();
 
