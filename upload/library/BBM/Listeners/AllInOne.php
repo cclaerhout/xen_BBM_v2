@@ -1,12 +1,19 @@
 <?php
 class BBM_Listeners_AllInOne
 {
+	public static $class_check = null;
+
 	/***
 	 * BB CODES LISTENER
 	 **/
 	public static function BbCodes($class, array &$extend)
 	{
-		if (!class_exists('KingK_BbCodeManager_BbCodeManager'))
+		if (self::$class_check === null)
+		{
+			self::$class_check = class_exists('KingK_BbCodeManager_BbCodeManager');
+		}
+
+		if (self::$class_check === false)
 		{
 			switch($class)
 			{
