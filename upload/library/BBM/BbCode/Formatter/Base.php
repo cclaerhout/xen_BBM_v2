@@ -1151,18 +1151,22 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		elseif($perms['parser_return'] == 'callback')
 		{
 			$rendererStates['isPost'] = ($postParams !== NULL) ? true : false;
-			return $this->PhpMethodRenderer($tag, $rendererStates, false);
+			$output = $this->PhpMethodRenderer($tag, $rendererStates, false);
 
 		}
 		elseif($perms['parser_return'] == 'template')
 		{
 			$rendererStates['isPost'] = ($postParams !== NULL) ? true : false;
-			return $this->TemplateMethodRenderer($tag, $rendererStates, false);
+			$output = $this->TemplateMethodRenderer($tag, $rendererStates, false);
 		}
-		
+
+		if(strlen($output) == 0)
+		{
+			$output = "&nbsp;";
+		}
+
 		return $output;
 	}
-
 
 	public function checkBbCodeViewPerms(array $tag, array $rendererStates, $preventLoop = false)
 	{
