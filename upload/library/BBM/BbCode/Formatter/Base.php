@@ -890,9 +890,25 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	
 		return $tagInfo;
 	}
+    
+	/*
+	 * Use of tag-type caching means this function scales per bb code tag type rather than on the number of uses of the bb code
+	 */
+	protected $viewPermCache = array();
 
 	protected function _xenTagControlViewingPerms($tagName, $tagInfo)
 	{
+		if (isset($this->viewPermCache[$tagName]))
+		{
+			$cacheEntry = $this->viewPermCache[$tagName];
+			if (isset($cacheEntry['replace']))
+				$tagInfo['replace'] = $cacheEntry['replace'];
+			if (isset($cacheEntry['_bbmNoViewPerms']))
+				$tagInfo['_bbmNoViewPerms'] = $cacheEntry['_bbmNoViewPerms'];
+			return $tagInfo;
+		}
+		$cacheEntry = array();
+
 		$visitor = XenForo_Visitor::getInstance();
 
 		/*Node Ids - disable Bb Code*/
@@ -919,13 +935,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				$tagInfo = array('replace' => array('', ''));				
 			}
+			$cacheEntry['replace'] = $tagInfo['replace'];
 		}
 
 		/*View protection - hide content*/
 		$permKey = "bbm_hide_{$tagName}";
 
 		$tagInfo['_bbmNoViewPerms'] = $visitor->hasPermission('bbm_bbcodes_grp', $permKey);
-
+		$cacheEntry['_bbmNoViewPerms'] = $tagInfo['_bbmNoViewPerms'];
+		$this->viewPermCache[$tagName] = $cacheEntry;
 		return $tagInfo;
 	}
 
@@ -1151,18 +1169,22 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		elseif($perms['parser_return'] == 'callback')
 		{
 			$rendererStates['isPost'] = ($postParams !== NULL) ? true : false;
-			return $this->PhpMethodRenderer($tag, $rendererStates, false);
+			$output = $this->PhpMethodRenderer($tag, $rendererStates, false);
 
 		}
 		elseif($perms['parser_return'] == 'template')
 		{
 			$rendererStates['isPost'] = ($postParams !== NULL) ? true : false;
-			return $this->TemplateMethodRenderer($tag, $rendererStates, false);
+			$output = $this->TemplateMethodRenderer($tag, $rendererStates, false);
 		}
-		
+
+		if(strlen($output) == 0)
+		{
+			$output = "&nbsp;";
+		}
+
 		return $output;
 	}
-
 
 	public function checkBbCodeViewPerms(array $tag, array $rendererStates, $preventLoop = false)
 	{

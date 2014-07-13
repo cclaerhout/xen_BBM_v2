@@ -2,9 +2,16 @@
 
 class BBM_Listeners_Templates_Public
 {
+	public static $class_check = null;
+	
 	public static function hooks($hookName, &$contents, array $hookParams, XenForo_Template_Abstract $template)
 	{
-		if (!class_exists('KingK_BbCodeManager_BbCodeManager'))
+		if (self::$class_check === null)
+		{
+			self::$class_check = class_exists('KingK_BbCodeManager_BbCodeManager');
+		}
+
+		if (self::$class_check === false)
 		{
 			switch ($hookName) 
 			{
