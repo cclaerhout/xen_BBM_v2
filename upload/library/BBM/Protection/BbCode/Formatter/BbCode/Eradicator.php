@@ -3,9 +3,11 @@
 class BBM_Protection_BbCode_Formatter_BbCode_Eradicator extends XenForo_BbCode_Formatter_BbCode_Abstract
 {
 	protected $_generalTagCallback = array('$this', 'deleteAllTagsContent');
-	protected $_protectedTags = null;	
+	protected $_parentTags = null;
+	protected $_protectedTags = null;
 
 	protected $_checkVisitorPerms = true;
+	protected $_invisibleMode = false;
 
 	public function setCheckVisitorPerms($value = true)
 	{
@@ -18,11 +20,21 @@ class BBM_Protection_BbCode_Formatter_BbCode_Eradicator extends XenForo_BbCode_F
 		
 		return $this;
 	}
+	
+	public function setAllTagsAsProtected()
+	{
+		$this->_protectedTags = $this->_parentTags;
+	}
+
+	public function invisibleMode()
+	{
+		$this->_invisibleMode = true;
+	}
 
 	public function getTags()
 	{
 		//The below line is needed to prevent an error
-		$parentTags = parent::getTags();
+		$this->_parentTags = parent::getTags();
 
 		if($this->_protectedTags === null)
 		{
@@ -93,6 +105,11 @@ class BBM_Protection_BbCode_Formatter_BbCode_Eradicator extends XenForo_BbCode_F
 
 	public function deleteAllTagsContent(array $tag, array $rendererStates)
 	{
+		if($this->_invisibleMode)
+		{
+			return ' ';
+		}
+		
 		return new XenForo_Phrase('bbm_viewer_content_protected');
 	}
 }
