@@ -121,7 +121,17 @@ class BBM_Protection_Helper_ContentProtection
 		{
       			if(isset($controllerResponse->params['post']['message']))
       			{
-				$formatter = XenForo_BbCode_Formatter_Base::create('BBM_Protection_BbCode_Formatter_BbCode_Lupin', false);
+				if(XenForo_Application::get('options')->get('Bbm_HideTagsInFastPreviewInvisible'))
+				{
+					$formatter = XenForo_BbCode_Formatter_Base::create('BBM_Protection_BbCode_Formatter_BbCode_Eradicator', false);
+					$formatter->setAllTagsAsProtected();
+					$formatter->invisibleMode();
+				}
+				else
+				{
+					$formatter = XenForo_BbCode_Formatter_Base::create('BBM_Protection_BbCode_Formatter_BbCode_Lupin', false);
+				}
+				
 				$parser = new XenForo_BbCode_Parser($formatter);
 
 				$extraStates = array(
