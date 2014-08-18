@@ -224,6 +224,11 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		***/
 		if(empty($config['config_buttons_full']))
 		{
+			if(!empty($xen['extraButtons']))
+			{
+				$buttons = array_merge($xen['extraButtons'], $buttons); // Add solo buttons for XenForo Redactor
+			}
+
 			$viewParams = array(
 				'config' => $config,
 				'buttonsAvailable' => $buttons,
@@ -464,7 +469,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 			);
 
 			array_push($defaultMenuButtons, 'alignment', 'draft', 'insert');
-			
+
 			if($xenCurrentVersionId >= 1030033) //1.3 beta 3
 			{
 				$extraButtons = array(
@@ -534,14 +539,13 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       				}
       			}
       		}	
-
 		/*Extra buttons*/
 		if(!empty($extraButtons))
 		{
-      			foreach($extraButtons as $xen_code)
+      			foreach($extraButtons as $key => $xen_code)
       			{
 				$xen_code = $prefix.$xen_code;
-     				$buttons[$xen_code] = array(
+     				$extraButtons[$key] = $buttons[$xen_code] = array(
       					'tag' => $xen_code,
       					'button_code' => $xen_code,
       					'icon_set' => '',
@@ -556,11 +560,11 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		$this->bbmAvailableButtons = $buttons;
 
 		return array(
-			'list' => $list,		//will be used as a fallback if user has disable javascript - to do: (or if user wants to reset)
-			'buttons' => $buttons, 		//will be merged with other buttons
-			'blankConfig' => $blankConfig 	//will be used for blank configs
+			'list' => $list,			//will be used as a fallback if user has disable javascript - to do: (or if user wants to reset)
+			'buttons' => $buttons, 			//will be merged with other buttons
+			'extraButtons' => $extraButtons,	//will be used for 
+			'blankConfig' => $blankConfig 		//will be used for blank configs
 		);
-	
 	}
 
 	protected function _xenMceButtons($configType)
