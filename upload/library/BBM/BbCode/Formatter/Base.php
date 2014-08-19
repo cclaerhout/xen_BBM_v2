@@ -589,6 +589,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$template_callback_method = $tagInfo['template_callback']['method'];
 		
 			$this->_loadClass($template_callback_class);
+
+			if(method_exists($template_callback_class, '__construct'))
+			{
+				new $template_callback_class($this);
+			}
+			
 			call_user_func_array(array($template_callback_class, $template_callback_method), array(&$content, &$options, &$templateName, &$fallBack, $rendererStates, $this));
 		}
 
@@ -674,7 +680,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		);
 	}
 
-	public function bbmMethodOutputFilter($string, $method)
+	public function bbmMethodOutputFilter($string, $method = null)
 	{
 		return $string;
 	}
@@ -1105,6 +1111,25 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	public function getBbmWrapMeBypassContentState()
 	{
 		return $this->_bbmWrapMeBypassContent;
+	}
+
+	protected $_bbmProtectedBridgeStack = array();
+
+	public function bbmProtectedBridge($function, $args = array())
+	{
+		$function = "_$function";
+
+		if(!isset($this->_bbmProtectedBridgeStack[$function]))
+		{
+			$this->_bbmProtectedBridgeStack[$function] = method_exists(__CLASS__, $function);
+		}
+		
+		if(!$this->_bbmProtectedBridgeStack[$function])
+	        {
+			return -1;
+	        }
+		
+		return call_user_func_array(array($this, $function), $args);
 	}
 
 	/****

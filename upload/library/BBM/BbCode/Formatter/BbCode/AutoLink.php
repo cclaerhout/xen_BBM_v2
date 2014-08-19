@@ -109,7 +109,6 @@ class BBM_BbCode_Formatter_BbCode_AutoLink extends XFCP_BBM_BbCode_Formatter_BbC
 
 	public function isOnlyUrl($string)
 	{
-
 		$regex_url = '#^(?:(?:https?|ftp|file)://|www\.|ftp\.)[-\p{L}0-9+&@\#/%=~_|$?!:,.]*[-\p{L}0-9+&@\#/%=~_|$]$#ui';
 		
 		if(preg_match($regex_url, $string))
