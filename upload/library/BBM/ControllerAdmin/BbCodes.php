@@ -437,8 +437,19 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 		$dwInput['view_usr'] = serialize(array_keys($this->_input->filterSingle('view_usr', array(XenForo_Input::STRING, 'array' => true))));
 
 		$dw = XenForo_DataWriter::create('BBM_DataWriter_BbCodes');
-		if ($this->_getBbmBbCodeModel()->getBbCodeById($tagId))
+		$existedData = $this->_getBbmBbCodeModel()->getBbCodeById($tagId);
+		
+		if ($existedData)
 		{
+			if( !XenForo_Application::debugMode() && isset($existedData['bbcode_id'], $existedData['bbcode_addon']) )
+			{
+				//Should not be needed but I think to have seen once these keys overriden by blank values
+				$dwInput += array(
+					'bbcode_id' => $existedData['bbcode_id'],
+					'bbcode_addon' => $existedData['bbcode_addon']
+				);
+			}
+			
 			$dw->setExistingData($tagId);
 			$this->_getBbmButtonsModel()->addUpdateButtonInAllConfigs($dwInput);
 		}
@@ -555,8 +566,7 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 			throw new XenForo_Exception(new XenForo_Phrase('please_enter_valid_file_name_requested_file_not_read'), true);
 		}
 		
-		
-		$file = new SimpleXMLElement($fileName, null, true);
+		$file = BBM_Helper_Bbm::scanXmlFile($fileName);
 		
 		if($file->getName() != 'bbm_bbcodes')
 		{
@@ -669,7 +679,7 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
       		}
 
 		$xml = $this->_input->filterSingle('xml', XenForo_Input::STRING);
-		$xmlObj = simplexml_load_string($xml);
+		$xmlObj = BBM_Helper_Bbm::scanXmlString($xml);
 
       		$code = $this->_getImportValues($xmlObj->BbCode);
       		$tag = $code['tag'];

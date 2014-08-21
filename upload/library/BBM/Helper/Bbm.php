@@ -11,6 +11,43 @@ class BBM_Helper_Bbm
 		
 		return class_exists($class);
 	}
+
+	public static function scanXmlFile($xmlFile)
+	{
+		if(self::callbackChecker('XenForo_Helper_DevelopmentXml', 'scanFile'))
+		{
+			//Protected method
+			$file = XenForo_Helper_DevelopmentXml::scanFile($xmlFile);
+		}
+		else
+		{
+			//Classic PHP method
+			$file = new SimpleXMLElement($xmlFile, null, true);
+		}
+		
+		return $file;	
+	}
+
+	public static function scanXmlString($xmlString)
+	{
+		if(self::callbackChecker('Zend_Xml_Security', 'scan'))
+		{
+			//Protected method
+			$xmlObj = Zend_Xml_Security::scan($xmlString);
+
+			if (!$xmlObj)
+			{
+				throw new XenForo_Exception("Invalid XML in $xmlObj");
+			}
+		}
+		else
+		{
+			//Classic PHP method
+			$xmlObj = simplexml_load_string($xmlString);
+		}
+		
+		return $xmlObj;
+	}
 	
 	public static function getColumnsToKeepInRegistry()
 	{

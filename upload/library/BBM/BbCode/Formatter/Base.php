@@ -435,7 +435,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		if($increment == true)
 		{
-			$this->_bakeCurrentPostParams($tag);
+			$this->_bakeCurrentPostParams($tag, $rendererStates);
 		}
 
 		$parserPermissionsReturn = $this->checkBbCodeParsingPerms($tag, $rendererStates);
@@ -515,7 +515,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		if($increment == true)
 		{
-			$this->_bakeCurrentPostParams($tag);
+			$this->_bakeCurrentPostParams($tag, $rendererStates);
 		}
 			
 		if(!isset($rendererStates['canUseBbCode']))
@@ -624,7 +624,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		if($increment == true)
 		{
-			$this->_bakeCurrentPostParams($tag);
+			$this->_bakeCurrentPostParams($tag, $rendererStates);
 		}
 
 		if(!isset($rendererStates['canUseBbCode']))
@@ -764,11 +764,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		)
 		{
 			$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
-
-			if(!isset($rendererStates['stopIncrement']))
-			{
-				$this->_bakeCurrentPostParams($tag);
-			}
+			$this->_bakeCurrentPostParams($tag, $rendererStates);
 		}
 
       		//Check if xen tags content can be displayed 
@@ -2014,8 +2010,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 	}
     
-	protected function _bakeCurrentPostParams($tag)
+	protected function _bakeCurrentPostParams($tag, $rendererStates)
 	{
+		if(!empty($rendererStates['stopIncrement']))
+		{
+			return;
+		}
+
 		if($this->_useDefaultPostParams)
 		{
 			return $this->_currentPostParams;
@@ -2070,6 +2071,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 		
 		return $this->_bbCodesIncrementation[$tagName];
+	}
+	
+	protected function _resetIncrementation()
+	{
+		$this->_bbCodesIncrementation = array();
 	}
 	
 	public function getThreadParams()

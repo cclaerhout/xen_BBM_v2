@@ -63,6 +63,8 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 
 				$this->_bbmPreCacheDone = true;
 
+				/*Bb Codes MAP*/
+				$this->_resetIncrementation();
 				return '';
 			}
 
@@ -74,7 +76,7 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 				$extraStates += $_extraStates;
 			}
 		}
-		
+
 		return parent::renderTree($tree, $extraStates);
 	}
 
