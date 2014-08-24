@@ -29,10 +29,43 @@ class BBM_Helper_BbCodes
 	/***
 	 * Get special tags ({tag}...{/tag} from content
 	 **/
-	public static function getSpecialTags($content, array $tags = array('slide'))
+	public static function getSpecialTags($content, array $tags = array('slide'), $getContentBetweenTags = false)
 	{
 		$tags = implode('|', $tags);
-		preg_match_all('#{(?P<tag>'.$tags.')(=(?P<option>\[([\w\d]+)(?:=.+?)?\].+?\[/\4\]|[^{}]+)+?)?}(?P<content>.*?){/\1}(?!(?:\W+)?{/\1})#is', $content, $matches, PREG_SET_ORDER);
+		$count = preg_match_all('#{(?P<tag>'.$tags.')(=(?P<option>\[([\w\d]+)(?:=.+?)?\].+?\[/\4\]|[^{}]+)+?)?}(?P<content>.*?){/\1}(?!(?:\W+)?{/\1})(?P<outside>.*?)(?={\1(?:=[^}]*)?}|$)#is', 
+			$content,
+			$matches,
+			PREG_SET_ORDER
+		);
+		
+		/* Prevent html breaks */
+		for(; $count > 0; $count--)
+		{
+			$k = $count-1;
+			$extraData = $matches[$k]['outside'];
+			$extraDataCheck = str_replace('<br />', '', $extraData);
+
+			if(empty($extraDataCheck))
+			{
+				continue;
+			}
+			
+			if(!$getContentBetweenTags)
+			{
+				$extraData = $extraDataCheck;
+				$contentToErase = preg_split('#[\s]*<?[^>]+?>[\s]*#', $extraData);
+
+				foreach($contentToErase as $text)
+				{
+					if($text)
+					{
+						$extraData = str_replace($text, '', $extraData);
+					}
+				}
+			}
+				
+			$matches[$k]['content'] .= $extraData;
+		}
 
 		return $matches;
 	}
