@@ -102,7 +102,7 @@ class BBM_Listeners_AllInOne
 		{
 			return false;
 		}
-		
+
 		$xenOptions = XenForo_Application::get('options');
 		
 		if($xenOptions->bbm_debug_tinymcehookdisable)
@@ -126,12 +126,20 @@ class BBM_Listeners_AllInOne
 		$bbmButtonsJsGrid = $bbmParams['bbmButtonsJsGridArray'];
 		$bbmCustomButtons = $bbmParams['bbmCustomButtons'];
 
+		if(!isset($editorOptions['json']['buttons']))
+		{
+			//Make this as an array to avoid any errors below
+			$editorOptions['json']['buttons'] = array();
+		}
+
 		$jsonButtons = &$editorOptions['json']['buttons'];
 		$extendedButtonsBackup = array();
 
 		/**
 		 * Filter buttons grid
 		 */
+		 $allGridButtons = array();
+		 
 		 if(!empty($bbmButtonsJsGrid))
 		 {
 		 	foreach($bbmButtonsJsGrid as &$buttonGroup)
@@ -141,18 +149,43 @@ class BBM_Listeners_AllInOne
 		 			if(!self::filterButton($button, $editorOptions, $editorOptions, $showWysiwyg))
 		 			{
 		 				unset($buttonGroup[$key]);
+		 				continue;
 		 			}
+
+		 			array_push($allGridButtons, $button);
 		 		}
 		 	}
 		 }
 
 		/**
+		 * XenForo Custom BbCodes Manager Buttons
+		 */
+		if(!empty($editorOptions['json']['bbCodes']))
+		{
+			$customBbCodesButtons = array();
+			
+			foreach($editorOptions['json']['bbCodes'] as $k => $v)
+			{
+	 			$customTag = "custom_$k";
+
+	 			if(!in_array($customTag, $allGridButtons) && self::filterButton($customTag, $editorOptions, $editorOptions, $showWysiwyg))
+	 			{
+	 				$customBbCodesButtons[] = $customTag;
+	 			}
+			}
+
+			if(!empty($customBbCodesButtons))
+			{
+				$bbmButtonsJsGrid[] = $customBbCodesButtons;
+			}
+		}
+
+		/**
 		 * Other addons Buttons Backup
 		 */
-		if(!empty($editorOptions['json']['buttons']))
+		if(!empty($jsonButtons))
 		{
 			$extendedButtonsBackup = $jsonButtons;
-			$jsonButtons = array();
 		}
 
 		/**
@@ -178,7 +211,7 @@ class BBM_Listeners_AllInOne
 				);
 			}
 		}
-		
+
 		/**
 		 * Let's put back the buttons from other addons at the end of the editor with the backup
 		 * Also check if some of these buttons have a bbm configuration to delete them from the backup
@@ -211,13 +244,20 @@ class BBM_Listeners_AllInOne
 				array_push($bbmButtonsJsGrid, $extendedgrid);
 			}
 		}
-		
+
+		if(empty($jsonButtons))
+		{
+			//Let's put back as if it would have been if it was empty
+			$jsonButtons = null;
+		}
+
 		/*Bbm Buttons Grid - will have to inject this with Javascript to be able to fully override the editor grid*/
 		$editorOptions['json']['bbmButtonConfig'] = $bbmButtonsJsGrid;
 		
 		/***
 		 * Fallback if any problem occurs to have the most accurate editor configuration
 		 **/
+ 
 		if(empty($bbmButtonsJsGrid))
 		{
 			return false;
@@ -298,7 +338,7 @@ class BBM_Listeners_AllInOne
 			}
 		}
 	}
-	
+
 	public static function filterButton($button, $editorOptions, array $editorOptions, $showWysiwyg)
 	{
 		if($button == 'draft' && empty($editorOptions['autoSaveUrl']))

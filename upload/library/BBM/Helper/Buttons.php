@@ -297,8 +297,8 @@ class BBM_Helper_Buttons
 			/*Detect new lines & proceed to some changes to the grid*/
 			if($tag == 'carriage')
 			{
-				$quattroGrid[$lineID] = $quattroGrid[$lineID];
 				$lineID++;
+				$quattroGrid[$lineID] = array();				
 				continue;
 			}
 

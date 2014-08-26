@@ -25,7 +25,7 @@ class BBM_Helper_Bbm
 			$file = new SimpleXMLElement($xmlFile, null, true);
 		}
 		
-		return $file;	
+		return $file;
 	}
 
 	public static function scanXmlString($xmlString)
@@ -57,6 +57,31 @@ class BBM_Helper_Bbm
 			'quattro_button_type', 'quattro_button_type_opt', 'quattro_button_return', 'quattro_button_return_opt',
 			'redactor_has_icon', 'redactor_sprite_mode', 'redactor_image_url', 'redactor_sprite_params_x', 'redactor_sprite_params_y'
 		);
+	}
+
+	public static function getXenCustomBbCodes($onlyTagNames = false)
+	{
+		if (XenForo_Application::isRegistered('bbCode'))
+		{
+			$xenBbCodes = XenForo_Application::get('bbCode');
+		}
+		else
+		{
+			$xenBbCodes = XenForo_Model::create('XenForo_Model_BbCode')->getBbCodeCache();
+			XenForo_Application::set('bbCode', $xenBbCodes);
+		}
+
+		if(!empty($xenBbCodes['bbCodes']))
+		{
+			if($onlyTagNames)
+			{
+				return array_keys($xenBbCodes['bbCodes']);
+			}
+			
+			return $xenBbCodes['bbCodes'];
+		}
+		
+		return array();
 	}
 	
 	public static function getBbmBbCodes()

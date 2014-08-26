@@ -135,7 +135,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		$config_data = $this->_getButtonsModel()->getConfigById($config_id);
 		if(	isset($config_data['config_type']) 
 			&& 
-			in_array($config_data['config_type'], $this->protectedConfigNames)
+			in_array($config_data['config_type'], $this->_protectedConfigNames)
 		)
 		{
 			throw $this->responseException($this->responseError(new XenForo_Phrase('bbm_config_type_protected'), 404));
@@ -202,38 +202,29 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		}
 	}
 
-	protected function _editorConfig($configType, $configEd)
+	protected function _editorConfig($config_type, $config_ed)
 	{
-		$this->checkEditorConfigCompatibility($configEd);
+		$this->checkEditorConfigCompatibility($config_ed);
 
-		//Get config and all buttons
-		$xen = $this->_getXenButtons($configType, $configEd);
+		/*Get config*/
+		$config =  $this->_getButtonsModel()->getConfigByType($config_type);
+		$config_buttons_full = $this->_getConfigFull($config);
 
-		$buttons = $this->_getBbmBbCodeModel()->getBbCodesWithButton();
-		$buttons = $this->_addButtonCodeAndClass($buttons);
-
-		if($configEd == 'mce')
-		{
-			$buttons = $this->_addQuattroClass($buttons);
-		}
-
-		$config =  $this->_getButtonsModel()->getConfigByType($configType);
+      		/*Get buttons*/
+      		list( 	$availableButtons, $blankConfigAvailableButtons, 
+			$xenButtonsList, $blankXenButtonsList, 
+			$xenButtons, $bbmButtons ) = $this->getAllButtons($config_type, $config_ed);
 
 		/***
 		*	Look inside config which buttons are already inside the editor and take them back from the buttons list
 		***/
-		if(empty($config['config_buttons_full']))
+		if(!$config_buttons_full)
 		{
-			if(!empty($xen['extraButtons']))
-			{
-				$buttons = array_merge($xen['extraButtons'], $buttons); // Add solo buttons for XenForo Redactor
-			}
-
 			$viewParams = array(
 				'config' => $config,
-				'buttonsAvailable' => $buttons,
-				'lines' => $xen['blankConfig'],
-				'default' => $xen['list'],
+				'buttonsAvailable' => $blankConfigAvailableButtons,
+				'lines' => $blankXenButtonsList,
+				'default' => $xenButtonsList,
 				'customCssButtons' => $this->_buttonsWithCustomCss,
 				'permissions' => XenForo_Visitor::getInstance()->hasAdminPermission('bbm_BbCodesAndButtons')
 	 		);
@@ -242,18 +233,20 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		}
 		else
 		{
-			$buttons = array_merge($xen['buttons'], $buttons);
-			$selectedButtons = unserialize($config['config_buttons_full']);
+			$selectedButtons = $config_buttons_full;
 
 	      		foreach($selectedButtons as $key => $selectedButton)
 	      		{
 				if(!isset($selectedButton['tag']))
 				{
-					unset($selectedButtons[$key]);//Fix
+					//All buttons must have a tag, if it doesn't there had been a pb somewhere
+					unset($selectedButtons[$key]);
 					continue;
 				}
+				
+				$refKey = $selectedButton['tag'];
 	
-	      			if((!in_array($selectedButton['tag'], array('separator', 'carriage'))) AND !isset($buttons[$selectedButton['tag']]))
+	      			if((!in_array($refKey, array('separator', 'carriage'))) AND !isset($availableButtons[$refKey]))
 	      			{
 	      				//If a button has been deleted from database, hide it from the the selected button list (It shoudn't happen due to actionDelete function)
 	      				unset($selectedButtons[$key]);
@@ -261,40 +254,23 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 	      			else
 	      			{
 	      				//Hide all buttons which are already used from the available buttons list
-	      				unset($buttons[$selectedButton['tag']]);
+	      				unset($availableButtons[$refKey]);
 	      			}
 	      		}
 			
 			//Add button class to the config group too (fix a bug when an orphan button was edited directly from the button manager)
-			$selectedButtons = $this->_addButtonCodeAndClass($selectedButtons);
-
-			if($configEd == 'mce')
-			{
-				$selectedButtons = $this->_addQuattroClass($selectedButtons);
-			}
+			$selectedButtons = $this->_addButtonCodeAndClass($selectedButtons, $config_ed);
 	
-			//Create a new array with the line ID as main key 
-			$lines = array();
-			$line_id = 1;
-			
-			foreach($selectedButtons as $button)
-			{
-				if($button['tag'] == 'carriage')
-				{
-					$line_id++;
-				}
-				else
-				{
-					$lines[$line_id][] = $button;
-				}
-			}
+			//Create a new array with the line ID as main key
+			$lines = $this->_insertButtonsInLines($selectedButtons);
+
 		}
 
 		$viewParams = array(
 			'config' => $config,
-			'buttonsAvailable' => $buttons,
+			'buttonsAvailable' => $availableButtons,
 			'lines' => $lines,
-			'default' => $xen['list'],
+			'default' => $xenButtonsList,
 			'customCssButtons' => $this->_buttonsWithCustomCss,
 			'permissions' => XenForo_Visitor::getInstance()->hasAdminPermission('bbm_BbCodesAndButtons')
  		);
@@ -302,19 +278,106 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		return $this->responseView('Bbm_ViewAdmin_Buttons_Config', 'bbm_buttons_config', $viewParams);
 	}
 
-	public function checkEditorConfigCompatibility($configEd)
+	protected function _getConfigFull($config)
+	{
+		if(empty($config['config_buttons_full']) || !isset($config['config_buttons_full']))
+		{
+			return false;
+		}
+		
+		$check = $config = unserialize($config['config_buttons_full']);
+
+		foreach($check as $k => $e)
+		{
+			if( in_array($e['tag'], array('carriage', 'separator')) )
+			{
+				unset($check[$k]);
+			}
+		}
+
+		if(empty($check))
+		{
+			return false;
+		}
+		
+		return $config;
+	}
+
+	protected function _insertButtonsInLines(array $buttons)
+	{
+		$lines = array();
+		$line_id = 1;
+		$hasButtons = false;
+
+		foreach($buttons as $button)
+		{
+			if($button['tag'] == 'carriage')
+			{
+				if($hasButtons)
+				{
+					$line_id++;
+					$hasButtons = false;
+				}
+			}
+			else
+			{
+				$lines[$line_id][] = $button;
+				$hasButtons = true;
+			}
+		}
+
+		return $lines;	
+	}
+
+	public function checkEditorConfigCompatibility($config_ed)
 	{
 		list($mceSupport, $redactorSupport) = BBM_Helper_Editors::getCompatibility();
 		
-		if($configEd == 'xen' && !$redactorSupport)
+		if($config_ed == 'xen' && !$redactorSupport)
 		{
 			throw $this->responseException($this->responseError(new XenForo_Phrase('bbm_config_redactor_unsupported'), 404));		
 		}
 		
-		if($configEd == 'mce' && !$mceSupport)
+		if($config_ed == 'mce' && !$mceSupport)
 		{
 			throw $this->responseException($this->responseError(new XenForo_Phrase('bbm_config_mce_unsupported'), 404));
 		}
+	}
+
+	public function getAllButtons($config_type, $config_ed)
+	{
+      		$xenButtons = $this->_getXenButtons($config_type, $config_ed);
+      		$bbmButtons =  $this->_getBbmBbCodeModel()->getBbCodesWithButton();
+
+		if(!empty($xenButtons['extraButtons']))
+		{
+			/***
+			 * Add solo+custom buttons for XenForo Redactor
+			 * The extraButtons key doesn't have XenForo default buttons that are supposed to be already in the selected area
+			 */
+			$blankConfigAvailableButtons = $this->_addButtonCodeAndClass(
+				array_merge($xenButtons['extraButtons'], $bbmButtons),
+				$config_ed
+			);
+		}
+		else
+		{
+			$blankConfigAvailableButtons = $this->_addButtonCodeAndClass($bbmButtons, $config_ed);
+		}
+		
+		$availableButtons = $this->_addButtonCodeAndClass(
+			array_merge($xenButtons['buttons'], $bbmButtons),
+			$config_ed
+		);
+
+		$xenButtonsList = $xenButtons['list'];
+		$blankXenButtonsList = $xenButtons['blankConfig'];
+
+		return array(
+			$availableButtons, $blankConfigAvailableButtons, 
+			$xenButtonsList, $blankXenButtonsList, 
+			$xenButtons, $bbmButtons
+		);
 	}
 
 	public function actionPostConfig()
@@ -325,53 +388,46 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		$config_type = $this->_input->filterSingle('config_type', XenForo_Input::STRING);
 		$config_ed = $this->_input->filterSingle('config_ed', XenForo_Input::STRING);
 		$config_buttons_order = $this->_input->filterSingle('config_buttons_order', XenForo_Input::STRING);
-		$config_buttons_order = str_replace('button_', '', $config_buttons_order); // 'buttons_' prefix was only use for pretty css		
 
-      		//Get buttons
-      		$xen = $this->_getXenButtons($config_type, $config_ed);
-      		$buttons = $this->_getBbmBbCodeModel()->getBbCodesWithButton();
-      		$buttons = $this->_addButtonCodeAndClass($buttons);	
-      		$buttons = array_merge($xen['buttons'], $buttons);		
+      		/*Get buttons*/
+      		list( 	$availableButtons, $blankConfigAvailableButtons, 
+			$xenButtonsList, $blankXenButtonsList, 
+			$xenButtons, $bbmButtons ) = $this->getAllButtons($config_type, $config_ed);
 
-		//If user has disable javascript... prevent to register a blank config in database
 		if(empty($config_buttons_order))		
 		{
-			$config_buttons_order = $xen['list']; //Default Xen layout
+			 //If user has disabled JavaScrit, set a default layout to prevent to register a blank config in the database
+			$config_buttons_order = $xenButtons['list'];
 		}
 		
-      		//Get selected buttons from user configuration and place them in an array
-      		$selected_buttons =  explode(',', $config_buttons_order);
-
-      		//Create the final data array
+      		/*Get buttons*/
       		$config_buttons_full = array();
+      		$selected_buttons =  explode(',', $config_buttons_order);
 
       		foreach ($selected_buttons as $selected_button)
       		{
-      			if(!empty($selected_button))
-      			{
-      				//to prevent last 'else' can't find any index, id must be: id array = id db = id js (id being separator)
-      				if($selected_button == 'separator')
-      				{
-      					$config_buttons_full[] = array('tag' => 'separator', 'button_code' => '|');
-      				}
-      				elseif($selected_button == '#')
-      				{
-      					$config_buttons_full[] = array('tag' => 'carriage', 'button_code' => '#');
-      				}
-      				else
-      				{
-      					if(isset($buttons[$selected_button])) //Check if the button hasn't been deleted
-      					{
-      						$config_buttons_full[] = $buttons[$selected_button];
-      					}
-      				}
+			//to prevent last 'else' can't find any index, id must be: id array = id db = id js (id being separator)
+			if(in_array($selected_button, array('|', 'separator')))
+			{
+				$config_buttons_full[] = array('tag' => 'separator', 'button_code' => '|');
       			}
+      			elseif($selected_button == '#')
+      			{
+      				$config_buttons_full[] = array('tag' => 'carriage', 'button_code' => '#');
+      			}
+      			else
+      			{
+      				if(isset($availableButtons[$selected_button])) //Check if the button hasn't been deleted
+      				{
+      					$config_buttons_full[] = $availableButtons[$selected_button];
+      				}
+			}
       		}
 
 		//Choose what to display in the ajax response
 		$ajaxresponse =  str_replace('separator', '|', $config_buttons_order); // <= Just  for a nicer display
 
-		//Save in Database		
+		//Save in Database
 		$config_buttons_full = serialize($config_buttons_full);
 
 		$dw = XenForo_DataWriter::create('BBM_DataWriter_Buttons');
@@ -413,26 +469,27 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		);
 	}
 
-	protected function _getXenButtons($configType, $configEd)
+	protected function _getXenButtons($config_type, $config_ed)
 	{
-		if($configEd == 'mce')
+		if($config_ed == 'mce')
 		{
-			return $this->_xenMceButtons($configType);
+			return $this->_xenMceButtons($config_type);
 		}
-		elseif($configEd == 'xen')
+		elseif($config_ed == 'xen')
 		{
-			return $this->_xenRedactorButtons($configType);		
+			return $this->_xenRedactorButtons($config_type);		
 		}
 	}
 	
 	protected $bbmAvailableButtons = array();
 
-	protected function _xenRedactorButtons($configType)
+	protected function _xenRedactorButtons($config_type)
 	{
 		$xenCurrentVersionId = XenForo_Application::get('options')->get('currentVersionId');
 		$defaultMenuButtons = array();
 		$extraButtons = array();
-		
+		$xenCustomBbCodes = BBM_Helper_Bbm::getXenCustomBbCodes(true);
+
 		if($xenCurrentVersionId < 1030031) 
 		{
 			/* XenForo 1.2 - max: 1020570*/
@@ -509,7 +566,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       			{
 				$extraClass = '';
 				$tag = ($xen_code[0] == $prefix) ? substr($xen_code, 1) : $xen_code;
-				
+
 				
 				if(in_array($tag, $defaultMenuButtons))
 				{
@@ -538,7 +595,8 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       					);					
       				}
       			}
-      		}	
+      		}
+
 		/*Extra buttons*/
 		if(!empty($extraButtons))
 		{
@@ -557,6 +615,24 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       			}
 		}
 
+		/*Custom BbCodes buttons*/
+		if(!empty($xenCustomBbCodes))
+		{
+			foreach($xenCustomBbCodes as $xen_code)
+			{
+	     			$xenCustKey = "custom_{$xen_code}";
+	     			$extraButtons[] = $buttons[$xenCustKey] = array(
+	      				'tag' => $xenCustKey,
+	      				'button_code' => $xenCustKey,
+	      				'icon_set' => '',
+	      				'icon_class' =>  '',
+	      				'icon_set_class' => '',
+	      				'class' => 'xenButton',
+	      				'extraClass' => 'xenCustom'
+	      			);			
+			}
+		}
+
 		$this->bbmAvailableButtons = $buttons;
 
 		return array(
@@ -567,9 +643,9 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		);
 	}
 
-	protected function _xenMceButtons($configType)
+	protected function _xenMceButtons($config_type)
 	{
-		$direction = (in_array($configType, array('ltr', 'rtl'))) ? $configType : 'ltr';
+		$direction = (in_array($config_type, array('ltr', 'rtl'))) ? $config_type : 'ltr';
 	
 		$list = $this->_getButtonsModel()->getQuattroReadyToUse($direction, 'string', ',', 'separator', '#');
 		$arrayLines = $this->_getButtonsModel()->getQuattroReadyToUse($direction, 'array', ',', 'separator');
@@ -619,54 +695,6 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		);
 	}
 	
-	protected function _addButtonCodeAndClass($buttons)
-	{	
-		foreach($buttons as &$button)
-		{
-			if(empty($button['button_code']))
-			{
-				$button['button_code'] = (!empty($button['custCmd'])) ? $button['custCmd'] : 'bbm_'.$button['tag'];
-			}
-			
-			if(isset($button['class']) && $button['class'] == 'xenButton')
-			{
-				$tag = $button['tag'];
-		
-				if( isset($this->bbmAvailableButtons[$tag]) && !empty($this->bbmAvailableButtons[$tag]['extraClass']) )
-				{
-					$button['extraClass'] = $this->bbmAvailableButtons[$tag]['extraClass'];
-				}
-
-				//Needed when check the "config" array
-				continue;
-			}
-			
-			if($button['tag'][0] == '@')
-			{
-				$button['class'] = 'orphanButton';
-			}
-			else
-			{
-				$button['class'] = 'activeButton';			
-			}
-
-			$addonDisable = ($this->_checkAddonStateForButton($button) === false);
-			
-			if((isset($button['active']) && !$button['active']) || $addonDisable)
-			{
-				$button['class'] = 'unactiveButton';
-
-				if($addonDisable)
-				{
-					$button['class'] .= ' addonDisabled';
-				}
-			}
-		}
-		
-		return $buttons;
-	}
-	
-	
 	protected $allDataButtons = array();
 	
 	protected function _checkAddonStateForButton($button)
@@ -694,44 +722,104 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 	}
 
 	protected $_buttonsWithCustomCss = array();
-	
-	protected function _addQuattroClass($buttons)
+
+	protected function _addButtonCodeAndClass($buttons, $config_ed)
 	{	
-		foreach($buttons as &$button)
+		foreach($buttons as $k => &$button)
 		{
-			$btnType = (isset($button['quattro_button_type'])) ? $button['quattro_button_type'] : '';
-
-			$button['safetag'] = str_replace('@', 'at_', $button['tag']);			
-
-			if(	(isset($button['class']) && $button['class'] == 'xenButton')
-				|| empty($btnType) || $btnType == 'manual'
-			)
+			if(empty($button['button_code']))
 			{
-				continue;
+				$button['button_code'] = (!empty($button['custCmd'])) ? $button['custCmd'] : 'bbm_'.$button['tag'];
 			}
-
-			if($btnType != 'text')
+			
+			if(isset($button['class']) && $button['class'] == 'xenButton')
 			{
-				switch ($btnType) {
-					case 'icons_mce':
-						$iconSet = 'tinymce';
-						break;
-					case 'icons_xen':
-						$iconSet = 'xenforo';
-						break;
-					default: $iconSet = $btnType;
+				$tag = $button['tag'];
+		
+				if( isset($this->bbmAvailableButtons[$tag]) && !empty($this->bbmAvailableButtons[$tag]['extraClass']) )
+				{
+					$button['extraClass'] = $this->bbmAvailableButtons[$tag]['extraClass'];
 				}
-				
-				$button += array(
-					'icon_set' => $iconSet,
-					'icon_class' =>  'mce-ico',
-					'icon_set_class' => $this->_getMceClass($iconSet)
-				);
-				
-				$this->_buttonsWithCustomCss[$button['tag']] = $button;
 			}
-		}
+			else
+			{
+				if($button['tag'][0] == '@')
+				{
+					$button['class'] = 'orphanButton';
+				}
+				else
+				{
+					$button['class'] = 'activeButton';			
+				}
 
+				$addonDisable = ($this->_checkAddonStateForButton($button) === false);
+			
+				if((isset($button['active']) && !$button['active']) || $addonDisable)
+				{
+					$button['class'] = 'unactiveButton';
+
+					if($addonDisable)
+					{
+						$button['class'] .= ' addonDisabled';
+					}
+				}
+			}
+
+			/*MCE CONFIG*/
+			if($config_ed == 'mce')
+			{
+				$btnType = (isset($button['quattro_button_type'])) ? $button['quattro_button_type'] : '';
+	
+				$button['safetag'] = str_replace('@', 'at_', $button['tag']);			
+	
+				if(	( $btnType && !in_array($btnType, array('text', 'manual')) )
+					&& 
+					( isset($button['class']) && $button['class'] != 'xenButton' )
+				)
+				{
+					switch ($btnType) {
+						case 'icons_mce':
+							$iconSet = 'tinymce';
+							break;
+						case 'icons_xen':
+							$iconSet = 'xenforo';
+							break;
+						default: $iconSet = $btnType;
+					}
+					
+					$button += array(
+						'icon_set' => $iconSet,
+						'icon_class' =>  'mce-ico',
+						'icon_set_class' => $this->_getMceClass($iconSet)
+					);
+					
+					$this->_buttonsWithCustomCss[$button['tag']] = $button;
+				}
+			}
+			
+			/*Add a cleanName key for the template*/
+			$tagName = $button['tag'];
+
+			if($tagName[0] == '-')
+			{
+				$cleanName = substr($tagName, 1);
+			}
+			elseif($tagName == 'separator')
+			{
+				$cleanName = '|';
+			}
+			elseif(strpos($tagName, 'custom_') === 0)
+			{
+				$cleanName = substr($tagName, 7);
+			}
+			else
+			{
+				$cleanName = $tagName;
+			}
+
+			$button['cleanName'] = $cleanName;
+		}
+		
 		return $buttons;
 	}
 

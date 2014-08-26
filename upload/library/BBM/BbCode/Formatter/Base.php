@@ -695,12 +695,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected function _createCurrentTag($tag, array $tagInfo, array $rendererStates)
 	{
 		$this->currentTag['tag'] = $tag;
-		
-		if(isset($tagInfo['callback'][0]))
-		{
-			$tagInfo['callback'][0] = '';//Not needed for info (recursive)
-		}
-		
 		$this->currentTag['tagInfo'] = $tagInfo;
 		$this->currentRendererStates = $rendererStates;
 	}
