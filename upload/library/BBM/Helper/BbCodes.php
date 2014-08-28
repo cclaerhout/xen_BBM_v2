@@ -32,7 +32,10 @@ class BBM_Helper_BbCodes
 	public static function getSpecialTags($content, array $tags = array('slide'), $getContentBetweenTags = false)
 	{
 		$tags = implode('|', $tags);
-		$count = preg_match_all('#{(?P<tag>'.$tags.')(=(?P<option>\[([\w\d]+)(?:=.+?)?\].+?\[/\4\]|[^{}]+)+?)?}(?P<content>.*?){/\1}(?!(?:\W+)?{/\1})(?P<outside>.*?)(?={\1(?:=[^}]*)?}|$)#is', 
+		$count = preg_match_all(
+			'#{(?P<tag>'.$tags.')(=(?P<option>\[([\w\d]+)(?:=.+?)?\].+?\[/\4\]|[^{}]+)+?)?}'.
+			'(?P<catchup>(?:</[^>]+>\s*)*)?(?P<content>.*?)'.
+			'{/\1}(?!(?:\W+)?{/\1})(?P<outside>.*?)(?={\1(?:=[^}]*)?}|$)#is', 
 			$content,
 			$matches,
 			PREG_SET_ORDER
@@ -42,6 +45,24 @@ class BBM_Helper_BbCodes
 		for(; $count > 0; $count--)
 		{
 			$k = $count-1;
+			
+			$catchup = $matches[$k]['catchup'];
+
+			/*Catchup lost closing tags at the begin of n+1 special tag*/
+			if($catchup && isset($matches[$k-1]))
+			{
+				$previousContent = &$matches[$k-1]['content'];
+				if(preg_match('#^.*<br />$#s', $previousContent))
+				{
+					$previousContent = preg_replace('#^(.*)<br />$#s', "$1{$catchup}<br />", $previousContent);
+				}
+				else
+				{
+					$previousContent .= $catchup;
+				}
+			}
+			
+			/*Between special tags management*/
 			$extraData = $matches[$k]['outside'];
 			$extraDataCheck = str_replace('<br />', '', $extraData);
 
