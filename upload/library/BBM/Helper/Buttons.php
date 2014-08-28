@@ -312,6 +312,7 @@ class BBM_Helper_Buttons
 					continue;
 				}
 			}
+			
 			/*Button Code Formatter*/
 			if(!empty($button['button_code']))
 			{
@@ -384,6 +385,26 @@ class BBM_Helper_Buttons
 					'tagOptions' => self::_detectPhrases($button['tagOptions']),
 					'tagContent' => self::_detectPhrases($button['tagContent']),
 					'separator' => (empty($button['options_separator'])) ? $options->Bbm_BbCode_Options_Separator : $button['options_separator']
+				);
+			}
+			
+			/*XenForo Custom BbCode Management*/
+			if(strpos($tag, 'custom_') === 0)
+			{
+				$tag = substr($tag, 7);
+
+				$customButtonsJs[] = array(
+					'tag' => $tag,
+					'code' => $code,
+					'iconSet' => false,
+					'type' => 'xenCustom',
+					'typeOption' => '',
+					'return' => 'direct',
+					'returnOption' => '',
+					'description' => '',
+					'tagOptions' => '',
+					'tagContent' => '',
+					'separator' => $options->Bbm_BbCode_Options_Separator			
 				);
 			}
 

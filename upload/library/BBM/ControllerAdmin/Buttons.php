@@ -638,8 +638,8 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		return array(
 			'list' => $list,			//will be used as a fallback if user has disable javascript - to do: (or if user wants to reset)
 			'buttons' => $buttons, 			//will be merged with other buttons
-			'extraButtons' => $extraButtons,	//will be used for 
-			'blankConfig' => $blankConfig 		//will be used for blank configs
+			'blankConfig' => $blankConfig, 		//will be used for blank configs
+			'extraButtons' => $extraButtons
 		);
 	}
 
@@ -650,6 +650,8 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		$list = $this->_getButtonsModel()->getQuattroReadyToUse($direction, 'string', ',', 'separator', '#');
 		$arrayLines = $this->_getButtonsModel()->getQuattroReadyToUse($direction, 'array', ',', 'separator');
 		$fontsMap =  $this->_getButtonsModel()->getQuattroFontsMap();
+
+		$xenCustomBbCodes = BBM_Helper_Bbm::getXenCustomBbCodes(true);
 
       		$buttons = array(); 
       		$blankConfig = array();
@@ -685,13 +687,32 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       				}
       			}
       		}	
+
+		/*Custom BbCodes buttons*/
+		if(!empty($xenCustomBbCodes))
+		{
+			foreach($xenCustomBbCodes as $xen_code)
+			{
+	     			$xenCustKey = "custom_{$xen_code}";
+	     			$extraButtons[] = $buttons[$xenCustKey] = array(
+	      				'tag' => $xenCustKey,
+	      				'button_code' => $xenCustKey,
+	      				'icon_set' => '',
+	      				'icon_class' =>  '',
+	      				'icon_set_class' => '',
+	      				'class' => 'xenButton',
+	      				'extraClass' => 'xenCustom'
+	      			);			
+			}
+		}
 	
 		$this->bbmAvailableButtons = $buttons;
 		
 		return array(
 			'list' => $list,		//will be used as a fallback if user has disable javascript - to do: (or if user wants to reset)
 			'buttons' => $buttons, 		//will be merged with other buttons
-			'blankConfig' => $blankConfig 	//will be used for blank configs
+			'blankConfig' => $blankConfig, 	//will be used for blank configs
+			'extraButtons' => $extraButtons			
 		);
 	}
 	

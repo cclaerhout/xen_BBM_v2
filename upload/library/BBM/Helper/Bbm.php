@@ -84,6 +84,18 @@ class BBM_Helper_Bbm
 		
 		return array();
 	}
+
+	public static function getXenCustomBbCode($tagName)
+	{
+		$xenCustomBbCodes = self::getXenCustomBbCodes();
+
+		if(!isset($xenCustomBbCodes[$tagName]))
+		{
+			return false;
+		}		
+	
+		return $xenCustomBbCodes[$tagName];
+	}	
 	
 	public static function getBbmBbCodes()
 	{

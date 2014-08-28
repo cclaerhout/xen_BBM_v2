@@ -127,6 +127,12 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 			$this->error(new XenForo_Phrase('bbm_error_tag_must_only_use_alphanumeric'), 'tag');
 			return false;
 		}
+
+		if (preg_match('/^custom_/i', $tag))
+		{
+			$this->error(new XenForo_Phrase('bbm_error_tag_custom_prefix_is_forbidden'), 'tag');
+			return false;
+		}
 		
 		if(in_array($tag, $this->_xenBbCodes))
 		{

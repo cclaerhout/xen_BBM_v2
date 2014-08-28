@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.0.0" version_id="55" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.0.0" version_id="56" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -3022,7 +3022,7 @@ If you choose this method, you will need to create yourself a CSS for the TinyMC
 3) If you have selected an <b>icons set</b>, use this field to enter the icon unicode (without <b>\</b> ) . Ie: e02a<br />
 <br />
 <span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro]]></phrase>
-    <phrase title="bbm_buttons_redactor_btn_type_opt_desc" version_id="55" version_string="3.0.0"><![CDATA[If you have selected to create a text button, enter its text here.]]></phrase>
+    <phrase title="bbm_buttons_redactor_btn_type_opt_desc" version_id="55" version_string="3.0.0"><![CDATA[If you have selected to create a text button, enter its text here. If you have selected the "Font Awesome icons set", click on one icon, will fill this field with its class name.]]></phrase>
     <phrase title="bbm_buttons_redactor_image_url" version_id="22" version_string="2.1.5"><![CDATA[To use the default XenForo sprite, <span id="xenSpriteInsert">click here</span>.]]></phrase>
     <phrase title="bbm_buttons_return_desc" version_id="22" version_string="2.1.5"><![CDATA[You can select two kinds of return.<br />
 <br />
@@ -3044,12 +3044,13 @@ Ie: [bbcode=<b>options</b>]content[/bbcode]<br />
 You can't use here the following characters: =[] (it would break the Bb code)<br />
 <br />
 <span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro, XenForo Redactor]]></phrase>
-    <phrase title="bbm_buttons_type_desc" version_id="23" version_string="2.2.0"><![CDATA[Select here which type of button you want:<br />
+    <phrase title="bbm_buttons_type_desc" version_id="55" version_string="3.0.0"><![CDATA[Select here which type of button you want:<br />
 <br />
 1) <b>Manual</b> means you will have to customize yourself the css. Use this option if you plan to use a classic icon. <br />
 2) <b>Text</b> means you will have a text button. <br />
 3) <b>TinyMCE icons set</b> means you will use a font icon from the official TinyMCE font icons set. <br />
 4) <b>XenForo icons set</b> means you will use a font icon from the XenForo  font icons set.<br />
+5) <b>Font Awesome icons set</b> means you will use an icon from the Font Awesome set.<br />
 <br />
 <span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro]]></phrase>
     <phrase title="bbm_buttons_type_title" version_id="10" version_string="2.0"><![CDATA[Button type]]></phrase>
@@ -3135,6 +3136,7 @@ You have selected <b>{number}</b> methods: <b>{methods}</b>.]]></phrase>
 Please enter a valid template name.]]></phrase>
     <phrase title="bbm_error_replacement_method" version_id="0" version_string="1.0"><![CDATA[Replacement method]]></phrase>
     <phrase title="bbm_error_replacement_method_needed" version_id="0" version_string="1.0"><![CDATA[Enter a replacement method.]]></phrase>
+    <phrase title="bbm_error_tag_custom_prefix_is_forbidden" version_id="56" version_string="3.0.0"><![CDATA[The prefix "custom_" is forbidden.]]></phrase>
     <phrase title="bbm_error_tag_must_be_unique" version_id="0" version_string="1.0"><![CDATA[Tag must be unique.]]></phrase>
     <phrase title="bbm_error_tag_must_only_use_alphanumeric" version_id="5" version_string="1.1.4"><![CDATA[The tag name can only use alphanumeric characters or an underscore (a-z, A-Z, 0-9, _). It can also use the sign @ to create an orphan button.]]></phrase>
     <phrase title="bbm_error_template_method" version_id="0" version_string="1.0"><![CDATA[Template method]]></phrase>
