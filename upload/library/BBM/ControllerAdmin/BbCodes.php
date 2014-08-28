@@ -190,7 +190,8 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 			'redactorSupport' => $redactorSupport,
 			'code' => $code,
 			'quattroSets' => BBM_Helper_QuattroUnicode::getunicodeSets(),
-			'activeTags' => $this->_getBbmBBCodeModel()->getActiveTags($code)
+			'activeTags' => $this->_getBbmBBCodeModel()->getActiveTags($code),
+			'faFonts' => array_flip(BBM_Helper_FontAwesome::getFonts())
 		);
 
 		//Check if the edit is made from the button manager
@@ -412,7 +413,9 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 				'redactor_sprite_mode' => XenForo_Input::UINT,
 				'redactor_sprite_params_x' => XenForo_Input::INT,
 				'redactor_sprite_params_y' => XenForo_Input::INT,
-				'redactor_image_url' => XenForo_Input::STRING
+				'redactor_image_url' => XenForo_Input::STRING,
+				'redactor_button_type' => XenForo_Input::STRING,
+				'redactor_button_type_opt' => XenForo_Input::STRING
 		));
 
 		if(XenForo_Application::debugMode())
@@ -776,7 +779,9 @@ class BBM_ControllerAdmin_BbCodes extends XenForo_ControllerAdmin_Abstract
 				'redactor_sprite_mode' => (int) $BbCode->Button->redactor_sprite_mode,
 				'redactor_sprite_params_x' => (int) $BbCode->Button->redactor_sprite_params_x,
 				'redactor_sprite_params_y' => (int) $BbCode->Button->redactor_sprite_params_y,
-				'redactor_image_url' => (string) $BbCode->Button->redactor_image_url
+				'redactor_image_url' => (string) $BbCode->Button->redactor_image_url,
+				'redactor_button_type' => (string) $BbCode->Button->redactor_button_type,
+				'redactor_button_type_opt' => (string) $BbCode->Button->redactor_button_type_opt			
 			);
 			
 		return $builder;

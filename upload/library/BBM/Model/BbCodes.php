@@ -455,10 +455,10 @@ class BBM_Model_BbCodes extends XenForo_Model
 				$Button->appendChild($document->createElement('custCmd', $bbcode['custCmd']));
 				$Button->appendChild($document->createElement('quattro_button_type', $bbcode['quattro_button_type']));
 				$buttonTypeOption = $Button->appendChild($document->createElement('quattro_button_type_opt', ''));
-				  $buttonTypeOption->appendChild($document->createCDATASection($bbcode['quattro_button_type_opt']));	
+				  $buttonTypeOption->appendChild($document->createCDATASection($bbcode['quattro_button_type_opt']));
 				$Button->appendChild($document->createElement('quattro_button_return', $bbcode['quattro_button_return']));
-				$buttonReturnOption = $Button->appendChild($document->createElement('quattro_button_return_opt', ''));
-				  $buttonReturnOption->appendChild($document->createCDATASection($bbcode['quattro_button_return_opt']));
+				$quattroButtonReturnOption = $Button->appendChild($document->createElement('quattro_button_return_opt', ''));
+				  $quattroButtonReturnOption->appendChild($document->createCDATASection($bbcode['quattro_button_return_opt']));
 				$Button->appendChild($document->createElement('imgMethod', $bbcode['imgMethod']));//Depreciated
 				$buttonDesc = $Button->appendChild($document->createElement('buttonDesc', ''));
 				  $buttonDesc->appendChild($document->createCDATASection($bbcode['buttonDesc']));	
@@ -473,6 +473,9 @@ class BBM_Model_BbCodes extends XenForo_Model
 				$Button->appendChild($document->createElement('redactor_sprite_params_y', $bbcode['redactor_sprite_params_y']));
 				$RedactorImageUrl = $Button->appendChild($document->createElement('redactor_image_url', ''));
 				  $RedactorImageUrl->appendChild($document->createCDATASection($bbcode['redactor_image_url']));
+				$Button->appendChild($document->createElement('redactor_button_type', $bbcode['redactor_button_type']));
+				$redactorButtonTypeOption = $Button->appendChild($document->createElement('redactor_button_type_opt', ''));
+				  $redactorButtonTypeOption->appendChild($document->createCDATASection($bbcode['redactor_button_type_opt']));
 		}
 
 		return $document;
@@ -552,7 +555,8 @@ class BBM_Model_BbCodes extends XenForo_Model
 						'view_has_usr', 'view_usr', 'view_return', 'view_return_delay',
 						'hasButton', 'button_has_usr', 'button_usr', 'killCmd', 'custCmd', 'imgMethod', 'buttonDesc', 'tagOptions', 'tagContent',
 						'quattro_button_type', 'quattro_button_type_opt', 'quattro_button_return', 'quattro_button_return_opt',
-						'redactor_has_icon', 'redactor_sprite_mode', 'redactor_image_url', 'redactor_sprite_params_x', 'redactor_sprite_params_y'
+						'redactor_has_icon', 'redactor_sprite_mode', 'redactor_image_url', 'redactor_sprite_params_x', 'redactor_sprite_params_y',
+						'redactor_button_type', 'redactor_button_type_opt'
 					);
 
 			foreach($keysToCheck as $k)

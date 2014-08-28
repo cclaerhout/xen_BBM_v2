@@ -96,7 +96,9 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 				'redactor_sprite_mode' => array('type' => self::TYPE_UINT, 'default' => 0),
 				'redactor_sprite_params_x' => array('type' => self::TYPE_INT, 'default' => 0),
 				'redactor_sprite_params_y' => array('type' => self::TYPE_INT, 'default' => 0),
-				'redactor_image_url' => array('type' => self::TYPE_STRING, 'default' => '')
+				'redactor_image_url' => array('type' => self::TYPE_STRING, 'default' => ''),
+				'redactor_button_type' 		=> array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 50),
+				'redactor_button_type_opt' 	=> array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 150)
 			)
 		);
 	}

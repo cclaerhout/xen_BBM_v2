@@ -1,3 +1,26 @@
+if (typeof RedactorPlugins === 'undefined') var RedactorPlugins = {};
+RedactorPlugins.bbmButtons = {
+	//This plugin loads after the editor has been initialized
+	init: function()
+	{
+		var self = this;
+
+		//Text buttons
+		$.each(self.textButtons, function(name, text){
+			var $bbmButton = self.getBtn(name);
+			$bbmButton.addClass('BbmText').text(text);
+		});
+
+		//Font Awesome buttons
+		$.each(self.faButtons, function(name, faClass){
+			var $bbmButton = self.getBtn(name);
+			$bbmButton.addClass('BbmFa fa '+ faClass);
+		})		
+	},
+	textButtons: {},
+	faButtons: {}
+};
+
 !function($, window, document, undefined)
 {
 	XenForo.BbmCustomEditor = function($textarea) { this.__construct($textarea); };
@@ -7,7 +30,7 @@
 		__construct: function($textarea)
 		{
 			var redactorOptions = $textarea.data('options');
-		    
+
 			if(typeof redactorOptions === undefined){
 				return false;
 			}
@@ -38,6 +61,15 @@
 				};
 				
 				$.extend(true, redactorOptions, bbmOptions);
+
+				//Declare bbmButtons plugin
+				var editorOptions = redactorOptions.editorOptions;
+
+				if(typeof editorOptions.plugins === undefined || !$.isArray(editorOptions.plugins)){
+					editorOptions.plugins = ['bbmButtons'];
+				}else{
+					editorOptions.plugins.push('bbmButtons');
+				}
 			}
 
 			setTimeout(function(e){
@@ -56,7 +88,7 @@
 			if(typeof this.redactor === undefined){
 				return false;
 			}
-
+			
 			this.customButtons = this.redactor.opts.buttonsCustom;
 
 			//Override callbacks if needed
@@ -77,7 +109,14 @@
 					var  	tag = data.tag,
 						content = data.bbCodeContent,
 						options = data.bbCodeOptions,
-						separator = data.bbCodeOptionsSeparator;
+						separator = data.bbCodeOptionsSeparator,
+						textButton = data.textButton;
+					
+					if(data.textButton){
+						RedactorPlugins.bbmButtons.textButtons[name] = data.textButton;
+					}else if(data.faButton){
+						RedactorPlugins.bbmButtons.faButtons[name] = data.faButton;
+					}
 					
 					if(!content && !options){
 						return;
@@ -102,9 +141,9 @@
 								xen_lib.wrapSelectionInHtml(ed, oTag, cTag, true);
 								return;							
 							}
-				        	}
-					        	
-			        		ed.execCommand('inserthtml', fullCode);
+						}
+
+						ed.execCommand('inserthtml', fullCode);
 					};
 				});
 			}

@@ -201,13 +201,17 @@ class BBM_Listeners_AllInOne
 				$opts = XenForo_Template_Helper_Core::jsEscape($button['tagOptions']);
 				$content = XenForo_Template_Helper_Core::jsEscape($button['tagContent']);
 				$separator = XenForo_Template_Helper_Core::jsEscape($button['separator']);
+				$textButton = XenForo_Template_Helper_Core::jsEscape($button['textButton']);
+				$faButton = XenForo_Template_Helper_Core::jsEscape($button['faButton']);
 
 				$jsonButtons[$code] = array(
 					'title' => $desc,
 					'tag'  => $tag,
 					'bbCodeOptions' => $opts,
 					'bbCodeOptionsSeparator' => $separator,
-					'bbCodeContent' => $content
+					'bbCodeContent' => $content,
+					'textButton' => $textButton,
+					'faButton' => $faButton
 				);
 			}
 		}

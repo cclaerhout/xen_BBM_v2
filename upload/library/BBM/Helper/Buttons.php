@@ -337,7 +337,7 @@ class BBM_Helper_Buttons
 			$code = self::_cleanOrphan($code);
 
 			/*Bake the extra CSS for custom Buttons*/
-			if(!empty($button['quattro_button_type']) && !in_array($button['quattro_button_type'], array('manual', 'text')))
+			if(!empty($button['quattro_button_type']) && !in_array($button['quattro_button_type'], array('manual', 'text', 'icons_fa')))
 			{
 				$btnType = $button['quattro_button_type'];
 				
@@ -483,17 +483,33 @@ class BBM_Helper_Buttons
 
 			if(isset($button['tagContent']))
 			{
+				$textButton = false;
+				if(isset($button['redactor_button_type']) && $button['redactor_button_type'] == 'text')
+				{
+					$textButton = self::_detectPhrases($button['redactor_button_type_opt']);
+				}
+
+				$faButton = false;
+				if(isset($button['redactor_button_type']) && $button['redactor_button_type'] == 'icons_fa')
+				{
+					$faButton = $button['redactor_button_type_opt'];
+				}
+				
 				$customButtons[] = array(
 					'tag'	=> $tag,
 					'code' => $code,
 					'description' => self::_detectPhrases($button['buttonDesc']),
 					'tagOptions' => self::_detectPhrases($button['tagOptions']),
 					'tagContent' => self::_detectPhrases($button['tagContent']),
-					'separator' => (empty($button['options_separator'])) ? $options->Bbm_BbCode_Options_Separator : $button['options_separator']
+					'separator' => (empty($button['options_separator'])) ? $options->Bbm_BbCode_Options_Separator : $button['options_separator'],
+					'textButton' => $textButton,
+					'faButton' => $faButton
 				);
 			}
 
-			if(!empty($button['redactor_has_icon']) && !empty($button['redactor_image_url']))
+			if(	!empty($button['redactor_has_icon']) && !empty($button['redactor_image_url']) 
+				&& !in_array($button['redactor_button_type'], array('text', 'icons_fa'))
+			)
 			{			
 				$customButtonsCss[] = array(
 					'tag'	=> $tag,

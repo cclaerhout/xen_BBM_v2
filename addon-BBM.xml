@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="2.9.0" version_id="54" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.0.0" version_id="55" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -66,7 +66,7 @@
 
 <xen:require css="bbm_bb_codes_edit.css" />
 <xen:require css="code_event.css" />
-<xen:require js="js/bbm/adminTools.js" />
+<xen:require js="js/bbm/admin/bbcodes.js" />
 
 <xen:form action="{xen:adminlink 'bbm-bbcodes/save', $code}"
 	class="xenForm AutoValidator" 
@@ -343,6 +343,7 @@
 						<xen:option value="text" label="{xen:phrase bbm_buttons_btn_type_text}" />
 						<xen:option value="icons_mce" label="{xen:phrase bbm_buttons_btn_type_icons_tinymce}" />
 						<xen:option value="icons_xen" label="{xen:phrase bbm_buttons_btn_type_icons_xenforo}" />
+						<xen:option value="icons_fa" label="{xen:phrase bbm_buttons_btn_type_icons_fa}" />
 						<xen:explain>{xen:phrase bbm_buttons_type_desc}</xen:explain>
 					</xen:selectunit>
 	
@@ -350,6 +351,13 @@
 						<xen:include template="bbm_quattro_buttons_map">
 							<xen:map from="$quattroSets.xen" to="$xenSet" />
 							<xen:map from="$quattroSets.mce" to="$mceSet" />
+						</xen:include>
+					</div>
+
+					<div id="quattro_fa_helper">
+						<xen:include template="bbm_fa_buttons_map">
+							<xen:set var="$faTarget">[name=quattro_button_type_opt]</xen:set> 
+							<xen:map from="$faFonts" to="$faFonts" />
 						</xen:include>
 					</div>
 	
@@ -377,35 +385,56 @@
 						<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
 					</xen:checkboxunit>
 	
-					<div id="IconEditorOutput"><div class="secondaryContent">
-						<xen:if is="{$code.redactor_has_icon}">
-							<xen:if is="{$code.redactor_sprite_mode}">
-								<img src="styles/default/xenforo/clear.png" alt="" style="
-									background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
-							<xen:else />
-								<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
-							</xen:if>
-						<xen:else />
-							<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
-						</xen:if>
-					</div></div>
-	
-					<xen:textboxunit label="{xen:phrase image_replacement_url}:" name="redactor_image_url" value="{$code.redactor_image_url}" explain="{xen:phrase bbm_buttons_redactor_image_url}" />
-			    
-					<xen:checkboxunit label="{xen:phrase sprite_mode}:">
-						<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
-					</xen:checkboxunit>
-					
-					<xen:controlunit label="{xen:phrase sprite_position}:">
-						<xen:spinbox name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" inputclass="Tooltip OptOut" />
-						<xen:spinbox name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" inputclass="Tooltip OptOut" />
-						px
-					</xen:controlunit>
+					<xen:selectunit name="redactor_button_type" value="{$code.redactor_button_type}" label="{xen:phrase bbm_redactor_buttons_type_title}:">	
+						<xen:option value="img" label="{xen:phrase bbm_buttons_btn_type_img}" />
+						<xen:option value="text" label="{xen:phrase bbm_buttons_btn_type_text}" />
+						<xen:option value="icons_fa" label="{xen:phrase bbm_buttons_btn_type_icons_fa}" />
+						<xen:explain>{xen:phrase bbm_redactor_buttons_type_desc}</xen:explain>
+					</xen:selectunit>
 
-					<div id="redactorIconsHelper" class="secondaryContent JsOnly">
-						<p class="rih_title">{xen:phrase bbm_redactor_sprite_helper}</p>
-						<img class="rih_src" alt="" src="styles/default/xenforo/editor/icons.png"></img>
-					</div>					
+					<div id="redactor_fa_helper">
+						<xen:include template="bbm_fa_buttons_map">
+							<xen:set var="$faTarget">[name=redactor_button_type_opt]</xen:set> 
+							<xen:map from="$faFonts" to="$faFonts" />
+						</xen:include>
+					</div>
+	
+					<xen:textboxunit 
+						label="{xen:phrase bbm_btn_redactor_button_type_opt}:"
+						name="redactor_button_type_opt" value="{$code.redactor_button_type_opt}"
+						explain="{xen:phrase bbm_buttons_redactor_btn_type_opt_desc}" />
+					
+					<div id="redactor_icon_wrapper">
+						<div id="IconEditorOutput"><div class="secondaryContent">
+							<xen:if is="{$code.redactor_has_icon}">
+								<xen:if is="{$code.redactor_sprite_mode}">
+									<img src="styles/default/xenforo/clear.png" alt="" style="
+										background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
+								<xen:else />
+									<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
+								</xen:if>
+							<xen:else />
+								<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
+							</xen:if>
+						</div></div>
+		
+						<xen:textboxunit label="{xen:phrase image_replacement_url}:" name="redactor_image_url" value="{$code.redactor_image_url}" explain="{xen:phrase bbm_buttons_redactor_image_url}" />
+	
+						<xen:checkboxunit label="{xen:phrase sprite_mode}:">
+							<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
+						</xen:checkboxunit>
+						
+						<xen:controlunit label="{xen:phrase sprite_position}:">
+							<xen:spinbox name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" inputclass="Tooltip OptOut" />
+							<xen:spinbox name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" inputclass="Tooltip OptOut" />
+							px
+						</xen:controlunit>
+	
+						<div id="redactorIconsHelper" class="secondaryContent JsOnly">
+							<p class="rih_title">{xen:phrase bbm_redactor_sprite_helper}</p>
+							<img class="rih_src" alt="" src="styles/default/xenforo/editor/icons.png"></img>
+						</div>
+					</div>
 				</fieldset>
 			</xen:if>
 
@@ -455,7 +484,9 @@
 	color: black;
 }
 
-.xenOverlay #quattro_icon_helper{
+.xenOverlay #quattro_icon_helper,
+.xenOverlay #quattro_fa_helper,
+.xenOverlay #redactor_fa_helper {
 	margin-left: 188px;
 }
 
@@ -545,7 +576,9 @@
 	text-align:right;
 }
 
-#quattro_icon_helper {
+#quattro_icon_helper,
+#quattro_fa_helper,
+#redactor_fa_helper {
 	margin-left: 305px;
 }
 
@@ -585,12 +618,12 @@
 
 #redactorIconsHelper .rih_list img:hover{
 	border: 1px dashed orange;
-};]]></template>
+}]]></template>
     <template title="bbm_bb_codes_edit_overlay"><![CDATA[<xen:title>{xen:if '{$code.tag}', '{xen:phrase bbm_edit_bbcode_tag}: {$code.title}', '{xen:phrase bbm_add_bbcode}'}</xen:title>
 
 <xen:require css="bbm_bb_codes_edit.css" />
 <xen:require css="code_event.css" />
-<xen:require js="js/bbm/adminTools.js" />
+<xen:require js="js/bbm/admin/bbcodes.js" />
 
 <xen:form action="{xen:adminlink 'bbm-bbcodes/save', $code}"
 	data-icon-output="#IconEditorOutput img"
@@ -854,6 +887,7 @@
 					<xen:option value="text" label="{xen:phrase bbm_buttons_btn_type_text}" />
 					<xen:option value="icons_mce" label="{xen:phrase bbm_buttons_btn_type_icons_tinymce}" />
 					<xen:option value="icons_xen" label="{xen:phrase bbm_buttons_btn_type_icons_xenforo}" />
+					<xen:option value="icons_fa" label="{xen:phrase bbm_buttons_btn_type_icons_fa}" />
 					<xen:explain>{xen:phrase bbm_buttons_type_desc}</xen:explain>
 				</xen:selectunit>
 
@@ -861,6 +895,13 @@
 					<xen:include template="bbm_quattro_buttons_map">
 						<xen:map from="$quattroSets.xen" to="$xenSet" />
 						<xen:map from="$quattroSets.mce" to="$mceSet" />
+					</xen:include>
+				</div>
+
+				<div id="quattro_fa_helper">
+					<xen:include template="bbm_fa_buttons_map">
+						<xen:set var="$faTarget">[name=quattro_button_type_opt]</xen:set> 
+						<xen:map from="$faFonts" to="$faFonts" />
 					</xen:include>
 				</div>
 
@@ -887,38 +928,59 @@
 				<xen:checkboxunit label="{xen:phrase bbm_buttons_has_redactor_icon}:">
 					<xen:option name="redactor_has_icon" selected="{$code.redactor_has_icon}">{xen:phrase  bbm_buttons_has_redactor_icon_question}</xen:option>
 				</xen:checkboxunit>
-	
-				<div id="IconEditorOutput"><div class="secondaryContent">
-					<xen:if is="{$code.redactor_has_icon}">
-						<xen:if is="{$code.redactor_sprite_mode}">
-							<img src="styles/default/xenforo/clear.png" alt="" style="
-								background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
-						<xen:else />
-							<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
-						</xen:if>
-					<xen:else />
-						<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
-					</xen:if>
-				</div></div>
-	
-				<xen:textboxunit label="{xen:phrase image_replacement_url}:" 
-					name="redactor_image_url" value="{$code.redactor_image_url}"
-					explain="{xen:phrase bbm_buttons_redactor_image_url}" />
-			    
-				<xen:checkboxunit label="{xen:phrase sprite_mode}:">
-					<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
-				</xen:checkboxunit>
-					
-				<xen:controlunit label="{xen:phrase sprite_position}:">
-					<xen:spinbox size="10" name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" />
-					<xen:spinbox size="10" name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" />
-					px
-				</xen:controlunit>
 
-				<div id="redactorIconsHelper" class="secondaryContent JsOnly">
-					<p class="rih_title">{xen:phrase bbm_redactor_sprite_helper}</p>
-					<img class="rih_src" alt="" src="styles/default/xenforo/editor/icons.png"></img>
-				</div>					
+				<xen:selectunit name="redactor_button_type" value="{$code.redactor_button_type}" label="{xen:phrase bbm_redactor_buttons_type_title}:">	
+					<xen:option value="img" label="{xen:phrase bbm_buttons_btn_type_img}" />
+					<xen:option value="text" label="{xen:phrase bbm_buttons_btn_type_text}" />
+					<xen:option value="icons_fa" label="{xen:phrase bbm_buttons_btn_type_icons_fa}" />
+					<xen:explain>{xen:phrase bbm_redactor_buttons_type_desc}</xen:explain>
+				</xen:selectunit>
+
+				<div id="redactor_fa_helper">
+					<xen:include template="bbm_fa_buttons_map">
+						<xen:set var="$faTarget">[name=redactor_button_type_opt]</xen:set> 
+						<xen:map from="$faFonts" to="$faFonts" />
+					</xen:include>
+				</div>
+
+				<xen:textboxunit 
+					label="{xen:phrase bbm_btn_redactor_button_type_opt}:"
+					name="redactor_button_type_opt" value="{$code.redactor_button_type_opt}"
+					explain="{xen:phrase bbm_buttons_redactor_btn_type_opt_desc}" />
+				
+				<div id="redactor_icon_wrapper">
+					<div id="IconEditorOutput"><div class="secondaryContent">
+						<xen:if is="{$code.redactor_has_icon}">
+							<xen:if is="{$code.redactor_sprite_mode}">
+								<img src="styles/default/xenforo/clear.png" alt="" style="
+									background: url('{$code.redactor_image_url}') no-repeat {$code.redactor_sprite_params_x}px {$code.redactor_sprite_params_y}px; width: 24px; height: 24px" />
+							<xen:else />
+								<img src="{$code.redactor_image_url}" style="width: 24px; height: 24px" alt="" />
+							</xen:if>
+						<xen:else />
+							<img src="styles/default/xenforo/clear.png" style="width: 24px; height: 24px" alt="" />
+						</xen:if>
+					</div></div>
+		
+					<xen:textboxunit label="{xen:phrase image_replacement_url}:" 
+						name="redactor_image_url" value="{$code.redactor_image_url}"
+						explain="{xen:phrase bbm_buttons_redactor_image_url}" />
+				    
+					<xen:checkboxunit label="{xen:phrase sprite_mode}:">
+						<xen:option name="redactor_sprite_mode" label="{xen:phrase enable_sprite_mode_with_following_parameters}" selected="{$code.redactor_sprite_mode}" />
+					</xen:checkboxunit>
+						
+					<xen:controlunit label="{xen:phrase sprite_position}:">
+						<xen:spinbox size="10" name="redactor_sprite_params_x" value="{$code.redactor_sprite_params_x}" title="{xen:phrase background_position_x}" />
+						<xen:spinbox size="10" name="redactor_sprite_params_y" value="{$code.redactor_sprite_params_y}" title="{xen:phrase background_position_y}" />
+						px
+					</xen:controlunit>
+	
+					<div id="redactorIconsHelper" class="secondaryContent JsOnly">
+						<p class="rih_title">{xen:phrase bbm_redactor_sprite_helper}</p>
+						<img class="rih_src" alt="" src="styles/default/xenforo/editor/icons.png"></img>
+					</div>
+				</div>
 			</fieldset>
 		</xen:if>
 
@@ -1236,7 +1298,9 @@
 .bbm_bbcodes_errors .bbm_status_ok{
 	color:green;
 }]]></template>
-    <template title="bbm_buttons_config"><![CDATA[<xen:require js="js/bbm//admin/jquery-ui.min.js" />
+    <template title="bbm_buttons_config"><![CDATA[<xen:include template="bbm_fa_integration" />
+
+<xen:require js="js/bbm//admin/jquery-ui.min.js" />
 <xen:require js="js/bbm//admin/jquery.ui.touch-punch.min.js" />
 <xen:require js="js/bbm/admin/buttons.js" />
 <xen:require css="bbm_buttons_config.css" />
@@ -1973,6 +2037,52 @@ li.buttons span{
 	list-style: circle inside none;
 	margin-left: 5px;
 }]]></template>
+    <template title="bbm_fa_buttons_map"><![CDATA[<xen:include template="bbm_fa_integration" />
+<xen:require css="bbm_fa_buttons_map.css" />
+
+<xen:require js="js/bbm/admin/fa_helper.js" />
+
+<div class="bbm-fa-helper" class="bbm_fa_helper" data-target="{$faTarget}">
+	<h2>{xen:phrase bbm_fa_sprite_helper}</h2>
+	<ul class="fa_icons_set">
+		<xen:foreach loop="$faFonts" key="$faCode" value="$faFont">
+			<li>
+				<div class="fa {$faFont}" data-fa="{$faFont}"></div>
+			</li>
+		</xen:foreach>
+	</ul>
+</div>]]></template>
+    <template title="bbm_fa_buttons_map.css"><![CDATA[.bbm-fa-helper > h2 {
+	font-size: 18px;
+	padding: 5px;
+}
+
+.bbm-fa-helper .fa_icons_set li{
+	display:inline-block;
+	font-size: 20px;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.bbm-fa-helper .fa_icons_set li.active,
+.bbm-fa-helper .fa_icons_set li:hover{
+	color: orange;
+}
+
+.bbm-fa-helper .fa_icons_set li .smallfont{
+	font-size: 10px;
+}
+
+.bbm-fa-helper .fa_icons_set li .fa{
+	font-size: 20px;
+}
+
+]]></template>
+    <template title="bbm_fa_integration"><![CDATA[<xen:if is="{$xenOptions.bbm_admin_fa_integration} == 1">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<xen:elseif is="{$xenOptions.bbm_admin_fa_integration} == 2"/>
+	<link href="styles/bbm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+</xen:if>]]></template>
     <template title="bbm_forum_edit_bbm_editor"><![CDATA[			<fieldset>
 				<xen:selectunit label="{xen:phrase bbm_bm_option_config_editor}:" class="bbm_editor" name="bbm_bm_editor" value="{$forum.bbm_bm_editor}">	
 					<xen:foreach loop="$bbm_bm_editors" value="$bbm_bm_editor">
@@ -2727,6 +2837,14 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
       <sub_options>*</sub_options>
       <relation group_id="bbm_xenforo_bbcodes_control" display_order="800"/>
     </option>
+    <option option_id="bbm_admin_fa_integration" edit_format="radio" data_type="integer" can_backup="1">
+      <default_value>2</default_value>
+      <edit_format_params>0={xen:phrase bbm_fa_no_integration}
+1={xen:phrase bbm_fa_cdn_integration}
+2={xen:phrase bbm_fa_local_integration}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_buttonmanager" display_order="110"/>
+    </option>
     <option option_id="bbm_debug_redactor_js_global" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
@@ -2753,6 +2871,14 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_buttonmanager" display_order="10"/>
+    </option>
+    <option option_id="bbm_fa_integration" edit_format="radio" data_type="integer" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>0={xen:phrase bbm_fa_no_integration}
+1={xen:phrase bbm_fa_cdn_integration}
+2={xen:phrase bbm_fa_local_integration}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_buttonmanager" display_order="100"/>
     </option>
   </optiongroups>
   <permissions>
@@ -2844,14 +2970,17 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
 <span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro
 ]]></phrase>
     <phrase title="bbm_btn_quattro_button_type_opt" version_id="10" version_string="2.0"><![CDATA[Button type option]]></phrase>
+    <phrase title="bbm_btn_redactor_button_type_opt" version_id="55" version_string="3.0.0"><![CDATA[Button type option]]></phrase>
     <phrase title="bbm_bulkexport" version_id="0" version_string="1.0"><![CDATA[Bulk Export]]></phrase>
     <phrase title="bbm_buttonmanager_active" version_id="0" version_string="1.0"><![CDATA[active]]></phrase>
     <phrase title="bbm_buttonmanager_disabled" version_id="0" version_string="1.0"><![CDATA[disabled]]></phrase>
     <phrase title="bbm_buttonmanager_is" version_id="0" version_string="1.0"><![CDATA[The Buttons Manager is:]]></phrase>
     <phrase title="bbm_buttons_btn_return_direct" version_id="10" version_string="2.0"><![CDATA[Direct]]></phrase>
     <phrase title="bbm_buttons_btn_return_template" version_id="10" version_string="2.0"><![CDATA[Template]]></phrase>
+    <phrase title="bbm_buttons_btn_type_icons_fa" version_id="55" version_string="3.0.0"><![CDATA[Font Awesome icons set]]></phrase>
     <phrase title="bbm_buttons_btn_type_icons_tinymce" version_id="10" version_string="2.0"><![CDATA[TinyMCE icons set]]></phrase>
     <phrase title="bbm_buttons_btn_type_icons_xenforo" version_id="10" version_string="2.0"><![CDATA[XenForo icons set]]></phrase>
+    <phrase title="bbm_buttons_btn_type_img" version_id="55" version_string="3.0.0"><![CDATA[Image (standard)]]></phrase>
     <phrase title="bbm_buttons_btn_type_manual" version_id="10" version_string="2.0"><![CDATA[Manual]]></phrase>
     <phrase title="bbm_buttons_btn_type_text" version_id="10" version_string="2.0"><![CDATA[Text]]></phrase>
     <phrase title="bbm_buttons_buttondesc" version_id="0" version_string="1.0"><![CDATA[Button description]]></phrase>
@@ -2893,6 +3022,7 @@ If you choose this method, you will need to create yourself a CSS for the TinyMC
 3) If you have selected an <b>icons set</b>, use this field to enter the icon unicode (without <b>\</b> ) . Ie: e02a<br />
 <br />
 <span class="bbm_btn_comptability">Editor compatibility:</span> TinyMCE Quattro]]></phrase>
+    <phrase title="bbm_buttons_redactor_btn_type_opt_desc" version_id="55" version_string="3.0.0"><![CDATA[If you have selected to create a text button, enter its text here.]]></phrase>
     <phrase title="bbm_buttons_redactor_image_url" version_id="22" version_string="2.1.5"><![CDATA[To use the default XenForo sprite, <span id="xenSpriteInsert">click here</span>.]]></phrase>
     <phrase title="bbm_buttons_return_desc" version_id="22" version_string="2.1.5"><![CDATA[You can select two kinds of return.<br />
 <br />
@@ -3010,6 +3140,10 @@ Please enter a valid template name.]]></phrase>
     <phrase title="bbm_error_template_method" version_id="0" version_string="1.0"><![CDATA[Template method]]></phrase>
     <phrase title="bbm_error_view_return_invalid" version_id="0" version_string="1.0"><![CDATA[You're using the Replacement method. You can't select "Template/Callback" in your "View Unauthorised Return".]]></phrase>
     <phrase title="bbm_export" version_id="0" version_string="1.0"><![CDATA[Export]]></phrase>
+    <phrase title="bbm_fa_cdn_integration" version_id="55" version_string="3.0.0"><![CDATA[Font-Awesome CDN integration]]></phrase>
+    <phrase title="bbm_fa_local_integration" version_id="55" version_string="3.0.0"><![CDATA[Local integration]]></phrase>
+    <phrase title="bbm_fa_no_integration" version_id="55" version_string="3.0.0"><![CDATA[No integration]]></phrase>
+    <phrase title="bbm_fa_sprite_helper" version_id="55" version_string="3.0.0"><![CDATA[Font Awesome helper]]></phrase>
     <phrase title="bbm_forbidden_action" version_id="0" version_string="1.0"><![CDATA[Action is forbidden]]></phrase>
     <phrase title="bbm_general_options_title" version_id="0" version_string="1.0"><![CDATA[Bb Code information]]></phrase>
     <phrase title="bbm_go_back_to_bbcodes_list" version_id="0" version_string="1.0"><![CDATA[Go back to Bb Codes List]]></phrase>
@@ -3121,6 +3255,8 @@ That's all.
     <phrase title="bbm_please_enter_a_phrase_for_constant_type" version_id="0" version_string="1.0"><![CDATA[You forgot to enter a phrase when setting the editor type. If you are not setting the editor type when you have this error, this is a bug that needs to be fixed (the ControllerAdmin of the Buttons must set an extra parameter before saving with the DataWriter). Let a message on the XenForo forum then. Thank you.]]></phrase>
     <phrase title="bbm_please_enter_valid_desc" version_id="0" version_string="1.0"><![CDATA[Please Enter Valid Description]]></phrase>
     <phrase title="bbm_problem_fixed" version_id="42" version_string="2.5.2"><![CDATA[Problem fixed]]></phrase>
+    <phrase title="bbm_redactor_buttons_type_desc" version_id="55" version_string="3.0.0"><![CDATA[Select which kind of button you want to create.]]></phrase>
+    <phrase title="bbm_redactor_buttons_type_title" version_id="55" version_string="3.0.0"><![CDATA[Button type]]></phrase>
     <phrase title="bbm_redactor_loader" version_id="45" version_string="2.6.2"><![CDATA[Bbm Redactor loader]]></phrase>
     <phrase title="bbm_redactor_main_js" version_id="45" version_string="2.6.2"><![CDATA[Main Bbm Redactor Javascript]]></phrase>
     <phrase title="bbm_redactor_sprite_helper" version_id="40" version_string="2.5.0"><![CDATA[Redactor Sprite Helper]]></phrase>
@@ -3212,6 +3348,8 @@ If you want to use the options of the original tag with the wrapping tag, enter 
     <phrase title="bbm_xenTags_unparsed_real" version_id="0" version_string="1.0"><![CDATA[Real unparsed method]]></phrase>
     <phrase title="bbm_xenwrapper_callback_not_valid" version_id="0" version_string="1.0"><![CDATA[The callback for the XenForo Tags Wrapper is not valid: check the class and the method.]]></phrase>
     <phrase title="bbm_xml_invalid" version_id="0" version_string="1.0"><![CDATA[Invalid BB Code XML File.]]></phrase>
+    <phrase title="option_bbm_admin_fa_integration" version_id="55" version_string="3.0.0"><![CDATA[Font-Awesome Integration [admin side]]]></phrase>
+    <phrase title="option_bbm_admin_fa_integration_explain" version_id="55" version_string="3.0.0"><![CDATA[Same setting as above but for some of the Bbm pages in the admin section.]]></phrase>
     <phrase title="option_Bbm_BbCode_Options_Separator" version_id="0" version_string="1.0"><![CDATA[BbCodes Options Separator]]></phrase>
     <phrase title="option_Bbm_BbCode_Options_Separator_explain" version_id="0" version_string="1.0"><![CDATA[You can customize here the Bb Codes separator used in their options. If you let this field blank, the default separator will be ", " (coma+ white space).<br />
 Ie: [bbcode=option1, option2]content[/bbcode]<br />
@@ -3283,6 +3421,9 @@ The Protection content has been successfully tested with: Posts (quote/edit), Co
 Default option is: no.]]></phrase>
     <phrase title="option_bbm_debug_tinymcehookdisable" version_id="0" version_string="1.0"><![CDATA[Disable the Buttons Manager]]></phrase>
     <phrase title="option_bbm_debug_tinymcehookdisable_explain" version_id="0" version_string="1.0"><![CDATA[This option will turn off the hook which modifies the TinyMCE editor. Default option is: no.]]></phrase>
+    <phrase title="option_bbm_fa_integration" version_id="55" version_string="3.0.0"><![CDATA[Font-Awesome Integration]]></phrase>
+    <phrase title="option_bbm_fa_integration_explain" version_id="55" version_string="3.0.0"><![CDATA[If you have already integrated the Font-Awesome CDN in your header, no need to integrate it again. If you choose the local integration, the Font-Awesome path will be then: "styles/bbm/font-awesome/css/font-awesome.min.css".<br/><br/>
+Default value: "Font-Awesome CDN integration".]]></phrase>
     <phrase title="option_Bbm_HideTagsInFastPreview" version_id="0" version_string="1.0"><![CDATA[Hide tags in thread fast preview]]></phrase>
     <phrase title="option_Bbm_HideTagsInFastPreviewInvisible" version_id="52" version_string="2.8.1"><![CDATA[Strip also their content]]></phrase>
     <phrase title="option_Bbm_HideTagsInFastPreviewInvisible_explain" version_id="52" version_string="2.8.1"><![CDATA[]]></phrase>
@@ -3584,7 +3725,9 @@ span.mce_bbm_spoiler {
 <p>{xen:phrase bbm_controller_action} <b>{$controllerAction}</b></p>
 <p>{xen:phrase bbm_view_name} <b>{$viewName}</b></p>]]></template>
     <template title="bbm_editor_js_setup" version_id="49" version_string="2.7.0"><![CDATA[<xen:require js="js/bbm/redactor/bbm_5_redactor.js" />]]></template>
-    <template title="bbm_editor_redactor_autocss" version_id="28" version_string="2.3.0 Preview II"><![CDATA[<xen:if is="{$bbmCustomCss}">
+    <template title="bbm_editor_redactor_autocss" version_id="55" version_string="3.0.0"><![CDATA[<xen:require css="bbm_editor_redactor_autocss.css" />
+
+<xen:if is="{$bbmCustomCss}">
 	<style type="text/css">
 		<xen:foreach loop="$bbmCustomCss" value="$button">
 			.redactor_toolbar li a.redactor_btn_{$button.code},
@@ -3601,6 +3744,38 @@ span.mce_bbm_spoiler {
 		</xen:foreach>
 	</style>
 </xen:if>]]></template>
+    <template title="bbm_editor_redactor_autocss.css" version_id="55" version_string="3.0.0"><![CDATA[html body .redactor_toolbar li a.BbmText {
+	background-image: none;
+	color: #000;
+	display: inline;
+	font-size: 12px;
+	line-height: 24px;
+	padding: 2px;
+	text-indent: 0;
+	vertical-align: middle;
+}
+
+html body .redactor_toolbar li a.BbmFa {
+	background-image: none;
+	display: block;
+	font-size: 15px;
+	line-height: 24px;
+	text-indent: 0;
+	text-align: center;
+	color: #000;
+}
+
+html body .redactor_toolbar li a.BbmFa:before {
+	position: relative;
+	bottom: 0;
+}
+
+html body .redactor_toolbar li a.BbmText:hover,
+html body .redactor_toolbar li a.BbmFa:hover {
+	text-decoration: none;
+}
+
+]]></template>
     <template title="bbm_js" version_id="0" version_string="1.0"><![CDATA[<xen:require css="bbm_buttons.css" />
 
 ]]></template>
@@ -3669,6 +3844,15 @@ html .redactor_toolbar li a.redactor_btn_draftsave{
 html .redactor_toolbar li a.redactor_btn_draftdelete{
 	background-position: 3px -1853px;
 }]]></replace>
+    </modification>
+    <modification template="page_container_js_head" modification_key="bbm_fa_cdn_integration" description="Font awesome BbCode CDN integration" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#^.*$#su]]></find>
+      <replace><![CDATA[$0
+<xen:if is="{$xenOptions.bbm_fa_integration} == 1">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<xen:elseif is="{$xenOptions.bbm_fa_integration} == 2"/>
+	<link href="styles/bbm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+</xen:if>]]></replace>
     </modification>
     <modification template="editor" modification_key="bbm_redactor_autocss" description="Auto css for Custom Buttons" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(^.*$)#s]]></find>

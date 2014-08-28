@@ -772,7 +772,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 	
 				$button['safetag'] = str_replace('@', 'at_', $button['tag']);			
 	
-				if(	( $btnType && !in_array($btnType, array('text', 'manual')) )
+				if(	( $btnType && !in_array($btnType, array('text', 'manual', 'icons_fa')) )
 					&& 
 					( isset($button['class']) && $button['class'] != 'xenButton' )
 				)
@@ -795,6 +795,40 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 					
 					$this->_buttonsWithCustomCss[$button['tag']] = $button;
 				}
+				
+				if($btnType == 'icons_fa' && !empty($button['quattro_button_type_opt']))
+				{
+					$button['icon_set'] = 'icons_fa';
+					
+					if(empty($button['icon_class']))
+					{
+						$button['icon_class'] = "bbm_fa fa $button[quattro_button_type_opt]";
+					}
+					else
+					{
+						$button['icon_class'] = "bbm_fa fa $button[quattro_button_type_opt] $button[icon_class]";
+					}
+				}
+			}
+
+			/*MCE CONFIG*/
+			if($config_ed == 'xen')
+			{
+				$btnType = (isset($button['redactor_button_type'])) ? $button['redactor_button_type'] : '';
+
+				if($btnType == 'icons_fa' && !empty($button['redactor_button_type_opt']))
+				{
+					$button['icon_set'] = 'icons_fa';
+					
+					if(empty($button['icon_class']))
+					{
+						$button['icon_class'] = "bbm_fa fa $button[redactor_button_type_opt]";
+					}
+					else
+					{
+						$button['icon_class'] = "bbm_fa fa $button[redactor_button_type_opt] $button[icon_class]";
+					}
+				}			
 			}
 			
 			/*Add a cleanName key for the template*/

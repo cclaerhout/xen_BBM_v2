@@ -1,4 +1,4 @@
-var Bbm = {};
+if (typeof Bbm === 'undefined') var Bbm = {};
 !function($, window, document, _undefined)
 {    
 	$.extend(Bbm, {
@@ -62,6 +62,7 @@ var Bbm = {};
 				$btnOpt = $form.find('[name="quattro_button_type_opt"]')
 				$xenSet = $helper.find('#quattro_icons_xen'),
 				$mceSet = $helper.find('#quattro_icons_mce'),
+				$faSet =  $helper.find('#quattro_fa_helper'),
 				$allset = $helper.find('.quattro_icons_set_wrap');
 			
 			var resetActiveIcon = function(){
@@ -71,6 +72,7 @@ var Bbm = {};
 			var resetAll = function(){
 				$helper.hide();	
 				$allset.hide();
+				$faSet.hide();
 				resetActiveIcon();
 			};
 			
@@ -107,6 +109,47 @@ var Bbm = {};
 				$btnOpt.val($this.data('unicode'));
 			});
 		},
+		QuattroFaHelper: function($helper)
+		{
+			$helper.hide();
+			var $form = $helper.parents('form');
+			
+			if(!$form.length)
+				return;			
+
+			var $btnType = $form.find('[name="quattro_button_type"]'),
+				$btnOpt = $form.find('[name="quattro_button_type_opt"]'),
+				$allset = $helper.find('.quattro_icons_set_wrap');
+
+			var resetActiveIcon = function(){
+				$helper.find('li.active').removeClass('active');
+			};
+
+			var resetAll = function(){
+				$helper.hide();	
+				$allset.hide();
+				resetActiveIcon();
+			};
+			
+			var displayManager = function($manualSrc, focusText){
+				var $this = ($manualSrc instanceof jQuery) ? $manualSrc : $(this), val = $this.val();
+
+				resetAll();
+
+				var selectIcon = function($set){
+					val = $btnOpt.val();
+					$set.find('[data-fa="'+val+'"]').parent().addClass('active');
+				};
+
+				if(val == 'icons_fa'){
+					$helper.show();
+					selectIcon($helper);
+				}
+			};
+
+			displayManager($btnType, false);
+			$btnType.change(displayManager);				
+		},		
 		RedactorIconsHelper: function($helper)
 		{
 			var $imgSrc = $helper.find('.rih_src'),
@@ -158,12 +201,60 @@ var Bbm = {};
 			}
 
 			$imgSrc.load(onLoad);
-		}
+		},
+		RedactorFaHelper: function($helper)
+		{
+			$helper.hide();
+			var $form = $helper.parents('form');
+			
+			if(!$form.length)
+				return;			
+
+			var $btnType = $form.find('[name="redactor_button_type"]'),
+				$btnOpt = $form.find('[name="redactor_button_type_opt"]'),
+				$iconWrapper = $form.find('#redactor_icon_wrapper');
+
+			var resetActiveIcon = function(){
+				$helper.find('li.active').removeClass('active');
+			};
+
+			var resetAll = function(){
+				$helper.hide();	
+				resetActiveIcon();
+			};
+			
+			var displayManager = function($manualSrc, focusText){
+				var $this = ($manualSrc instanceof jQuery) ? $manualSrc : $(this), val = $this.val();
+
+				resetAll();
+
+				var selectIcon = function($set){
+					val = $btnOpt.val();
+					$set.find('[data-fa="'+val+'"]').parent().addClass('active');
+				};
+
+				if(val == 'icons_fa'){
+					$helper.show();
+					selectIcon($helper);
+					$iconWrapper.hide();
+				}else if(val =='text'){
+					$iconWrapper.hide();
+				}else{
+					$iconWrapper.show();
+				}
+			};
+
+			displayManager($btnType, false);
+			$btnType.change(displayManager);				
+		},
 	});
 
 	XenForo.register('.argToggler','Bbm.BbmArgToggle');
 	XenForo.register('form','Bbm.XenDefaultSprite');
 	XenForo.register('#quattro_icon_helper','Bbm.QuattroIconsHelper');
-	XenForo.register('#redactorIconsHelper','Bbm.RedactorIconsHelper');	
+	XenForo.register('#quattro_fa_helper','Bbm.QuattroFaHelper');
+	XenForo.register('#redactorIconsHelper','Bbm.RedactorIconsHelper');
+	XenForo.register('#redactor_fa_helper','Bbm.RedactorFaHelper');	
+	
 }
 (jQuery, this, document);
