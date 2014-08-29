@@ -45,10 +45,12 @@ class BBM_Helper_BbCodes
 		for(; $count > 0; $count--)
 		{
 			$k = $count-1;
+			$content = &$matches[$k]['content'];
 			
-			$catchup = $matches[$k]['catchup'];
+			/*
+			$catchup = false; //$matches[$k]['catchup'];
 
-			/*Catchup lost closing tags at the begin of n+1 special tag*/
+			//Catchup lost closing tags at the begin of n+1 special tag
 			if($catchup && isset($matches[$k-1]))
 			{
 				$previousContent = &$matches[$k-1]['content'];
@@ -61,6 +63,7 @@ class BBM_Helper_BbCodes
 					$previousContent .= $catchup;
 				}
 			}
+			*/
 			
 			/*Between special tags management*/
 			$extraData = $matches[$k]['outside'];
@@ -85,7 +88,9 @@ class BBM_Helper_BbCodes
 				}
 			}
 				
-			$matches[$k]['content'] .= $extraData;
+			$content .= $extraData;
+			$content = self::tidyHTML($content);
+			//$content = self::tidyHTML($content, true);
 		}
 
 		return $matches;
@@ -252,7 +257,6 @@ class BBM_Helper_BbCodes
 		}
 	}
 
-
 	/***
 	 * Check IE version (to do: update for IE11)
 	 **/
@@ -369,6 +373,67 @@ class BBM_Helper_BbCodes
 		}
 		
 		return $isInstalled;	
+	}
+
+	/***
+	 * Tidy some html code using the php dom function
+	 **/
+	protected static $_htmlFixer;
+	
+	public static function tidyHTML($html, $useDOM = false)
+	{
+		if(!$html)  return $html;
+
+		if(!$useDOM)
+		{
+			if(!self::$_htmlFixer)
+			{
+				self::$_htmlFixer = new BBM_Helper_HtmlFixer();
+			}
+			
+			$htmlFixer = self::$_htmlFixer;
+			return $htmlFixer->getFixedHtml($html);
+		}
+		
+		$doc = new DOMDocument();
+		libxml_use_internal_errors(true);
+		$readyContent = self::_beforeLoadHtml($html);
+		$doc->loadHTML('<?xml encoding="utf-8"?>' . $readyContent);
+		libxml_clear_errors();
+		$doc->encoding = 'utf-8';
+		$doc->formatOutput = true;
+		
+		$doc->removeChild($doc->firstChild); //remove html tag
+		$doc->removeChild($doc->firstChild); //remove xml fix
+		$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild); //make wip tag content as first child		
+
+		$html = $doc->saveHTML($doc->documentElement);
+		$html = self::_afterSaveHtml($html);
+		return $html;
+	}
+
+	protected static function _beforeLoadHtml($html)
+	{
+		$html = "<wip>{$html}</wip>";
+		$html = self::_fixNpTagsRegex($html);
+		return $html;
+	}
+
+	protected static function _afterSaveHtml($html)
+	{
+		$html = self::_fixNpTagsRegex($html, true);
+		$html = preg_replace('#^\s*<wip>(.*)</wip>\s*$#si', '$1', $html);
+		return $html;
+	}
+
+	protected static function _fixNpTagsRegex($html, $revertMode = false)
+	{
+		if(!$revertMode)
+		{
+			return preg_replace('#<(/?)(\w+):(\w+)( [^>]+)?>#i', '<$1$2-npfix-$3$4>', $html);
+		}
+		
+		return preg_replace('#<(/?)(\w+)-npfix-(\w+)( [^>]+)?>#i', '<$1$2:$3$4>', $html);
 	}
 }
 //Zend_Debug::dump($abc);
