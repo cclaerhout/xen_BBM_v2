@@ -371,7 +371,18 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		);
 
 		$xenButtonsList = $xenButtons['list'];
-		$blankXenButtonsList = $xenButtons['blankConfig'];
+		
+		$blankXenButtonsList =  $xenButtons['blankConfig'];
+		
+		foreach($blankXenButtonsList as &$buttonsInLine)
+		{
+			if(empty($buttonsInLine))
+			{
+				continue;
+			}
+
+			$buttonsInLine = $this->_addButtonCodeAndClass($buttonsInLine, $config_ed);		
+		}
 
 		return array(
 			$availableButtons, $blankConfigAvailableButtons, 
@@ -853,29 +864,41 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 			}
 			
 			/*Add a cleanName key for the template*/
-			$tagName = $button['tag'];
-
-			if($tagName[0] == '-')
-			{
-				$cleanName = substr($tagName, 1);
-			}
-			elseif($tagName == 'separator')
-			{
-				$cleanName = '|';
-			}
-			elseif(strpos($tagName, 'custom_') === 0)
-			{
-				$cleanName = substr($tagName, 7);
-			}
-			else
-			{
-				$cleanName = $tagName;
-			}
-
-			$button['cleanName'] = $cleanName;
+			$button = $this->_addCleanNameToButton($button);
 		}
 		
 		return $buttons;
+	}
+
+	protected function _addCleanNameToButton($button)
+	{
+		if(!isset($button['tag']))
+		{
+			return $button;
+		}
+
+      		$tagName = $button['tag'];
+
+      		if($tagName[0] == '-')
+      		{
+      			$cleanName = substr($tagName, 1);
+      		}
+      		elseif($tagName == 'separator')
+      		{
+      			$cleanName = '|';
+      		}
+      		elseif(strpos($tagName, 'custom_') === 0)
+      		{
+      			$cleanName = substr($tagName, 7);
+      		}
+      		else
+      		{
+      			$cleanName = $tagName;
+      		}
+      		
+		$button['cleanName'] = $cleanName;
+		
+		return $button;
 	}
 
 	protected function _getMceClass($iconSet)

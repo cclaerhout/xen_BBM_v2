@@ -376,7 +376,7 @@ class BBM_Helper_BbCodes
 	}
 
 	/***
-	 * Tidy some html code using the php dom function
+	 * Tidy some html code using the php dom function or an external class
 	 **/
 	protected static $_htmlFixer;
 	
