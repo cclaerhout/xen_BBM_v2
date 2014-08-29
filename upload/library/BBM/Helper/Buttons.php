@@ -529,7 +529,7 @@ class BBM_Helper_Buttons
 			}
 
 			if(	!empty($button['redactor_has_icon']) && !empty($button['redactor_image_url']) 
-				&& !in_array($button['redactor_button_type'], array('text', 'icons_fa'))
+				&& isset($button['redactor_button_type']) && !in_array($button['redactor_button_type'], array('text', 'icons_fa'))
 			)
 			{			
 				$customButtonsCss[] = array(
