@@ -289,6 +289,13 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 
 		foreach($check as $k => $e)
 		{
+			if(!isset($e['tag']))
+			{
+				//There's a problem here, let's prevent any error
+				unset($check[$k], $config[$k]);
+				continue;
+			}
+			
 			if( in_array($e['tag'], array('carriage', 'separator')) )
 			{
 				unset($check[$k]);
@@ -372,8 +379,8 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 
 		$xenButtonsList = $xenButtons['list'];
 		
-		$blankXenButtonsList =  $xenButtons['blankConfig'];
-		
+		$blankXenButtonsList = $xenButtons['blankConfig'];
+
 		foreach($blankXenButtonsList as &$buttonsInLine)
 		{
 			if(empty($buttonsInLine))
@@ -412,12 +419,17 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 		}
 		
       		/*Get buttons*/
-      		$config_buttons_full = array();
       		$selected_buttons =  explode(',', $config_buttons_order);
+
+      		$config_buttons_full = array();
+      		$config_buttons_order = array(); //Reset to clean the variable during the loop
+      		$hasOneValidButton = false;
 
       		foreach ($selected_buttons as $selected_button)
       		{
-			//to prevent last 'else' can't find any index, id must be: id array = id db = id js (id being separator)
+			//To prevent last 'else' can't find any index, id must be: id array = id db = id js (id being separator)
+			$error = false;
+			
 			if(in_array($selected_button, array('|', 'separator')))
 			{
 				$config_buttons_full[] = array('tag' => 'separator', 'button_code' => '|');
@@ -428,19 +440,37 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       			}
       			else
       			{
-      				if(isset($availableButtons[$selected_button])) //Check if the button hasn't been deleted
+      				if(isset($availableButtons[$selected_button], $availableButtons[$selected_button]['tag'])) //Check if the button hasn't been deleted
       				{
       					$config_buttons_full[] = $availableButtons[$selected_button];
+      					$hasOneValidButton = true;
       				}
+      				else
+      				{
+      					$error = true;
+      				}
+			}
+			
+			if(!$error)
+			{
+				$config_buttons_order[] = $selected_button;
 			}
       		}
 
-		//Choose what to display in the ajax response
-		$ajaxresponse =  str_replace('separator', '|', $config_buttons_order); // <= Just  for a nicer display
+		//Get back the buttons order variable once it has been surely cleaned
+		if(!empty($config_buttons_order) && $hasOneValidButton)
+		{
+			$config_buttons_order = implode(',', $config_buttons_order);
+			$config_buttons_full = serialize($config_buttons_full);
+		}
+		else
+		{
+			//Raz
+			$config_buttons_order = '';
+			$config_buttons_full = '';			
+		}
 
 		//Save in Database
-		$config_buttons_full = serialize($config_buttons_full);
-
 		$dw = XenForo_DataWriter::create('BBM_DataWriter_Buttons');
 		if ($this->_getButtonsModel()->getConfigById($config_id))
 		{
@@ -463,7 +493,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 			{
 
 				$viewParams = array(
-					'ajaxresponse' => $ajaxresponse,
+					'ajaxresponse' => str_replace('separator', '|', $config_buttons_order),
 				);
 
 				return $this->responseView(
@@ -877,26 +907,26 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
 			return $button;
 		}
 
-      		$tagName = $button['tag'];
+			$tagName = $button['tag'];
 
-      		if($tagName[0] == '-')
-      		{
-      			$cleanName = substr($tagName, 1);
-      		}
-      		elseif($tagName == 'separator')
-      		{
-      			$cleanName = '|';
-      		}
-      		elseif(strpos($tagName, 'custom_') === 0)
-      		{
-      			$cleanName = substr($tagName, 7);
-      		}
-      		else
-      		{
-      			$cleanName = $tagName;
-      		}
-      		
-		$button['cleanName'] = $cleanName;
+			if($tagName[0] == '-')
+			{
+				$cleanName = substr($tagName, 1);
+			}
+			elseif($tagName == 'separator')
+			{
+				$cleanName = '|';
+			}
+			elseif(strpos($tagName, 'custom_') === 0)
+			{
+				$cleanName = substr($tagName, 7);
+			}
+			else
+			{
+				$cleanName = $tagName;
+			}
+
+			$button['cleanName'] = $cleanName;
 		
 		return $button;
 	}
