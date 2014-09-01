@@ -1,28 +1,38 @@
-if (typeof RedactorPlugins === 'undefined') var RedactorPlugins = {};
-RedactorPlugins.bbmButtons = {
-	//This plugin loads after the editor has been initialized
-	init: function()
-	{
-		var self = this;
-
-		//Text buttons
-		$.each(self.textButtons, function(name, text){
-			var $bbmButton = self.getBtn(name);
-			$bbmButton.addClass('BbmText').text(text);
-		});
-
-		//Font Awesome buttons
-		$.each(self.faButtons, function(name, faClass){
-			var $bbmButton = self.getBtn(name);
-			$bbmButton.addClass('BbmFa fa '+ faClass);
-		})		
-	},
-	textButtons: {},
-	faButtons: {}
-};
+if (typeof RedactorPlugins === 'undefined') var RedactorPlugins = {}; //Fix Redactor bug
 
 !function($, window, document, undefined)
 {
+	RedactorPlugins.bbmButtons = {
+		init: function()
+		{
+			var self = this;
+
+			if(typeof self._init !== undefined){
+				self.exec(self); //FF loader (the plugin is loader after the init)
+			}
+
+			$(document).on('bbmButtonsPlugin', function(){
+				self.exec(self); //Chrome loader - (the plugin is loaded before the init)
+			});
+		},
+		exec: function(self)
+		{
+      			//Text buttons
+      			$.each(self.textButtons, function(name, text){
+      				var $bbmButton = self.getBtn(name);
+      				$bbmButton.addClass('BbmText').text(text);
+      			});
+      
+      			//Font Awesome buttons
+      			$.each(self.faButtons, function(name, faClass){
+      				var $bbmButton = self.getBtn(name);
+      				$bbmButton.addClass('BbmFa fa '+ faClass);
+      			})		
+		},
+		textButtons: {},
+		faButtons: {}
+	};
+
 	XenForo.BbmCustomEditor = function($textarea) { this.__construct($textarea); };
 
 	XenForo.BbmCustomEditor.prototype =
@@ -146,6 +156,9 @@ RedactorPlugins.bbmButtons = {
 						ed.execCommand('inserthtml', fullCode);
 					};
 				});
+
+				RedactorPlugins.bbmButtons._init = true;
+				$(document).triggerHandler('bbmButtonsPlugin');	
 			}
 
 			//Extend function hook
