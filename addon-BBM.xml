@@ -2079,7 +2079,7 @@ li.buttons span{
 
 ]]></template>
     <template title="bbm_fa_integration"><![CDATA[<xen:if is="{$xenOptions.bbm_admin_fa_integration} == 1">
-	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <xen:elseif is="{$xenOptions.bbm_admin_fa_integration} == 2"/>
 	<link href="styles/bbm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 </xen:if>]]></template>
@@ -3851,7 +3851,7 @@ html .redactor_toolbar li a.redactor_btn_draftdelete{
       <find><![CDATA[#^.*$#su]]></find>
       <replace><![CDATA[$0
 <xen:if is="{$xenOptions.bbm_fa_integration} == 1">
-	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <xen:elseif is="{$xenOptions.bbm_fa_integration} == 2"/>
 	<link href="styles/bbm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 </xen:if>]]></replace>
