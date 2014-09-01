@@ -251,7 +251,8 @@ class BBM_Protection_Helper_MiniParser
 					{
 						$tagName = strtolower($value);
 						
-						$fallBack = $this->_parserOpeningCharacter.'/'.$tagName.$this->_parserClosingCharacter;
+						//The fallback must use the value and not the tagName to output valid datas from mal formed closing tag (ie: [/quote)
+						$fallBack = $this->_parserOpeningCharacter.'/'.$value.$this->_parserClosingCharacter;
 
 						/*Parser Checker*/
 						if(!$this->_parseTagChecker($tagName))
