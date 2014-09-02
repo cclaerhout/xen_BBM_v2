@@ -2249,5 +2249,41 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			);	
 		}	
 	}
+
+
+	/****
+	 *	Template params functions
+	 ***/
+	protected $bbmToolTemplate;
+
+	public function bbmGetToolTemplate()
+	{
+		if(!$this->bbmToolTemplate)
+		{
+			$this->bbmToolTemplate = $this->getView()->createOwnTemplateObject();
+		}
+		return $this->bbmToolTemplate;
+	}
+	
+	public function bbmGetTemplateParam($param)
+	{
+		$bbmToolTemplate = $this->bbmGetToolTemplate();
+		return $bbmToolTemplate->getParam($param);
+	}
+
+	public function bbmGetControllerName()
+	{
+		return $this->bbmGetTemplateParam('controllerName');
+	}
+
+	public function bbmGetControllerAction()
+	{
+		return $this->bbmGetTemplateParam('controllerAction');
+	}
+
+	public function bbmGetViewName()
+	{
+		return $this->bbmGetTemplateParam('viewName');
+	}			
 }
 //Zend_Debug::dump($abc);
