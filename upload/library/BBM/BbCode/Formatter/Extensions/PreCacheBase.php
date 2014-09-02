@@ -83,16 +83,17 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 	//@extended
 	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
 	{
+		//Need to call the parent in both cases - reason: the bbm post params management is done trough this function
+		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
 		$tagName = $tag['tag'];
-
+		
 		if(!empty($rendererStates['bbmPreCacheInit']) && !$this->preParserEnableFor($tagName) )
 		{
-
 			return '';
 		}
 		else
 		{
-			return parent::renderValidTag($tagInfo, $tag, $rendererStates);		
+			return $parent;
 		}
 	}
 	

@@ -990,7 +990,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		$tag = $this->bbmGetCurrentTag();
 		
-		if( !isset($this->_tagNewInfo[$tag])|| !isset($this->_tagNewInfo[$tag][$infoKey]) )
+		if( !isset($this->_tagNewInfo[$tag]) || !isset($this->_tagNewInfo[$tag][$infoKey]) )
 		{
 			return null;
 		}
