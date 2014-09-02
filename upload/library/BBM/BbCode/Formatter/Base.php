@@ -2071,6 +2071,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		$this->_bbCodesIncrementation = array();
 	}
+
+	public function getBbmBbCodesMap()
+	{
+		return $this->_bbCodesMap;
+	}
 	
 	public function getThreadParams()
 	{
