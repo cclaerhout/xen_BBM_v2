@@ -730,6 +730,7 @@ class BBM_ControllerAdmin_Buttons extends XenForo_ControllerAdmin_Abstract
       		}	
 
 		/*Custom BbCodes buttons*/
+		$extraButtons = array();
 		if(!empty($xenCustomBbCodes))
 		{
 			foreach($xenCustomBbCodes as $xen_code)
