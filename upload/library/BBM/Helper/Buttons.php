@@ -53,7 +53,7 @@ class BBM_Helper_Buttons
 
 		//Only use the configuration for the current editor
 		$myConfigs = $myConfigs['bbm_buttons'];
-	
+
 		//Check which Editor type must be used
 		list($config_ed, $config_type) = self::_bakeEditorConfig($myConfigs, $editor);
 
@@ -268,6 +268,20 @@ class BBM_Helper_Buttons
 		$visitor = XenForo_Visitor::getInstance();
 		
 		$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));	
+
+		$xenParsingBbCodesPerms = array(
+			'email' => $options->Bbm_xenTags_disabled_usrgrp_email,
+			'img' => $options->Bbm_xenTags_disabled_usrgrp_img,
+			'url' => $options->Bbm_xenTags_disabled_usrgrp_url,
+			'media' => $options->Bbm_xenTags_disabled_usrgrp_media
+		);
+		
+		$xenButtonsNameToBbCodes = array(
+			'xen_link' => array('email', 'url'),
+			'xen_unlink' => array('email', 'url'),
+			'xen_image' => array('img'),
+			'xen_media' => array('media')
+		);
 		
 		$quattroGrid = array();
 		$customButtonsCss = array();
@@ -292,6 +306,25 @@ class BBM_Helper_Buttons
 			if(isset($button['active']) && !$button['active'])
 			{
 				continue;
+			}
+
+			/*Xen buttons perms based on Xen Bb Codes parsing permissions*/
+			if(isset($xenButtonsNameToBbCodes[$tag]))
+			{
+				$disableBbCodesPerms = false;
+				foreach($xenButtonsNameToBbCodes[$tag] as $bbcodeTag)
+				{
+					if(array_intersect($visitorUserGroupIds, $xenParsingBbCodesPerms[$bbcodeTag]))
+					{
+						$disableBbCodesPerms = true;
+						break;
+					}
+				}
+				
+				if($disableBbCodesPerms)
+				{
+					continue;
+				}
 			}
 
 			/*Detect new lines & proceed to some changes to the grid*/
@@ -430,6 +463,20 @@ class BBM_Helper_Buttons
 		$visitor = XenForo_Visitor::getInstance();
 
 		$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));	
+
+		$xenParsingBbCodesPerms = array(
+			'email' => $options->Bbm_xenTags_disabled_usrgrp_email,
+			'img' => $options->Bbm_xenTags_disabled_usrgrp_img,
+			'url' => $options->Bbm_xenTags_disabled_usrgrp_url,
+			'media' => $options->Bbm_xenTags_disabled_usrgrp_media
+		);
+		
+		$xenButtonsNameToBbCodes = array(
+			'createlink' => array('email', 'url'),
+			'unlink' => array('email', 'url'),
+			'image' => array('img'),
+			'media' => array('media')
+		);
 		
 		$buttonsGrid = array();
 		$customButtons = array();
@@ -492,6 +539,25 @@ class BBM_Helper_Buttons
 
 			$tag = self::_cleanOrphan($tag);
 			$code = self::_cleanOrphan($code);
+
+			/*Xen buttons perms based on Xen Bb Codes parsing permissions*/
+			if(isset($xenButtonsNameToBbCodes[$tag]))
+			{
+				$disableBbCodesPerms = false;
+				foreach($xenButtonsNameToBbCodes[$tag] as $bbcodeTag)
+				{
+					if(array_intersect($visitorUserGroupIds, $xenParsingBbCodesPerms[$bbcodeTag]))
+					{
+						$disableBbCodesPerms = true;
+						break;
+					}
+				}
+				
+				if($disableBbCodesPerms)
+				{
+					continue;
+				}
+			}
 
 			if($tag == 'separator')
 			{
