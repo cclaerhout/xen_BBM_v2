@@ -41,6 +41,10 @@ class BBM_Listeners_AllInOne
 				case 'XenForo_ControllerPublic_Help':
 					$extend[] = 'BBM_ControllerPublic_Help';				
 				break;
+
+				case 'XenForo_DataWriter_DiscussionMessage_Post':
+					$extend[] = 'BBM_DataWriter_Post';
+				break;
 			}
 		}
 	}

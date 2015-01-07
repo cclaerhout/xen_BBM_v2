@@ -656,5 +656,74 @@ class BBM_Model_BbCodes extends XenForo_Model
 
 		return $document;
 	}
+    
+    static $cacheObject;
+    static $TagMapCacheOptions = null;
+    
+    protected function _getTagMapCacheOptions()
+    {
+        if (self::$TagMapCacheOptions === null)
+        {
+            $options = XenForo_Application::get('options');
+            self::$TagMapCacheOptions = array(
+                'GlobalMethod' => $options->Bbm_TagsMap_GlobalMethod,
+                'Expiry'       => $options->Bbm_TagsMap_Cache_Expiry,
+                'EnableCache'  => $options->Bbm_TagsMap_Cache_Enabled,
+                'bbCodeCacheVersion'  => $options->bbCodeCacheVersion
+            );
+        }   
+        return self::$TagMapCacheOptions;
+    }
+    
+    public function getBbCodeTagCache($content_type, $post_id)
+    { 
+        if (!isset(self::$cacheObject))
+        {
+            self::$cacheObject = XenForo_Application::getCache();
+        }
+		if (self::$cacheObject !== false)
+		{
+            $options = $this->_getTagMapCacheOptions();
+
+            $cacheId = $content_type . 
+                       $post_id. 
+                       $options['bbCodeCacheVersion'] . 
+                       ($options['GlobalMethod'] ? "1" : "0")
+                       ;
+			if ($raw = self::$cacheObject->load($cacheId, true))
+			{
+				return explode(',', $raw);
+			}
+		}   
+        return array();
+    }    
+    
+    public function setBbCodeTagCache($content_type, $post_id, array $tagMapCache)
+    {  
+        if (!isset(self::$cacheObject))
+        {
+            self::$cacheObject = XenForo_Application::getCache();
+        }
+
+        if (self::$cacheObject)
+        {
+            $options = $this->_getTagMapCacheOptions();
+
+            $cacheId = $content_type . 
+                       $post_id. 
+                       $options['bbCodeCacheVersion'] . 
+                       ($options['GlobalMethod'] ? "1" : "0")
+                       ;
+            if (!empty($tagMapCache) && $options['EnableCache'])
+            {
+                $data = implode(',', $tagMapCache);
+            }
+            else
+            {
+                $data = false;
+            }
+			self::$cacheObject->save($data, $cacheId, array(), $options['Expiry']);
+		}
+    }
 }
 //Zend_Debug::dump($code);

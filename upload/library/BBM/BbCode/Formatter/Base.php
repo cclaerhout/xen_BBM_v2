@@ -1662,7 +1662,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_threadParams = $params['thread'];
 				$this->_postsDatas = $params['posts'];
 
-				$this->_createBbCodesMap($this->_postsDatas);			
+				$this->_createBbCodesMap($this->_postsDatas, 'post');
 			}
 
 			/**
@@ -1684,7 +1684,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					'conversation_id'  => 'post_id'
 				);
 				
-				$this->_createBbCodesMap($this->_postsDatas);			
+				$this->_createBbCodesMap($this->_postsDatas);
 			}
 
 			/**
@@ -1877,21 +1877,24 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$this->_currentPostParams[$keyValue] = $values[$keyValue];
 		}
 	}
-
-	protected function _createBbCodesMap($posts = NULL)
+    
+	protected function _createBbCodesMap($posts = NULL, $content_type = NULL)
 	{
 		if( $posts === NULL || !is_array($posts) )
 		{
 			return;
 		}
 
+        $bbcodesModel = $this->_getBbCodesModel();
 		$options = XenForo_Application::get('options');
 		$Bbm_TagsMap_GlobalMethod = $options->Bbm_TagsMap_GlobalMethod;
 		$messageKey =  $this->_bbmMessageKey;
 		$extraKeys =  $this->_bbmExtraKeys;
 		$parsedKeySuffix = $this->_bbmPostfixParsedKey;
 		$parsedMessageKey = $messageKey . $parsedKeySuffix;
-		
+        $cache_threshold = $options->Bbm_TagsMap_Cache_Threshold; // in milliseconds
+		$cache_enabled = $options->Bbm_TagsMap_Cache_Enabled && ($content_type != '');
+        
 		foreach($posts as $post_id => $post)
 		{
 			if(!empty($this->_bbmViewParamsTargetedKey))
@@ -1914,41 +1917,62 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				continue;
 			}
 			
+            $tag_cache = array();
+            $has_loaded_tags = false;
+            if ($cache_enabled)
+            {
+                $tag_cache = $bbcodesModel->getBbCodeTagCache($content_type, $post_id, $Bbm_TagsMap_GlobalMethod);
+                if (!empty($tag_cache))
+                {
+                    foreach($tag_cache as $tag)
+                    {
+                        $this->_bbCodesMap[$tag][] = $post_id;
+                    }
+                    $has_loaded_tags = true;
+                }
+            }
+            $time = microtime(true);
 			if($Bbm_TagsMap_GlobalMethod)
 			{
-				//Global method => will check  all the elements (if they are strings) of the post array
-				$flattenPostIt = new RecursiveIteratorIterator( new RecursiveArrayIterator($data) );
-				$allPostItemsInOne = '';
+                if (!$has_loaded_tags)
+                {
+                    //Global method => will check  all the elements (if they are strings) of the post array
+                    $flattenPostIt = new RecursiveIteratorIterator( new RecursiveArrayIterator($data) );
+                    $allPostItemsInOne = '';
 
-				foreach ($flattenPostIt as $postItem)
-				{
-					if(is_string($postItem))
-					{
-						$allPostItemsInOne .= '#&#' . $postItem;				
-					}
-				}
+                    foreach ($flattenPostIt as $postItem)
+                    {
+                        if(is_string($postItem))
+                        {
+                            $allPostItemsInOne .= '#&#' . $postItem;
+                        }
+                    }
 
-				$target = $allPostItemsInOne;
-				$this->_tagBBCodeFromTree( $post_id, $this->getParser()->parse($target) );
+                    $target = $allPostItemsInOne;
+                    $this->_tagBBCodeFromTree($cache_enabled, $tag_cache, $post_id, $this->getParser()->parse($target) );
+                }
 			}
 			else
 			{
 				//Restrictive method => will only check the message & signature elements of the post array
-				$BbCodesTree = null;
+                if (!$has_loaded_tags)
+                {
+                    $BbCodesTree = null;
 
-				if (isset($data[$parsedMessageKey]))
-				{
-					$BbCodesTree = @unserialize($data[$parsedMessageKey]);
-				}
+                    if (isset($data[$parsedMessageKey]))
+                    {
+                        $BbCodesTree = @unserialize($data[$parsedMessageKey]);
+                    }
 
-				if (!$BbCodesTree)
-				{
-					$target = $data[$messageKey];
-					$BbCodesTree = $this->getParser()->parse($target);
-				}
-				
-				$this->_tagBBCodeFromTree( $post_id, $BbCodesTree );
-				
+                    if (!$BbCodesTree)
+                    {
+                        $target = $data[$messageKey];
+                        $BbCodesTree = $this->getParser()->parse($target);
+                    }
+                    $this->_tagBBCodeFromTree(!$has_loaded_tags && $cache_enabled, $tag_cache, $post_id, $BbCodesTree );
+                }
+                
+				// extra data should be relatively small, don't do tag map caching. This also ensures cache invalidation stays sane
 				foreach($extraKeys as $extrakey)
 				{
 					if(!isset($data[$extrakey]) || !is_string($data[$extrakey]))
@@ -1971,9 +1995,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 						$BbCodesTree = $this->getParser()->parse($target);
 					}
 					
-					$this->_tagBBCodeFromTree( $post_id, $BbCodesTree );
+                    $tmp = array();
+					$this->_tagBBCodeFromTree(false, $tmp, $post_id, $BbCodesTree );
 				}
 			}
+
+            if (!$has_loaded_tags && $cache_enabled && (microtime(true) - $time)*1000 > $cache_threshold)
+                $bbcodesModel->setBbCodeTagCache($content_type, $post_id, $tag_cache);            
 		}
 
 		if(self::$debug === true)
@@ -1982,8 +2010,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			Zend_Debug::dump($this->_bbCodesMap);
 		}
 	}
-
-	protected function _tagBBCodeFromTree($post_id, $BbCodesTree)
+    
+	protected function _tagBBCodeFromTree($canCacheTagMap, array &$tagMapCache, $post_id, $BbCodesTree)
 	{
 		if(!is_array($BbCodesTree))
 		{
@@ -1994,11 +2022,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			if (isset($entry['tag']))
 			{
-				$this->_bbCodesMap[$entry['tag']][] = $post_id;
+                $tag = $entry['tag'];
+				$this->_bbCodesMap[$tag][] = $post_id;
+                if ($canCacheTagMap)
+                    $tagMapCache[] = $tag;
 
 				if (!empty($entry['children']))
 				{
-					$this->_tagBBCodeFromTree($post_id, $entry['children']);
+					$this->_tagBBCodeFromTree($canCacheTagMap, $tagMapCache, $post_id, $entry['children']);
 				}
 			}
 		}
@@ -2285,5 +2316,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		return $this->bbmGetTemplateParam('viewName');
 	}			
+
+    static $BbCodesModel = null;
+    
+    protected function _getBbCodesModel()
+    {
+        if (self::$BbCodesModel == null)
+        {
+            self::$BbCodesModel = XenForo_Model::Create('BBM_Model_BbCodes');
+        }
+        return self::$BbCodesModel;
+    }
 }
 //Zend_Debug::dump($abc);
