@@ -657,31 +657,31 @@ class BBM_Model_BbCodes extends XenForo_Model
 		return $document;
 	}
     
-	static $cacheObject;
-	static $TagMapCacheOptions = null;
+	protected $cacheObject = null;
+	protected $TagMapCacheOptions = null;
 
 	protected function _getTagMapCacheOptions()
 	{
-		if (self::$TagMapCacheOptions === null)
+		if ($this->TagMapCacheOptions === null)
 		{
 			$options = XenForo_Application::get('options');
-			self::$TagMapCacheOptions = array(
+			$this->TagMapCacheOptions = array(
 				'GlobalMethod' => $options->Bbm_TagsMap_GlobalMethod,
 				'Expiry'       => $options->Bbm_TagsMap_Cache_Expiry,
 				'EnableCache'  => $options->Bbm_TagsMap_Cache_Enabled,
 				'bbCodeCacheVersion'  => $options->bbCodeCacheVersion
 				);
 		}   
-		return self::$TagMapCacheOptions;
+		return $this->TagMapCacheOptions;
 	}
 
 	public function getBbCodeTagCache($content_type, $post_id)
 	{ 
-		if (!isset(self::$cacheObject))
+		if ($this->cacheObject === null)
 		{
-			self::$cacheObject = XenForo_Application::getCache();
+			$this->cacheObject = XenForo_Application::getCache();
 		}
-		if (self::$cacheObject !== false)
+		if ($this->cacheObject !== false)
 		{
 			$options = $this->_getTagMapCacheOptions();
 
@@ -690,7 +690,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 						$options['bbCodeCacheVersion'] . 
 						($options['GlobalMethod'] ? "1" : "0")
 						;
-			if ($raw = self::$cacheObject->load($cacheId, true))
+			if ($raw = $this->cacheObject->load($cacheId, true))
 			{
 				return explode(',', $raw);
 			}
@@ -700,12 +700,12 @@ class BBM_Model_BbCodes extends XenForo_Model
 
 	public function setBbCodeTagCache($content_type, $post_id, array $tagMapCache)
 	{  
-		if (!isset(self::$cacheObject))
+		if ($this->cacheObject === null)
 		{
-			self::$cacheObject = XenForo_Application::getCache();
+			$this->cacheObject = XenForo_Application::getCache();
 		}
 
-		if (self::$cacheObject)
+		if ($this->cacheObject)
 		{
 			$options = $this->_getTagMapCacheOptions();
 
@@ -717,12 +717,13 @@ class BBM_Model_BbCodes extends XenForo_Model
 			if (!empty($tagMapCache) && $options['EnableCache'])
 			{
 				$data = implode(',', $tagMapCache);
+                $this->cacheObject->save($data, $cacheId, array(), $options['Expiry']);
 			}
 			else
 			{
 				$data = false;
+                $this->cacheObject->remove($data);
 			}
-			self::$cacheObject->save($data, $cacheId, array(), $options['Expiry']);
 		}
 	}
 }

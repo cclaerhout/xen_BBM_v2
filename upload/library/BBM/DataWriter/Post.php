@@ -2,20 +2,20 @@
 
 class BBM_DataWriter_Post extends XFCP_BBM_DataWriter_Post
 {
-	static $BbCodesModel = null;
+	protected $BbCodesModel = null;
 
 	protected function _getBbCodesModel()
 	{
-		if (self::$BbCodesModel === null)
+		if ($this->BbCodesModel === null)
 		{
-			self::$BbCodesModel = XenForo_Model::Create('BBM_Model_BbCodes');
+			$this->BbCodesModel = XenForo_Model::Create('BBM_Model_BbCodes');
 		}
-		return self::$BbCodesModel;
+		return $this->BbCodesModel;
 	}
 
 	protected function _InvalidateCaches()
 	{
-		self::_getBbCodesModel()->setBbCodeTagCache('post', $this->get('post_id'), array());    
+		$this->_getBbCodesModel()->setBbCodeTagCache('post', $this->get('post_id'), array());    
 	}
 
 	protected function _postSaveAfterTransaction()
