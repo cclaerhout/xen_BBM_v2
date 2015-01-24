@@ -656,5 +656,75 @@ class BBM_Model_BbCodes extends XenForo_Model
 
 		return $document;
 	}
+    
+	protected $cacheObject = null;
+	protected $TagMapCacheOptions = null;
+
+	protected function _getTagMapCacheOptions()
+	{
+		if ($this->TagMapCacheOptions === null)
+		{
+			$options = XenForo_Application::get('options');
+			$this->TagMapCacheOptions = array(
+				'GlobalMethod' => $options->Bbm_TagsMap_GlobalMethod,
+				'Expiry'       => $options->Bbm_TagsMap_Cache_Expiry,
+				'EnableCache'  => $options->Bbm_TagsMap_Cache_Enabled,
+				'bbCodeCacheVersion'  => $options->bbCodeCacheVersion
+				);
+		}   
+		return $this->TagMapCacheOptions;
+	}
+
+	public function getBbCodeTagCache($content_type, $post_id)
+	{ 
+		if ($this->cacheObject === null)
+		{
+			$this->cacheObject = XenForo_Application::getCache();
+		}
+		if ($this->cacheObject !== false)
+		{
+			$options = $this->_getTagMapCacheOptions();
+
+			$cacheId = $content_type . 
+						$post_id. 
+						$options['bbCodeCacheVersion'] . 
+						($options['GlobalMethod'] ? "1" : "0")
+						;
+			if ($raw = $this->cacheObject->load($cacheId, true))
+			{
+				return explode(',', $raw);
+			}
+		}   
+		return array();
+	}    
+
+	public function setBbCodeTagCache($content_type, $post_id, array $tagMapCache)
+	{  
+		if ($this->cacheObject === null)
+		{
+			$this->cacheObject = XenForo_Application::getCache();
+		}
+
+		if ($this->cacheObject)
+		{
+			$options = $this->_getTagMapCacheOptions();
+
+			$cacheId = $content_type . 
+						$post_id. 
+						$options['bbCodeCacheVersion'] . 
+						($options['GlobalMethod'] ? "1" : "0")
+						;
+			if (!empty($tagMapCache) && $options['EnableCache'])
+			{
+				$data = implode(',', $tagMapCache);
+                $this->cacheObject->save($data, $cacheId, array(), $options['Expiry']);
+			}
+			else
+			{
+				$data = false;
+                $this->cacheObject->remove($data);
+			}
+		}
+	}
 }
 //Zend_Debug::dump($code);
