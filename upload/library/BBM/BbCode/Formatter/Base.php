@@ -1155,7 +1155,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	protected $_bbmUniqidStack = array();
 
-	public function uniqid($key = 'misc')
+	public function uniqid($key = 'misc_')
 	{
 		if(isset($this->_bbmUniqidStack[$key]))
 		{
