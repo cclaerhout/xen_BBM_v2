@@ -18,6 +18,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_bbmDisableMethod;
 	protected $_bbmXenTagsParsingAllowedUsergroups = array();
 	protected $_bbmXenTagsParsingAllowedNodes = array();	
+
+	protected $_formatterUniqid;
+
+	//@extended
+	public function __construct()
+	{
+		$this->updateFormatterUniqid();
+		return parent::__construct();
+	}
 	
 	//@extended
 	public function getTags()
@@ -1122,6 +1131,47 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return call_user_func_array(array($this, $function), $args);
 	}
 
+	public function getFormatterUniqid()
+	{
+		return $this->_formatterUniqid;
+	}
+
+	public function updateFormatterUniqid()
+	{
+		$this->_formatterUniqid =  uniqid();
+		return;
+		
+		/**
+		*	If you don't want to use at all the php uniqid function, the below
+		*	code can be used (ref: http://php.net/manual/fr/function.uniqid.php)
+		*	Purpose: http://www.ning.com/code/2012/02/uniqid-is-slow/
+		*	But since the uniq id is now only called once, it shouldn't be a problem
+		*	anymore
+		***/
+		
+		$m=microtime(true);
+		$this->_formatterUniqid = sprintf("%8x%05x\n",floor($m),($m-floor($m))*1000000);
+	}
+
+	protected $_bbmUniqidStack = array();
+
+	public function uniqid($key = 'misc')
+	{
+		if(isset($this->_bbmUniqidStack[$key]))
+		{
+			$this->_bbmUniqidStack[$key] = $this->_bbmUniqidStack[$key]+1;
+		}
+		else
+		{
+			$this->_bbmUniqidStack[$key] = 1;
+		}
+		
+		$formatterUniqid = $this->_formatterUniqid;
+		$tagUniqId = $this->_bbmUniqidStack[$key];
+		
+		return "{$key}{$formatterUniqid}_{$tagUniqId}";
+	}
+
 	/****
 	*	PERMISSIONS TOOLS
 	***/
@@ -2152,7 +2202,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$callers = debug_backtrace();
 			$caller = $callers[1]['function'];
-			$line = $callers[1]['line'];
+			$line = isset($callers[1]['line']) ? $callers[1]['line'] : 'Unknown';
 			echo "This Post parameter is missing: $param (calling function: $caller - line:$line)<br />";
 		}
 	
