@@ -17,7 +17,7 @@ class BBM_Helper_HtmlFixer
 	}
 
 	public function getFixedHtml($dirtyhtml) {
-	return $dirtyhtml;
+	//return $dirtyhtml;
 		$c = 0;
 		$this->dirtyhtml = $dirtyhtml;
 		$this->fixedhtml = "";
