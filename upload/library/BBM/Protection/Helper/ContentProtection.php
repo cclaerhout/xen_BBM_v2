@@ -132,7 +132,7 @@ class BBM_Protection_Helper_ContentProtection
 					$formatter = XenForo_BbCode_Formatter_Base::create('BBM_Protection_BbCode_Formatter_BbCode_Lupin', false);
 				}
 				
-				$parser = new XenForo_BbCode_Parser($formatter);
+				$parser = XenForo_BbCode_Parser::create($formatter);
 
 				$extraStates = array(
 					'bbmContentProtection' => true
