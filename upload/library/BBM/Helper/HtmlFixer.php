@@ -17,7 +17,6 @@ class BBM_Helper_HtmlFixer
 	}
 
 	public function getFixedHtml($dirtyhtml) {
-	//return $dirtyhtml;
 		$c = 0;
 		$this->dirtyhtml = $dirtyhtml;
 		$this->fixedhtml = "";
@@ -82,10 +81,15 @@ class BBM_Helper_HtmlFixer
 				''
 			)
 			, $t);
+
+		return trim($t);
+		
+		//There's a confusion here between tags and tag options ; a space can be inside a tag option, so explode them will give incorrect results
+		
 		$ar = explode(" ",$t);
 		$nt = "";
 		for ($i=0;$i<count($ar);$i++) {
-			$ar[$i]=$this->fixStrToLower($ar[$i]);
+			//$ar[$i]=$this->fixStrToLower($ar[$i]);
 			if (stristr($ar[$i],"=")) $ar[$i] = $this->fixQuotes($ar[$i]);	// thanks to emmanuel@evobilis.com
 			//if (stristr($ar[$i],"=") && !stristr($ar[$i],"=\"")) $ar[$i] = $this->fixQuotes($ar[$i]);
 			$nt.=$ar[$i]." ";
@@ -331,13 +335,33 @@ class BBM_Helper_HtmlFixer
 				$ns = "";
 				
 				$tag="";
-				while( $i<strlen($s) && $s[$i]!=">" ){
+				$optionOpen = false;
+				
+				while( $i<strlen($s) && ($s[$i]!=">"  || $optionOpen !== false)){
 					// get chars till the end of a tag
-					$tag.=$s[$i];
+					if($s[$i] == '"' || $s[$i] == "'")
+					{
+						if($optionOpen == false){
+							$optionOpen = $s[$i];
+						}elseif($optionOpen == $s[$i]){
+							$optionOpen = false;
+						}
+					}
+
+					
+					if( $optionOpen !== false && in_array($s[$i], array('<', '>')) )
+					{
+						$tag.= htmlspecialchars($s[$i]);
+					}
+					else
+					{
+						$tag.=$s[$i];
+					}
+
 					$i++;
 				}
 				$tag.=$s[$i];
-				
+
 				if($s[$i]==">") {
 					/*
 						$tag contains a tag <...chars...>

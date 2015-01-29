@@ -90,7 +90,7 @@ class BBM_Helper_BbCodes
 				
 			$content .= $extraData;
 			$content = self::tidyHTML($content);
-			//$content = self::tidyHTML($content, true);
+
 		}
 
 		return $matches;
@@ -380,9 +380,14 @@ class BBM_Helper_BbCodes
 	 **/
 	protected static $_htmlFixer;
 	
-	public static function tidyHTML($html, $useDOM = false)
+	public static function tidyHTML($html, $useDOM = null)
 	{
 		if(!$html)  return $html;
+
+		if($useDOM === null)
+		{
+			$useDOM = XenForo_Application::get('options')->get('Bbm_HtmlCleanerDom');
+		}
 
 		if(!$useDOM)
 		{
