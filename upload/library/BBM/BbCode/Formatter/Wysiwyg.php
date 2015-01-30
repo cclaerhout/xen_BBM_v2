@@ -149,7 +149,7 @@ class BBM_BbCode_Formatter_Wysiwyg extends XFCP_BBM_BbCode_Formatter_Wysiwyg
 	{
 		if (!isset($this->_bbmParser))
 		{
-			$this->_bbmParser = new XenForo_BbCode_Parser($this);
+			$this->_bbmParser = XenForo_BbCode_Parser::create($this);
 		}
 		return $this->_bbmParser;
 	}	
