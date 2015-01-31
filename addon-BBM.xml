@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.1.0" version_id="63" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.1.1" version_id="64" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -2646,6 +2646,13 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
       <sub_options></sub_options>
       <relation group_id="bbm_bbcodemanager" display_order="515"/>
     </option>
+    <option option_id="Bbm_HtmlCleanerDom" edit_format="select" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params>0={xen:phrase bbm_htmlcleaner_external}
+1={xen:phrase bbm_htmlcleanear_phpdom}</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="550"/>
+    </option>
     <option option_id="Bbm_Params_DebugInfo" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
@@ -3181,6 +3188,8 @@ Please enter a valid template name.]]></phrase>
     <phrase title="bbm_go_to_check_db_fix" version_id="42" version_string="2.5.2"><![CDATA[Fix Bbm database]]></phrase>
     <phrase title="bbm_go_to_check_db_integrity" version_id="42" version_string="2.5.2"><![CDATA[Check Bbm database integrity]]></phrase>
     <phrase title="bbm_go_to_xenforo_bbcodes_options" version_id="0" version_string="1.0"><![CDATA[XenForo Bb Codes Control]]></phrase>
+    <phrase title="bbm_htmlcleanear_phpdom" version_id="63" version_string="3.1.0"><![CDATA[PHP Dom method]]></phrase>
+    <phrase title="bbm_htmlcleaner_external" version_id="63" version_string="3.1.0"><![CDATA[External script]]></phrase>
     <phrase title="bbm_import" version_id="0" version_string="1.0"><![CDATA[Import BB Code]]></phrase>
     <phrase title="bbm_import_override" version_id="0" version_string="1.0"><![CDATA[Override existed Bb Codes?]]></phrase>
     <phrase title="bbm_import_override_desc" version_id="0" version_string="1.0"><![CDATA[Check this option if you want to override existed Bb Codes to update them. No need to check this option for a single Bb Code Import: a new window will appear to let you the choice.]]></phrase>
@@ -3453,6 +3462,8 @@ Default value: "Font-Awesome CDN integration".]]></phrase>
     <phrase title="option_Bbm_HideTagsInFastPreviewInvisible" version_id="52" version_string="2.8.1"><![CDATA[Strip also their content]]></phrase>
     <phrase title="option_Bbm_HideTagsInFastPreviewInvisible_explain" version_id="52" version_string="2.8.1"><![CDATA[]]></phrase>
     <phrase title="option_Bbm_HideTagsInFastPreview_explain" version_id="0" version_string="1.0"><![CDATA[This option will hide tags in thread fast preview.]]></phrase>
+    <phrase title="option_Bbm_HtmlCleanerDom" version_id="63" version_string="3.1.0"><![CDATA[Html cleaner method]]></phrase>
+    <phrase title="option_Bbm_HtmlCleanerDom_explain" version_id="63" version_string="3.1.0"><![CDATA[Some Bb Codes might use a method to clean the html code inside them. Two solutions exist: the one is based on the php DOM functions, the other on an external customized script. The default method is the one using the php DOM functions. If you have any problem with it, use the other one.]]></phrase>
     <phrase title="option_Bbm_modify_parser" version_id="30" version_string="2.3.0"><![CDATA[Support BbCodes inside tags option]]></phrase>
     <phrase title="option_Bbm_modify_parser_explain" version_id="30" version_string="2.3.0"><![CDATA[This option will allow to use Bb Codes inside the tags option. Ie: [mybbcode=[b]title[/b]]content[/mybbcode].<br />
 Once activated, It will automatically override the private function "_parseTag()" of the class "XenForo_BbCode_Parser". If you prefer to modify yourself the XenForo php file to avoid to override the function, just go <a href="http://xenforo.com/community/resources/bbcode-options-nested-tags-fix.1983/" target="_blank">here</a> and follow the instructions.]]></phrase>
@@ -3603,7 +3614,7 @@ If you use "true" as second parameter, the option will be output with lower case
     <template title="bbm_bbcode.css" version_id="0" version_string="1.0"><![CDATA[.bbm_bb_can_not_use{
 	{xen:property bbm_bb_can_not_use}
 }]]></template>
-    <template title="bbm_bbcode_highlighter" version_id="0" version_string="1.0"><![CDATA[<xen:require css="bbm_bbcode_highlighter.css" />
+    <template title="bbm_bbcode_highlighter" version_id="63" version_string="3.1.0"><![CDATA[<xen:require css="bbm_bbcode_highlighter.css" />
 
 <xen:set var="$color_class">
 	<xen:if is="{$options.1} == 'orange'">
