@@ -752,6 +752,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	*	The "renderValidTag" is executed before all replacement methods
 	***/	
 
+	static $renderHash = array('replacementMethodRenderer' => true, 'PhpMethodRenderer' => true, 'TemplateMethodRenderer' => true);
+    
 	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
 	{
 		//Increment tags using the XenForo Standard Replacement Method & all other callback methods than bbm
@@ -759,10 +761,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			||
 			(	isset($tagInfo['callback'][1]) 
 				&&
-				!in_array(
-					$tagInfo['callback'][1], 
-					array('replacementMethodRenderer', 'PhpMethodRenderer', 'TemplateMethodRenderer')
-				)
+				!isset(self::$renderHash[$tagInfo['callback'][1]])
 			)
 		)
 		{
@@ -832,11 +831,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return $parent;
 	}
 
+	static $xenTagArray = array('attach' => true, 'email' => true, 'img' => true, 'media' => true, 'url' => true);
+    
 	protected function _xenTagControl($tagName, $tagInfo)
 	{
 		$tagName = strtolower($tagName);
 		
-		if(!in_array($tagName, array('attach', 'email', 'img', 'media', 'url')))
+		if(!isset(self::$xenTagArray[$tagName]))
 		{
 			return $tagInfo;
 		}
