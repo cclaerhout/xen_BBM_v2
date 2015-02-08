@@ -137,12 +137,17 @@ class BBM_Helper_BbCodes
 		return "<span style='white-space:pre'>{$breakOutput}</span>";	
 	}
 
+	static $Bbm_ZenkakuConv = null;
 	/***
 	 * Clean option - to use for example in the options loop
 	 **/
 	public static function cleanOption($string, $strtolower = false, $trim = true)
 	{
-		if(XenForo_Application::get('options')->get('Bbm_ZenkakuConv'))
+		if (self::$Bbm_ZenkakuConv === null)
+		{
+			self::$Bbm_ZenkakuConv = XenForo_Application::get('options')->get('Bbm_ZenkakuConv');
+		}
+		if(self::$Bbm_ZenkakuConv)
 		{
 			$string = mb_convert_kana($string, 'a', 'UTF-8');
 		}
@@ -222,19 +227,25 @@ class BBM_Helper_BbCodes
 		return $prefix.$color;
 	}
 
+	protected static $isResponsive = null;
 	/***
 	 * Responsive RESS (Responsive Web Design with Server-Side Component) Checker
 	 **/
 	public static function useResponsiveMode()
 	{
-		$isResponsive = XenForo_Template_Helper_Core::styleProperty('enableResponsive');
-		
-		if(!$isResponsive)
+		if (self::$isResponsive === null)
 		{
-			return false;
+			self::$isResponsive = XenForo_Template_Helper_Core::styleProperty('enableResponsive');
+			if(!self::$isResponsive)
+			{
+				self::$isResponsive = false;
+			}
+			else
+			{
+				self::$isResponsive= self::isMobile();
+			}
 		}
-		
-		return self::isMobile();
+		return self::$isResponsive;
 	}
 	
 	public static function isMobile($option = false)
