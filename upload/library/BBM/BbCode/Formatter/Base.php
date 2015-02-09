@@ -1720,28 +1720,34 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			 **/
 			else if( (!isset($params['posts']) && isset($params['thread']) || isset($params['forum']))  && isset($params['message']) 
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config']))
-            {
-                $visitor = XenForo_Visitor::getInstance()->ToArray();
-                
-				$this->_bbmMessageKey = 'message';
+			{
+			$visitor = XenForo_Visitor::getInstance()->ToArray();
 
-                if (isset($params['thread']))
-                    $this->_threadParams = $params['thread'];
-                else
-                    $this->_threadParams = array( 'node_id' => $params['forum']['node_id']);
-				$this->_postsDatas = array ( 0 => array
-                        (
-                            'post_date' => XenForo_Application::$time, 
-                            'user_id' => $visitor['user_id'], 
-                            'post_id' => 0, 
-                            'user_group_id' => $visitor['user_group_id'], 
-                            'secondary_group_ids' => $visitor['secondary_group_ids'],
-                            'message' => $params['message']
-                        )
-                );
+			$this->_bbmMessageKey = 'message';
+
+			if (isset($params['thread']))
+			{
+				$this->_threadParams = $params['thread'];
+			}
+			else
+			{
+				$this->_threadParams = array( 'node_id' => $params['forum']['node_id']);
+			}
+			$this->_postsDatas = array 
+				( 
+					0 => array
+					(
+					'post_date' => XenForo_Application::$time, 
+					'user_id' => $visitor['user_id'], 
+					'post_id' => 0, 
+					'user_group_id' => $visitor['user_group_id'], 
+					'secondary_group_ids' => $visitor['secondary_group_ids'],
+					'message' => $params['message']
+					)
+				);
 
 				$this->_createBbCodesMap($this->_postsDatas, Null);
-            }
+			}
 			/**
 			 *  For conversations: check conversation & messages
 			 *  It's not perfect, but let's use the same functions than thread & posts
