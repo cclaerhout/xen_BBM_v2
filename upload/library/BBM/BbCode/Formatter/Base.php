@@ -906,6 +906,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	protected function _xenTagControlViewingPerms($tagName, $tagInfo)
 	{
+		if($this->_bbmByPassPerms === true)
+		{
+			return $tagInfo;
+		}
+
 		if (isset($this->_viewPermCache[$tagName]))
 		{
 			return $this->_viewPermCache[$tagName];
@@ -1174,6 +1179,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	***/
 	public function checkBbCodeParsingPerms(array $tag, array $rendererStates, $preventLoop = false)
 	{
+		if($this->_bbmByPassPerms === true)
+		{
+			return true;
+		}
+
 		if( !isset($this->_tags[$tag['tag']]['parser_perms']) || !isset($this->_tags[$tag['tag']]['parser_perms']['parser_has_usr']) )
 		{
 			//No need to check parser_has_usr value since the key won't be there if disable (see @bakeBbmTags)
@@ -1250,6 +1260,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function checkBbCodeViewPerms(array $tag, array $rendererStates, $preventLoop = false)
 	{
+		if($this->_bbmByPassPerms === true)
+		{
+			return true;
+		}
+
 		if( !isset($this->_tags[$tag['tag']]['view_perms']) )
 		{
 			return true;
@@ -1684,17 +1699,26 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	 **/
 	protected $_bbmRemapOptions = false;
 
+	/***
+	 *  If the key 'bbmBypassPermissions' has been enabled in the view, then Bbm Bb Codes permissions will be ignored
+	 **/
+	protected $_bbmByPassPerms = false;
+
 	//@extended
 	public function setView(XenForo_View $view = null)
 	{
 		parent::setView($view);
-
 		$this->_bbmSetRequestPath();
 
 		if ($view)
 		{
 			$params = $view->getParams();
 			$this->_checkIfDebug($params);
+
+			if(!empty($params['bbmBypassPermissions']))
+			{
+				$this->_bbmByPassPerms = true;
+			}
 
 			/**
 			 *  For posts: check thread & posts
