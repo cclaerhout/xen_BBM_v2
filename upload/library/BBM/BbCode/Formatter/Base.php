@@ -902,20 +902,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	/*
 	 * Use of tag-type caching means this function scales per bb code tag type rather than on the number of uses of the bb code
 	 */
-	protected $viewPermCache = array();
+	protected $_viewPermCache = array();
 
 	protected function _xenTagControlViewingPerms($tagName, $tagInfo)
 	{
-		if (isset($this->viewPermCache[$tagName]))
+		if (isset($this->_viewPermCache[$tagName]))
 		{
-			$cacheEntry = $this->viewPermCache[$tagName];
-			if (isset($cacheEntry['replace']))
-				$tagInfo['replace'] = $cacheEntry['replace'];
-			if (isset($cacheEntry['_bbmNoViewPerms']))
-				$tagInfo['_bbmNoViewPerms'] = $cacheEntry['_bbmNoViewPerms'];
-			return $tagInfo;
+			return $this->_viewPermCache[$tagName];
 		}
-		$cacheEntry = array();
 
 		$visitor = XenForo_Visitor::getInstance();
 
@@ -943,15 +937,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				$tagInfo = array('replace' => array('', ''));				
 			}
-			$cacheEntry['replace'] = $tagInfo['replace'];
 		}
 
 		/*View protection - hide content*/
 		$permKey = "bbm_hide_{$tagName}";
 
 		$tagInfo['_bbmNoViewPerms'] = $visitor->hasPermission('bbm_bbcodes_grp', $permKey);
-		$cacheEntry['_bbmNoViewPerms'] = $tagInfo['_bbmNoViewPerms'];
-		$this->viewPermCache[$tagName] = $cacheEntry;
+		
+		$this->_viewPermCache[$tagName] = $tagInfo;
+
 		return $tagInfo;
 	}
 
