@@ -1713,11 +1713,29 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		if ($view)
 		{
 			$params = $view->getParams();
+			$xenOptions = XenForo_Application::get('options');
 			$this->_checkIfDebug($params);
 
 			if(!empty($params['bbmBypassPermissions']))
 			{
 				$this->_bbmByPassPerms = true;
+			}
+			else
+			{
+				$disableProtectionViewNames = explode("\n", $xenOptions->Bbm_DisablePermsViewName);
+
+				if(in_array($this->bbmGetViewName(), $disableProtectionViewNames))
+				{
+					$this->_bbmByPassPerms = true;
+				}
+			}
+
+			if($xenOptions->Bbm_DisplayViewName)
+			{
+				if(XenForo_Visitor::getInstance()->get('is_admin'))
+				{
+					Zend_Debug::dump($this->bbmGetViewName());
+				}
 			}
 
 			/**
@@ -1739,30 +1757,29 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			 *  Preview new post in thread or new thread
 			 **/
 			else if( (!isset($params['posts']) && isset($params['thread']) || isset($params['forum']))  && isset($params['message']) 
-				&& $this->_disableTagsMap == false && !isset($params['bbm_config']))
+				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
+			)
 			{
-			$visitor = XenForo_Visitor::getInstance()->ToArray();
+				$visitor = XenForo_Visitor::getInstance()->ToArray();
 
-			$this->_bbmMessageKey = 'message';
+				$this->_bbmMessageKey = 'message';
 
-			if (isset($params['thread']))
-			{
-				$this->_threadParams = $params['thread'];
-			}
-			else
-			{
-				$this->_threadParams = array( 'node_id' => $params['forum']['node_id']);
-			}
-			$this->_postsDatas = array 
-				( 
-					0 => array
-					(
-					'post_date' => XenForo_Application::$time, 
-					'user_id' => $visitor['user_id'], 
-					'post_id' => 0, 
-					'user_group_id' => $visitor['user_group_id'], 
-					'secondary_group_ids' => $visitor['secondary_group_ids'],
-					'message' => $params['message']
+				if (isset($params['thread']))
+				{
+					$this->_threadParams = $params['thread'];
+				}
+				else
+				{
+					$this->_threadParams = array( 'node_id' => $params['forum']['node_id']);
+				}
+				$this->_postsDatas = array( 
+					0 => array(
+						'post_date' => XenForo_Application::$time, 
+						'user_id' => $visitor['user_id'], 
+						'post_id' => 0, 
+						'user_group_id' => $visitor['user_group_id'], 
+						'secondary_group_ids' => $visitor['secondary_group_ids'],
+						'message' => $params['message']
 					)
 				);
 
