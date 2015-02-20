@@ -183,72 +183,68 @@ class BBM_Model_BbCodes extends XenForo_Model
 	*/
 	public function simplecachedActiveBbCodes()
 	{
-		$cache = array();
-
 		$cache['list'] = $this->fetchAllKeyed('
 			SELECT tag, bbcode_id
 			FROM bbm
-			WHERE active = \'1\'
+			WHERE active = 1
 			ORDER BY tag
 		', 'tag');
 
 		$cache['nohelp'] = $this->fetchAllKeyed('
 			SELECT tag, bbcode_id
 			FROM bbm
-			WHERE active = \'1\'
-			AND display_help = \'0\'
+			WHERE active = 1
+			AND display_help = 0
 			ORDER BY tag
 		', 'tag');
 
 		$cache['protected'] = $this->fetchAllKeyed('
 			SELECT tag, view_usr
 			FROM bbm
-			WHERE active = \'1\'
-			AND view_has_usr = \'1\'
+			WHERE active = 1
+			AND view_has_usr = 1
 			ORDER BY tag
 		', 'tag');
 
-		foreach($cache as $key => &$item)
+		foreach($cache as $key => $item)
 		{
-			if(empty($item) || !is_array($item))
+			if(empty($item))
 			{
-				$item = array();
 				continue;
 			}
 
 			if($key == 'protected')
 			{
 				//Tag in Key - Usergroups in value
-				foreach($item as &$protectedTag)
+				foreach($item as $tag => $protectedTagData)
 				{
-					$protectedTag = unserialize($protectedTag['view_usr']);
+					$cache[$key][$tag] = unserialize($protectedTagData['view_usr']);
 				}
 			}
 			else
 			{
-				//Tag in value - if bbcode_id is set, it becomes the key, otherwise the key is the tag id (numeric)
-				foreach($item as $idNum => &$tag)
+				//Tag in value - if bbcode_id is set, it becomes the key, otherwise the key is the tag id (numeric) ; the value remains the tag
+				foreach($item as $tag => $tagData)
 				{
-					if(empty($tag['tag']))
+					if(empty($tagData))
 					{
-						unset($tag);
-						continue;
+						unset($cache[$key][$tag]); continue;
 					}
-
-					if(!empty($tag['bbcode_id']))
+					
+					if(!empty($tagData['bbcode_id']))
 					{
-						$item[$tag['bbcode_id']] = $tag['tag'];
-						unset($item[$idNum]);
+						unset($cache[$key][$tag]);
+						$cache[$key][$tagData['bbcode_id']] = $tagData['tag'];
 					}
-					else
+					elseif(!empty($tagData['tag']))
 					{
-						$item[] = $tag['tag'];
-						unset($item[$idNum]);
+						unset($cache[$key][$tag]);
+						$cache[$key][] = $tagData['tag'];
 					}
 				}
 			}
 		}
-		
+
 		XenForo_Application::setSimpleCacheData('bbm_active', $cache);
 		return $cache;
 	}
