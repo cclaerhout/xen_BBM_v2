@@ -206,6 +206,14 @@ class BBM_Model_BbCodes extends XenForo_Model
 			ORDER BY tag
 		', 'tag');
 
+		$cache['protected_parser'] = $this->fetchAllKeyed('
+			SELECT tag, parser_usr
+			FROM bbm
+			WHERE active = 1
+			AND parser_has_usr = 1
+			ORDER BY tag
+		', 'tag');
+
 		foreach($cache as $key => $item)
 		{
 			if(empty($item))
@@ -213,12 +221,20 @@ class BBM_Model_BbCodes extends XenForo_Model
 				continue;
 			}
 
-			if($key == 'protected')
+			if($key == 'protected' || $key == 'protected_parser')
 			{
+				$targetKey = ($key == 'protected') ? 'view_usr' : 'parser_usr';
 				//Tag in Key - Usergroups in value
 				foreach($item as $tag => $protectedTagData)
 				{
-					$cache[$key][$tag] = unserialize($protectedTagData['view_usr']);
+					if(isset($protectedTagData[$targetKey]))
+					{
+						$cache[$key][$tag] = unserialize($protectedTagData[$targetKey]);
+					}
+					else
+					{
+						unset($cache[$key][$tag]);
+					}
 				}
 			}
 			else
