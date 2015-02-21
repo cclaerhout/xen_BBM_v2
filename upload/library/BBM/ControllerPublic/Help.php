@@ -23,7 +23,7 @@ class BBM_ControllerPublic_Help extends XFCP_BBM_ControllerPublic_Help
 
 		if( !empty($bbmBbCodesInCache['protected']) )
 		{
-			foreach($bbmBbCodesInCache[$key] as $tag => $perms)
+			foreach($bbmBbCodesInCache['protected'] as $tag => $perms)
 			{
 				if(array_intersect($visitorUserGroupIds, $perms))
 				{
