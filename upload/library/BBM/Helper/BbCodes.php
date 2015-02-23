@@ -173,6 +173,21 @@ class BBM_Helper_BbCodes
 		return preg_replace('#<noscript>.*?</noscript>#sui', '', $html);
 	}
 
+	/***
+	 * Unbreakable quote
+	 **/
+	public static function unbreakableQuote($html)
+	{
+		$u = '&#x202f;';	// <none-breaking> (html)
+		$o = '&#xab;';		// double quote open (html)
+		$e = '&#xbb;';		// double quote close (html)
+		$_o = '\x{00AB}'; 	// double quote open (regex unicode)
+		$_e = '\x{00BB}'; 	// double quote close (regex unicode)
+		
+		$html = preg_replace('#'.$_o.'(<[^>]+?>)?[\s]*([^'.$_e .']+?)\s*(</[^>]+?>)?\s*'.$_e .'#ui', "{$o}$1{$u}$2$3{$u}{$e}", $html);
+
+		return $html;
+	}
 
 	/***
 	 * Strip Bb Codes

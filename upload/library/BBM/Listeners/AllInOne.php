@@ -93,7 +93,8 @@ class BBM_Listeners_AllInOne
 	{
 		XenForo_Template_Helper_Core::$helperCallbacks += array(
 			'bbm_strip_noscript' => array('BBM_Helper_BbCodes', 'stripNoscript'),
-			'bbm_color_hexa' => array('BBM_Helper_BbCodes', 'getHexaColor')
+			'bbm_color_hexa' => array('BBM_Helper_BbCodes', 'getHexaColor'),
+			'bbm_unbreakable_quote' => array('BBM_Helper_BbCodes', 'unbreakableQuote')
 		);
 	}
 
