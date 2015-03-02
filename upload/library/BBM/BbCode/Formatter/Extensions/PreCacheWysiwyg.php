@@ -183,7 +183,60 @@ class BBM_BbCode_Formatter_Extensions_PreCacheWysiwyg extends XFCP_BBM_BbCode_Fo
 			if(isset($params['bbm_config']))
 			{
 				$config = $params['bbm_config'];
-				//to do later
+
+				if(empty($config['viewParamsMainKey']))
+				{
+					Zend_Debug::dump('You must set a Main Key !');
+					return;
+				}
+
+				$mainKey = $config['viewParamsMainKey'];
+
+				if(!isset($params[$mainKey]))
+				{
+					Zend_Debug::dump('The main key must be valid !');
+					return;
+				}
+
+				$data = $params[$mainKey];
+				$multiMode = (isset($config['multiPostsMode'])) ? $config['multiPostsMode'] : true;
+
+				$targetedKey = false;
+				if(	!empty($config['viewParamsTargetedKey'])
+					&& $config['viewParamsTargetedKey'] != $config['viewParamsMainKey']
+					&& is_string($config['viewParamsTargetedKey'])
+				){
+					$targetedKey = $config['viewParamsTargetedKey'];
+				}
+
+				if($multiMode)
+				{
+					$keys = array();
+					
+					if(!empty($config['messageKey']) && is_string($config['messageKey']))
+					{
+						$messageKey = $config['messageKey'];
+					}
+					
+					if(!empty($config['extraKeys']) && is_array($config['extraKeys']))
+					{
+						$keys = $config['extraKeys'];
+					}
+				
+					array_unshift($keys, $messageKey);
+				}
+				else
+				{
+					if($targetedKey)
+					{
+						$keys = array($targetedKey);
+					}
+					else
+					{
+						$data = $params;
+						$keys = $mainKey;
+					}
+				}
 			}
 			
 			if(!empty($data))

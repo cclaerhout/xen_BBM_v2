@@ -57,7 +57,7 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 			{
 				parent::renderTree($tree, $extraStates);
 				unset($extraStates['bbmPreCacheInit']);
-
+				
 				XenForo_CodeEvent::fire('bbm_callback_precache', array(&$this->_bbmPreCache, &$extraStates, 'base'));
 				XenForo_Application::set('bbm_preCache_base', array($this->_bbmPreCache, $extraStates));
 
@@ -86,7 +86,7 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 		//Need to call the parent in both cases - reason: the bbm post params management is done trough this function
 		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
 		$tagName = $tag['tag'];
-		
+
 		if(!empty($rendererStates['bbmPreCacheInit']) && !$this->preParserEnableFor($tagName) )
 		{
 			return '';
@@ -160,9 +160,62 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 			if(isset($params['bbm_config']))
 			{
 				$config = $params['bbm_config'];
-				//to do later
+
+				if(empty($config['viewParamsMainKey']))
+				{
+					Zend_Debug::dump('You must set a Main Key !');
+					return;
+				}
+
+				$mainKey = $config['viewParamsMainKey'];
+
+				if(!isset($params[$mainKey]))
+				{
+					Zend_Debug::dump('The main key must be valid !');
+					return;
+				}
+
+				$data = $params[$mainKey];
+				$multiMode = (isset($config['multiPostsMode'])) ? $config['multiPostsMode'] : true;
+
+				$targetedKey = false;
+				if(	!empty($config['viewParamsTargetedKey'])
+					&& $config['viewParamsTargetedKey'] != $config['viewParamsMainKey']
+					&& is_string($config['viewParamsTargetedKey'])
+				){
+					$targetedKey = $config['viewParamsTargetedKey'];
+				}
+
+				if($multiMode)
+				{
+					$keys = array();
+					
+					if(!empty($config['messageKey']) && is_string($config['messageKey']))
+					{
+						$messageKey = $config['messageKey'];
+					}
+					
+					if(!empty($config['extraKeys']) && is_array($config['extraKeys']))
+					{
+						$keys = $config['extraKeys'];
+					}
+				
+					array_unshift($keys, $messageKey);
+				}
+				else
+				{
+					if($targetedKey)
+					{
+						$keys = array($targetedKey);
+					}
+					else
+					{
+						$data = $params;
+						$keys = $mainKey;
+					}
+				}
 			}
-			
+
 			if(!empty($data))
 			{
 				if(!is_array($data))
@@ -198,7 +251,7 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 					}
 				}
 			}
-			
+
 			$this->_bbmTextView = $text;
 			
 			if(!empty($text))

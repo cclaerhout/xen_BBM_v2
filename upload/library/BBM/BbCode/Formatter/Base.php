@@ -772,8 +772,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
       		//Check if xen tags content can be displayed 
-		$tagInfo = $this->_xenTagControl($tag['tag'], $tagInfo);
-		
+		$tagInfo = $this->_xenTagControl($tag, $tagInfo);
+
 		if(!empty($tagInfo['_bbmNoViewPerms']))
 		{
 			$fallBack = new XenForo_Phrase('bbm_viewer_content_protected');
@@ -835,9 +835,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	static $xenTagArray = array('attach' => true, 'email' => true, 'img' => true, 'media' => true, 'url' => true);
     
-	protected function _xenTagControl($tagName, $tagInfo)
+	protected function _xenTagControl($tag, $tagInfo)
 	{
-		$tagName = strtolower($tagName);
+		$tagName = strtolower($tag['tag']);
 		
 		if(!isset(self::$xenTagArray[$tagName]))
 		{
@@ -1076,14 +1076,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 			}
 		}
-		
-		return array(
+
+		$output = array(
 			'attachment' => $attachment,
 			'validAttachment' => $validAttachment,
 			'canView' => $canView,
 			'url' => $url,
 			'fallbackPerms' => $fallbackPerms
 		);
+		
+		return $output;
 	}
 
 	public function getTextDirection($cssReturn = null)
@@ -1443,6 +1445,35 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return $this->bbmMethodOutputFilter($output, 'bbm_wrapme');
 	}
 
+
+	/**
+	 * Let's give an ID to each branch of the tree that has a children that will be be proceed by the renderSubTree function
+	 **/
+
+	//@Extended
+	public function renderTree(array $tree, array $extraStates = array())
+	{
+		$this->_bbmGiveIdToTreeChildren($tree);
+		return parent::renderTree($tree,  $extraStates);
+	}
+
+	protected $_bbmTreeChildrenId = 1;
+	protected function _bbmGiveIdToTreeChildren(&$tree)
+	{
+		foreach($tree as $k => &$v)
+		{
+			if(!empty($v['children']) && is_array($v['children']))
+			{
+				$v['children']['bbm_subtree_id'] = $this->_bbmTreeChildrenId;
+				$this->_bbmTreeChildrenId++;
+				$this->_bbmGiveIdToTreeChildren($v['children']);
+			}
+		}
+	}
+
+	//This variable will get all IDs of the tree branches that would have been processed by the renderSubtree function
+	protected $_bbmSubtreeIdsProcessed = array();
+	
 	//Extended
 	public function renderSubTree(array $tree, array $rendererStates)
 	{
@@ -1450,6 +1481,38 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			//With this implementation, the listeners/callbacks can be normally executed with the proper content
 			return $this->_wrapMeContent;
+		}
+
+		/***
+		 * Let's check if a subtree branch has already been processed - if it is, stop the incrementation
+		 *
+		 * 	This problem occurs when someone extends a renderer by first calling the parent (will certainly use in the background the renderSubtree function), 
+		 *	then uses the renderSubTree for some reasons, which makes this function used twice and will mess up with the tags map.
+		 *	Ie:
+		 *	public function renderBbCode(array $tag, array $rendererStates)
+		 *	{
+		 *		$parentOuput = parent::renderBbCode($tag, $rendererStates);
+		 *
+		 *		if(strtolower($tag['tag']) == 'test')
+		 *		{
+		 *			return $this->renderSubTree($tag['children'], $rendererStates);
+		 *		}
+		 *		
+		 *		return $parentOuput;
+		 *	}
+		 **/
+		if(is_array($tree) && !empty($tree['bbm_subtree_id']))
+		{
+			if(isset($this->_bbmSubtreeIdsProcessed[$tree['bbm_subtree_id']]))
+			{
+				$rendererStates['stopIncrement'] = true;
+			}
+			else
+			{
+				$this->_bbmSubtreeIdsProcessed[$tree['bbm_subtree_id']] = true;
+			}
+			
+			unset($tree['bbm_subtree_id']);
 		}
 
 		return parent::renderSubTree($tree, $rendererStates);
@@ -1515,6 +1578,20 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	*	PARSER TOOLS
 	***/
 	protected $_bbmParser;
+	protected $_transparentBbmParser;
+
+	public function getTransparentParser()
+	{
+		if (!isset($this->_transparentBbmParser))
+		{
+			$that = clone $this;
+			$that->_resetIncrementation();
+			$that->_useDefaultPostParams = true;
+			$this->_transparentBbmParser = XenForo_BbCode_Parser::create($that);
+		}
+
+		return $this->_transparentBbmParser;
+	}
 
 	public function getParser()
 	{
@@ -1562,7 +1639,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$string = preg_replace('#[\[{]((.+?)(?:=.+?)?)[}\]](.+?)[{\[](/\2)[}\]]#i', '[$1]$3[$4]', $string);
 			}
 
-			$parser = $this->getParser();
+			$parser = $this->getTransparentParser();
 			$string = $parser->render($string);
 
 			//Fix for htmlspecialchars
@@ -1692,7 +1769,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	 *  To avoid to specify all above extra keys that must be checked you can select to use a recursive itterator that will look for all keys with string values
 	 *  inside the Targeted key. The admin board can also select to use this mode in the addon options.
 	 **/
-	protected $_bbmRecursiveMode = false;
+	protected $_bbmRecursiveMode = null;
 
 	/***
 	 *  To remap some values (old key to new key). 
@@ -1785,6 +1862,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 				$this->_createBbCodesMap($this->_postsDatas, Null);
 			}
+			
 			/**
 			 *  For conversations: check conversation & messages
 			 *  It's not perfect, but let's use the same functions than thread & posts
@@ -1857,7 +1935,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					$targetedKey = $config['viewParamsTargetedKey'];
 				}
 
-				if(!isset($params[$mainKey][$targetedKey])) {
+				if($targetedKey && !isset($params[$mainKey][$targetedKey])) {
 					Zend_Debug::dump("The targeted key '{$targetedKey}' doesn't exist.");
 					return;				
 				} else {
@@ -1955,7 +2033,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	}
 
 	/**
-	 * Let's map some key values to Post Params to avoid rewrite some Bb Codes
+	 * Let's map some key values to Post Params to avoid to rewrite some Bb Codes
 	 * Important values: post_date, user_id, post_id, user_group_id, secondary_group_ids
 	 **/
 	protected function _remapKeyValuesToPostParams(array $values, array $remapOptions, $useDefaultPostParams = false)
@@ -2005,9 +2083,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			return;
 		}
 
-        $bbcodesModel = $this->_getBbCodesModel();
+	        $bbcodesModel = $this->_getBbCodesModel();
 		$options = XenForo_Application::get('options');
-		$Bbm_TagsMap_GlobalMethod = $options->Bbm_TagsMap_GlobalMethod;
+		$bbmRecursiveMode = ($this->_bbmRecursiveMode != null) ? $this->_bbmRecursiveMode : $options->Bbm_TagsMap_GlobalMethod;
 		$messageKey =  $this->_bbmMessageKey;
 		$extraKeys =  $this->_bbmExtraKeys;
 		$parsedKeySuffix = $this->_bbmPostfixParsedKey;
@@ -2041,7 +2119,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$has_loaded_tags = false;
 			if ($cache_enabled)
 			{
-				$tag_cache = $bbcodesModel->getBbCodeTagCache($content_type, $post_id, $Bbm_TagsMap_GlobalMethod);
+				$tag_cache = $bbcodesModel->getBbCodeTagCache($content_type, $post_id, $bbmRecursiveMode);
 				if (!empty($tag_cache))
 				{
 					foreach($tag_cache as $tag)
@@ -2052,7 +2130,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 			}
 			$time = microtime(true);
-			if($Bbm_TagsMap_GlobalMethod)
+			
+			if($bbmRecursiveMode)
 			{
 				if (!$has_loaded_tags)
 				{
@@ -2069,7 +2148,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					}
 
 					$target = $allPostItemsInOne;
-					$this->_tagBBCodeFromTree($cache_enabled, $tag_cache, $post_id, $this->getParser()->parse($target) );
+					$this->_tagBBCodeFromTree($cache_enabled, $tag_cache, $post_id, $this->getParser()->parse($target));
 				}
 			}
 			else
@@ -2116,12 +2195,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					}
 
 					$tmp = array();
-					$this->_tagBBCodeFromTree(false, $tmp, $post_id, $BbCodesTree );
+					$this->_tagBBCodeFromTree(false, $tmp, $post_id, $BbCodesTree);
 				}
 			}
 
 			if (!$has_loaded_tags && $cache_enabled && (microtime(true) - $time)*1000 > $cache_threshold)
-				$bbcodesModel->setBbCodeTagCache($content_type, $post_id, $tag_cache);            
+			{
+				$bbcodesModel->setBbCodeTagCache($content_type, $post_id, $tag_cache);
+			}
 		}
 
 		if(self::$debug === true)
@@ -2140,12 +2221,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		
 		foreach($BbCodesTree as $entry)
 		{
-			if (isset($entry['tag']))
+			if (is_array($entry) && isset($entry['tag']))
 			{
-                $tag = $entry['tag'];
+		                $tag = $entry['tag'];
 				$this->_bbCodesMap[$tag][] = $post_id;
-                if ($canCacheTagMap)
-                    $tagMapCache[] = $tag;
+
+                		if ($canCacheTagMap)
+                		{
+		                    $tagMapCache[] = $tag;
+		                }
 
 				if (!empty($entry['children']))
 				{
