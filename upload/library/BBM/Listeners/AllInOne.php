@@ -50,13 +50,24 @@ class BBM_Listeners_AllInOne
 	}
 
 	/***
-	 * DATAWRITER FORUM LISTENER
+	 * EXTENDS FORUM DATAWRITER
 	 **/
 	public static function DataWriterAdmin($class, array &$extend)
 	{
 		if ($class == 'XenForo_DataWriter_Forum' && XenForo_Application::get('options')->get('Bbm_Bm_Forum_Config'))
 		{
 	  		$extend[] = 'BBM_DataWriter_Forum';
+		}
+	}
+
+	/***
+	 * EXTENDS ATTACHMENT MODEL
+	 **/
+	public static function extendAttachmentModel($class, array &$extend)
+	{
+		if($class == 'XenForo_Model_Attachment' && XenForo_Application::get('options')->get('Bbm_Bypass_Visitor_Perms_For_Img'))
+		{
+			$extend[] = 'BBM_Model_Attachment';
 		}
 	}
 
@@ -357,6 +368,5 @@ class BBM_Listeners_AllInOne
 		
 		return true;
 	}	
-	
 }
 //Zend_Debug::dump($abc);

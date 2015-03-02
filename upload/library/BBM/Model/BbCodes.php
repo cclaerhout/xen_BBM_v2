@@ -319,16 +319,36 @@ class BBM_Model_BbCodes extends XenForo_Model
 	/**
 	* 	Bake options for the template 'active' select menu
 	*/  
-	public function getActiveTagsOption($selected)
+	public function getActiveTagsOption($selected, $addNoneOption = true)
 	{
 		$activeTags = array();
 
-		foreach ($this->getActiveTags(false, true) AS $tag)
+		foreach ($this->getActiveTags(false, $addNoneOption) AS $tag)
 		{
 			$activeTags[] = array(
 				'label' => $tag,
 				'value' => strtolower($tag),
 				'selected' => (strtolower($tag) == $selected)
+				);
+		}
+
+		return $activeTags;
+	}
+
+
+	/**
+	* 	Bake options for the template 'active' multi mode
+	*/  
+	public function getActiveTagsMultiOption($selected, $addNoneOption = true)
+	{
+		$activeTags = array();
+
+		foreach ($this->getActiveTags(false, $addNoneOption) AS $tag)
+		{
+			$activeTags[] = array(
+				'label' => $tag,
+				'value' => strtolower($tag),
+				'selected' => ( in_array(strtolower($tag), $selected) )
 				);
 		}
 

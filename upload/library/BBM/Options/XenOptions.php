@@ -19,6 +19,12 @@ class BBM_Options_XenOptions
 		return XenForo_ViewAdmin_Helper_Option::renderOptionTemplateInternal('option_list_option_select', $view, $fieldPrefix, $preparedOption, $canEdit);
       	}
 
+      	public static function render_active_tags_multi(XenForo_View $view, $fieldPrefix, array $preparedOption, $canEdit)
+      	{
+		$preparedOption['formatParams'] = XenForo_Model::create('BBM_Model_BbCodes')->getActiveTagsMultiOption($preparedOption['option_value'], false);
+		return XenForo_ViewAdmin_Helper_Option::renderOptionTemplateInternal('option_list_option_bbm_inline_checkbox', $view, $fieldPrefix, $preparedOption, $canEdit);
+      	}
+
 	public static function render_nodes(XenForo_View $view, $fieldPrefix, array $preparedOption, $canEdit)
 	{
 		$preparedOption['formatParams'] = XenForo_Model::create('BBM_Options_Model_GetNodes')->getNodesOptions($preparedOption['option_value']);
@@ -34,6 +40,12 @@ class BBM_Options_XenOptions
 	public static function render_usergroups(XenForo_View $view, $fieldPrefix, array $preparedOption, $canEdit)
 	{
 		$preparedOption['formatParams'] = XenForo_Model::create('BBM_Options_Model_GetUsergroups')->getUserGroupsOptions($preparedOption['option_value']);
+		return XenForo_ViewAdmin_Helper_Option::renderOptionTemplateInternal('option_list_option_checkbox', $view, $fieldPrefix, $preparedOption, $canEdit);
+	}
+
+	public static function render_attachment_content_types(XenForo_View $view, $fieldPrefix, array $preparedOption, $canEdit)
+	{
+		$preparedOption['formatParams'] = XenForo_Model::create('BBM_Options_Model_GetContentTypes')->getAttachContentTypes($preparedOption['option_value']);
 		return XenForo_ViewAdmin_Helper_Option::renderOptionTemplateInternal('option_list_option_checkbox', $view, $fieldPrefix, $preparedOption, $canEdit);
 	}
 

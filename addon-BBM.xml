@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.1.3" version_id="66" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.2.0" version_id="67" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -2464,6 +2464,20 @@ li.buttons span{
 }
 (jQuery, this, document);
 </script>]]></template>
+    <template title="option_list_option_bbm_inline_checkbox"><![CDATA[<xen:require css="option_list_option_bbm_inline_checkbox.css" />
+
+<xen:checkboxunit label="{$preparedOption.title}" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
+hint="{$preparedOption.hint}" class="{$extra.class} bbm_inline_checkbox">
+	<xen:options source="$formatParams" raw="true" />
+	<xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+	<xen:html>
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+		{xen:raw $editLink}
+	</xen:html>
+</xen:checkboxunit>]]></template>
+    <template title="option_list_option_bbm_inline_checkbox.css"><![CDATA[.bbm_inline_checkbox ul li{
+	display: inline-block;
+}]]></template>
     <template title="option_list_option_bbm_multiselect"><![CDATA[<xen:require css="option_list_option_bbm_multiselect.css" />
 <xen:selectunit class="bbm_multiselect" label="{$preparedOption.title}" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{xen:raw $preparedOption.option_value}" hint="{$preparedOption.hint}" size="{xen:if '{$preparedOption.size}', '{$preparedOption.size}', 10}" multiple="true">
 	<xen:options source="$formatParams" />
@@ -2555,24 +2569,25 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
     <listener event_id="init_dependencies" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="initTemplateHelpers" active="1" hint="" description="Init template helpers"/>
     <listener event_id="load_class" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="ModifyParser" active="1" hint="XenForo_BbCode_Parser" description="Modify Parser"/>
     <listener event_id="load_class" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="XenForo_DataWriter_DiscussionMessage_Post" description="Tag map cache invalidation"/>
-    <listener event_id="load_class_bb_code" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="XenForo_BbCode_Formatter_BbCode_AutoLink" description="Listener for Formatter_Base, Autolink &amp; help"/>
-    <listener event_id="load_class_bb_code" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="XenForo_BbCode_Formatter_Base" description="Listener for Formatter_Base, Autolink &amp; help"/>
-    <listener event_id="load_class_bb_code" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="XenForo_BbCode_Formatter_Wysiwyg" description="Listener for Formatter_Base, Autolink &amp; help"/>
+    <listener event_id="load_class_bb_code" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="XenForo_BbCode_Formatter_BbCode_AutoLink" description="Extends XenForo_BbCode_Formatter_BbCode_AutoLink"/>
+    <listener event_id="load_class_bb_code" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="XenForo_BbCode_Formatter_Base" description="Extends XenForo_BbCode_Formatter_Base"/>
+    <listener event_id="load_class_bb_code" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="XenForo_BbCode_Formatter_Wysiwyg" description="Extends XenForo_BbCode_Formatter_Wysiwyg"/>
     <listener event_id="load_class_controller" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="BbCodes" active="1" hint="XenForo_ControllerPublic_Help" description="Adds support for display in Help Section"/>
     <listener event_id="load_class_datawriter" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="DataWriterAdmin" active="1" hint="XenForo_DataWriter_Forum" description="DataWriter Admin"/>
-    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="XenForo_Model_NewsFeed" description="BbCode content protection: models"/>
-    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="XenForo_Model_Search" description="BbCode content protection: models"/>
-    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="XenForo_Model_ThreadWatch" description="BbCode content protection: models"/>
-    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="help_bb_codes" description="Templates preloader"/>
-    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="editor" description="Templates preloader"/>
-    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="forum_edit" description="Templates preloader"/>
-    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="home" description="Templates preloader"/>
-    <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="editor" description="Public templates hooks"/>
-    <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="help_bb_codes" description="Public templates hooks"/>
-    <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="page_container_head" description="Public templates hooks"/>
-    <listener event_id="template_hook" execute_order="10" callback_class="BBM_Listeners_Templates_Admin" callback_method="OptionsForum" active="1" hint="admin_icons_home" description="Admin Templates Hooks: Add Bbm editor selection to forum options (option)"/>
-    <listener event_id="template_hook" execute_order="10" callback_class="BBM_Listeners_Templates_Admin" callback_method="OptionsForum" active="1" hint="forum_edit_basic_information" description="Admin Templates Hooks: Add Bbm editor selection to forum options (option)"/>
-    <listener event_id="template_hook" execute_order="10" callback_class="BBM_Listeners_Templates_Admin" callback_method="OptionsForum" active="1" hint="admin_sidebar_home" description="Admin Templates Hooks: Add Bbm editor selection to forum options (option)"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="XenForo_Model_NewsFeed" description="BbCode content protection: models - XenForo_Model_NewsFeed"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="XenForo_Model_Search" description="BbCode content protection: models - XenForo_Model_Search"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="XenForo_Model_ThreadWatch" description="BbCode content protection: models - XenForo_Model_ThreadWatch"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="extendAttachmentModel" active="1" hint="XenForo_Model_Attachment" description="Extends XenForo_Model_Attachment"/>
+    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="help_bb_codes" description="Templates preloader - help_bb_codes"/>
+    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="editor" description="Templates preloader - editor"/>
+    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="forum_edit" description="Templates preloader - forum_edit"/>
+    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="home" description="Templates preloader - home"/>
+    <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="editor" description="Public templates hooks - editor"/>
+    <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="help_bb_codes" description="Public templates hooks - help_bb_codes"/>
+    <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="page_container_head" description="Public templates hooks - page_container_head"/>
+    <listener event_id="template_hook" execute_order="10" callback_class="BBM_Listeners_Templates_Admin" callback_method="OptionsForum" active="1" hint="admin_icons_home" description="Admin Templates Hooks: admin_icons_home"/>
+    <listener event_id="template_hook" execute_order="10" callback_class="BBM_Listeners_Templates_Admin" callback_method="OptionsForum" active="1" hint="forum_edit_basic_information" description="Admin Templates Hooks: forum_edit_basic_information"/>
+    <listener event_id="template_hook" execute_order="10" callback_class="BBM_Listeners_Templates_Admin" callback_method="OptionsForum" active="1" hint="admin_sidebar_home" description="Admin Templates Hooks:  admin_sidebar_home"/>
   </code_event_listeners>
   <cron/>
   <email_templates/>
@@ -2581,6 +2596,7 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
     <group group_id="bbm_bbcodemanager" display_order="13210" debug_only="0"/>
     <group group_id="bbm_buttonmanager" display_order="13211" debug_only="0"/>
     <group group_id="bbm_xenforo_bbcodes_control" display_order="13212" debug_only="0"/>
+    <group group_id="bbm_xenforo_misc" display_order="13213" debug_only="0"/>
     <option option_id="Bbm_BbCode_Options_Separator" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params>size=3</edit_format_params>
@@ -2626,12 +2642,36 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
       <sub_options></sub_options>
       <relation group_id="bbm_buttonmanager" display_order="510"/>
     </option>
+    <option option_id="Bbm_Bypass_Visitor_Perms_For_Img" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_misc" display_order="100"/>
+    </option>
+    <option option_id="Bbm_Bypass_Visitor_Perms_Img_Ct" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>BBM_Options_XenOptions::render_attachment_content_types</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="bbm_xenforo_misc" display_order="120"/>
+    </option>
+    <option option_id="Bbm_Bypass_Visitor_Perms_Img_Ext" edit_format="textbox" data_type="string" can_backup="1">
+      <default_value>jpg, jpe, gif, jpeg, png</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_misc" display_order="110"/>
+    </option>
     <option option_id="Bbm_ContentProtection" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_bbcodemanager" display_order="500"/>
+    </option>
+    <option option_id="Bbm_DisablePermsBbCodes" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>BBM_Options_XenOptions::render_active_tags_multi</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="6005"/>
     </option>
     <option option_id="Bbm_DisablePermsViewName" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
@@ -2921,6 +2961,12 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
 2={xen:phrase bbm_fa_local_integration}</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_buttonmanager" display_order="100"/>
+    </option>
+    <option option_id="bbm_unbreakable_double_quotes" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_misc" display_order="200"/>
     </option>
   </optiongroups>
   <permissions>
@@ -3450,6 +3496,16 @@ To activate TinyMCE on mobiles, you must install and configure <a href="http://x
 If this option is set on "<b>disabled</b>" and a tablet is being used then the above mobile option will be used.<br />
 <br />
 If this option is set on "<b>Transparent</b>" and a tablet is being used then the editor will be chosen depending on the language direction <b>or</b> as requested in the below controller configuration tool.]]></phrase>
+    <phrase title="option_Bbm_Bypass_Visitor_Perms_For_Img" version_id="64" version_string="3.1.1"><![CDATA[Bypass all visitor permissions for images?]]></phrase>
+    <phrase title="option_Bbm_Bypass_Visitor_Perms_For_Img_explain" version_id="64" version_string="3.1.1"><![CDATA[Be sure to understand what you do with this setting. If you enable it, anyone will have accessed to your image attachments.<br />
+<br />
+As you may know, XenForo lets you decide which usergroups can access to your attachments. This setting is global. It doesn't let you customize by attachment extension. This can be a problem if you want your guests to access full image attachments (and not only thumbnails) without accessing all your other file attachments.<br />
+<br />
+By enabling this option, all your image attachments would become accessible to anyone using the "attachments" controller.]]></phrase>
+    <phrase title="option_Bbm_Bypass_Visitor_Perms_Img_Ct" version_id="64" version_string="3.1.1"><![CDATA[Image content types]]></phrase>
+    <phrase title="option_Bbm_Bypass_Visitor_Perms_Img_Ct_explain" version_id="64" version_string="3.1.1"><![CDATA[Select here the image content types for which the visitor perms should be bypassed. If you want to bypass img perms for most part of your website, you should check at least "post".]]></phrase>
+    <phrase title="option_Bbm_Bypass_Visitor_Perms_Img_Ext" version_id="64" version_string="3.1.1"><![CDATA[Image extensions]]></phrase>
+    <phrase title="option_Bbm_Bypass_Visitor_Perms_Img_Ext_explain" version_id="64" version_string="3.1.1"><![CDATA[Enter here the image extensions for which the visitor perms should be bypassed. Use a coma to separate them.]]></phrase>
     <phrase title="option_Bbm_ContentProtection" version_id="0" version_string="1.0"><![CDATA[Activate the Bb Codes Content Protection]]></phrase>
     <phrase title="option_Bbm_ContentProtection_explain" version_id="0" version_string="1.0"><![CDATA[This protection will only work for Bb Codes with view permissions. Default value is no.<br />
 <br />
@@ -3467,6 +3523,8 @@ The Protection content has been successfully tested with: Posts (quote/edit), Co
 Default option is: no.]]></phrase>
     <phrase title="option_bbm_debug_tinymcehookdisable" version_id="0" version_string="1.0"><![CDATA[Disable the Buttons Manager]]></phrase>
     <phrase title="option_bbm_debug_tinymcehookdisable_explain" version_id="0" version_string="1.0"><![CDATA[This option will turn off the hook which modifies the TinyMCE editor. Default option is: no.]]></phrase>
+    <phrase title="option_Bbm_DisablePermsBbCodes" version_id="67" version_string="3.2.0"><![CDATA[Select Bb Codes to disable]]></phrase>
+    <phrase title="option_Bbm_DisablePermsBbCodes_explain" version_id="67" version_string="3.2.0"><![CDATA[When the above View names are matched you can select some Bb Codes to disable them. It might be useful if you have sensitive Bb Codes.]]></phrase>
     <phrase title="option_Bbm_DisablePermsViewName" version_id="65" version_string="3.1.2"><![CDATA[Disable all Bb Codes permissions by Viewname]]></phrase>
     <phrase title="option_Bbm_DisablePermsViewName_explain" version_id="65" version_string="3.1.2"><![CDATA[Sometimes you might need to disable the Bb Codes protection by Viewname. For example, if you're using an addon that caches pages, you don't want your users to see "Bb Code content protected" based on a cache information that might not be valid for the visitor.<br />
 <br />
@@ -3509,6 +3567,14 @@ Default value: off.]]></phrase>
     <phrase title="option_Bbm_TagsMap_Disable_explain" version_id="0" version_string="1.0"><![CDATA[If you disable the Tags Map System, the parser permissions (and the return delay of the view permissions) will not work anymore.]]></phrase>
     <phrase title="option_Bbm_TagsMap_GlobalMethod" version_id="0" version_string="1.0"><![CDATA[Use the "global method" to create the tags map]]></phrase>
     <phrase title="option_Bbm_TagsMap_GlobalMethod_explain" version_id="0" version_string="1.0"><![CDATA[<span style="color:red"><b>Do not touch this option if you're not told to</b></span>. If activated, the "global method" will check all elements of the Post Information to create the tags map. If disable, then the "restrictive method" will only check the message & signature elements of the Post information.]]></phrase>
+    <phrase title="option_bbm_unbreakable_double_quotes" version_id="67" version_string="3.2.0"><![CDATA[Unbeakable double quotes?]]></phrase>
+    <phrase title="option_bbm_unbreakable_double_quotes_explain" version_id="67" version_string="3.2.0"><![CDATA[In some languages, when the double quotes mark are used (« Hello world »), the syntax implies to add blank space between the quote marks and the first/last letter.<br />
+<br />
+Depending on the page layout, these white space might break the quote marks and its related text:<br />
+bla bla bla bla «<i><br />
+Hello world </i>»<br />
+<br />
+To fix this improper layout, some non-breaking spaces must be used. If you enable this option, all quotes made between double quote marks will be automatically fixed in any content parsed with the Bb Code parser.]]></phrase>
     <phrase title="option_Bbm_wrapper_allcode" version_id="0" version_string="1.0"><![CDATA[XenForo html/php/code wrapper]]></phrase>
     <phrase title="option_Bbm_wrapper_allcode_explain" version_id="0" version_string="1.0"><![CDATA[If you want to embed the default php/html/code tags inside another tag, just select above which wrapping tag to use.]]></phrase>
     <phrase title="option_Bbm_wrapper_allcode_option" version_id="0" version_string="1.0"><![CDATA[XenForo Php/Html/Code wrapper option]]></phrase>
@@ -3584,6 +3650,8 @@ If you use "true" as second parameter, the option will be output with lower case
     <phrase title="option_group_bbm_buttonmanager_description" version_id="0" version_string="1.0"><![CDATA[Buttons Manager Options]]></phrase>
     <phrase title="option_group_bbm_xenforo_bbcodes_control" version_id="0" version_string="1.0"><![CDATA[[Bb Codes & Buttons Manager] XenForo Bb Codes Control]]></phrase>
     <phrase title="option_group_bbm_xenforo_bbcodes_control_description" version_id="0" version_string="1.0"><![CDATA[Some configuration options for the XenForo default Bb Codes & system]]></phrase>
+    <phrase title="option_group_bbm_xenforo_misc" version_id="64" version_string="3.1.1"><![CDATA[[Bb Codes & Buttons Manager] XenForo Misc.]]></phrase>
+    <phrase title="option_group_bbm_xenforo_misc_description" version_id="64" version_string="3.1.1"><![CDATA[Some settings that can you might need to modify XenForo default behaviour]]></phrase>
     <phrase title="permission_bbm_bbcodes_grp_bbm_hide_attach" version_id="50" version_string="2.7.1"><![CDATA[Hide attach Bb Code content]]></phrase>
     <phrase title="permission_bbm_bbcodes_grp_bbm_hide_email" version_id="50" version_string="2.7.1"><![CDATA[Hide email Bb Code content]]></phrase>
     <phrase title="permission_bbm_bbcodes_grp_bbm_hide_img" version_id="50" version_string="2.7.1"><![CDATA[Hide img Bb Code content]]></phrase>

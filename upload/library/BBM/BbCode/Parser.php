@@ -65,3 +65,4 @@ class BBM_BbCode_Parser extends XFCP_BBM_BbCode_Parser
 		return true;
 	}
 }
+//Zend_Debug::dump($abc);

@@ -1022,11 +1022,29 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return $this->_tagNewInfo[$tag][$infoKey];
 	}
 
+
+	protected $bbmBypassImgPerms;
+	protected $bbmBypassImgPermsExt = array();
+	protected $bbmBypassImgPermsContentTypes = array();	
+
 	public function getAttachmentParams($id, array $validExtensions = null, array $fallbackVisitorPerms = null)
 	{
+		$currentTag = $this->bbmGetCurrentTag();
 		$rendererStates = $this->bbmGetCurrentRendererStates();
 		
-		if (isset($rendererStates['attachments'][$id]))
+		if($this->bbmBypassImgPerms == null)
+		{
+			$xenOptions = XenForo_Application::get('options');
+			$this->bbmBypassImgPerms = $xenOptions->Bbm_Bypass_Visitor_Perms_For_Img;
+			$this->bbmBypassImgPermsExt = array_map('trim', explode(',', $xenOptions->Bbm_Bypass_Visitor_Perms_Img_Ext));
+			$this->bbmBypassImgPermsContentTypes = $xenOptions->Bbm_Bypass_Visitor_Perms_Img_Ct;
+		}
+
+		$bypassImgPermissions = $this->bbmBypassImgPerms;
+		$bypassImgExt = $this->bbmBypassImgPermsExt;
+		$bypassImgCt = $this->bbmBypassImgPermsContentTypes;
+
+		if (isset($rendererStates['attachments'], $rendererStates['attachments'][$id]))
 		{
 			$attachment = $rendererStates['attachments'][$id];
 			$validAttachment = true;
@@ -1039,6 +1057,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				if(isset($attachment['extension']))
 				{
 					$validAttachment = (in_array($attachment['extension'], $validExtensions)) ? true : false;
+				}
+			}
+
+			if(isset($attachment['extension']) && $bypassImgPermissions && !empty($bypassImgExt) && !empty($bypassImgCt))
+			{
+				if(in_array($attachment['extension'], $bypassImgExt) && in_array($attachment['content_type'], $bypassImgCt))
+				{
+					$canView = true;
 				}
 			}
 		}
@@ -1799,11 +1825,27 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 			else
 			{
-				$disableProtectionViewNames = explode("\n", $xenOptions->Bbm_DisablePermsViewName);
+				$disableProtectionViewNames = array_map('trim', explode("\n", $xenOptions->Bbm_DisablePermsViewName));
 
 				if(in_array($this->bbmGetViewName(), $disableProtectionViewNames))
 				{
 					$this->_bbmByPassPerms = true;
+				}
+			}
+
+			if($this->_bbmByPassPerms)
+			{
+				$bbCodesToDelete = $xenOptions->Bbm_DisablePermsBbCodes;
+
+				if(is_array($bbCodesToDelete))
+				{
+					foreach($bbCodesToDelete as $bbCodeTag)
+					{
+						if(isset($this->_tags[$bbCodeTag]))
+						{
+							unset($this->_tags[$bbCodeTag]);				
+						}
+					}
 				}
 			}
 
@@ -2521,15 +2563,27 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		return $this->bbmGetTemplateParam('viewName');
 	}			
 
-    static $BbCodesModel = null;
-    
-    protected function _getBbCodesModel()
-    {
-        if (self::$BbCodesModel == null)
-        {
-            self::$BbCodesModel = XenForo_Model::Create('BBM_Model_BbCodes');
-        }
-        return self::$BbCodesModel;
-    }
+	protected static $BbCodesModel = null;
+	protected function _getBbCodesModel()
+	{
+        	if (self::$BbCodesModel == null)
+	        {
+			self::$BbCodesModel = XenForo_Model::Create('BBM_Model_BbCodes');
+		}
+		return self::$BbCodesModel;
+	}
+
+	//@Extended
+	public function filterFinalOutput($output)
+	{
+		$output = parent::filterFinalOutput($output);
+		
+		if(XenForo_Application::get('options')->get('bbm_unbreakable_double_quotes'))
+		{
+			$output = BBM_Helper_BbCodes::unbreakableQuote($output);
+		}
+
+		return $output;
+	}	
 }
 //Zend_Debug::dump($abc);

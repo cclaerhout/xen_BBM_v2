@@ -298,6 +298,11 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 			return false;
 		}
 	}
+
+	protected function _postSave()
+	{
+		$this->_getBbmBbCodeModel()->simplecachedActiveBbCodes();	
+	}
 	
 	protected function _getBbmBbCodeModel()
 	{
