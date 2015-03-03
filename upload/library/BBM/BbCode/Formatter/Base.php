@@ -1490,7 +1490,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			if(!empty($v['children']) && is_array($v['children']))
 			{
-				$v['children']['bbm_subtree_id'] = $this->_bbmTreeChildrenId;
+				$v['children']['bbm_subtree_id'] = array('bbmSubtreeId' => $this->_bbmTreeChildrenId, 'children' => array()); //Fake a children to avoid any problems
 				$this->_bbmTreeChildrenId++;
 				$this->_bbmGiveIdToTreeChildren($v['children']);
 			}
@@ -1527,21 +1527,39 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		 *		return $parentOuput;
 		 *	}
 		 **/
-		if(is_array($tree) && !empty($tree['bbm_subtree_id']))
+		if(isset($tree['bbm_subtree_id']))
 		{
-			if(isset($this->_bbmSubtreeIdsProcessed[$tree['bbm_subtree_id']]))
+			$id = $tree['bbm_subtree_id']['bbmSubtreeId'];
+			
+			if(isset($this->_bbmSubtreeIdsProcessed[$id]))
 			{
+				//The purpose of all of this !
 				$rendererStates['stopIncrement'] = true;
 			}
 			else
 			{
-				$this->_bbmSubtreeIdsProcessed[$tree['bbm_subtree_id']] = true;
+				$this->_bbmSubtreeIdsProcessed[$id] = true;
 			}
-			
 			unset($tree['bbm_subtree_id']);
 		}
 
 		return parent::renderSubTree($tree, $rendererStates);
+	}
+
+	//@Extended
+	public function renderTag(array $element, array $rendererStates, &$trimLeadingLines)
+	{
+		if(isset($element['bbmSubtreeId']))
+		{
+			/**
+			 * This can occur with some Bb Codes such as "List" which is using the renderTag instead of renderSubTree
+			 *  The faked children is to avoid the subtree id to be converted into a real string and be displayed
+			 * The below code is not useful but since it's useless to go further, let's end with it
+			 **/
+			return '';
+		}
+		
+		return  parent::renderTag($element, $rendererStates, $trimLeadingLines);
 	}
 
 	public function addWrapper($wrapperTag, $wrapperOptions = false, $separator = false)
