@@ -126,6 +126,22 @@ class BBM_Helper_Bbm
 		
 		return 	$bbmButtons;
 	}
+
+	public static function getBbmTagNameByUniqId($uniqId, $fallback = null)
+	{
+		if($fallback === null)
+		{
+			$fallback = $uniqId;
+		}
+
+		$data = XenForo_Application::getSimpleCacheData('bbm_active');
+		if(!isset($data['list'], $data['list'][$uniqId]))
+		{
+			return $fallback;
+		}
+		
+		return $data['list'][$uniqId];
+	}
 	
 	public static function checkIfAddonActive($addonId, $realReturn = false)
 	{
