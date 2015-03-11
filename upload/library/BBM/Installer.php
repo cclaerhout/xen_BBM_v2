@@ -29,6 +29,7 @@ class BBM_Installer
 			'plainChildren'		=> "INT(1) NOT NULL DEFAULT '0'",
 			'stopSmilies'		=> "INT(1) NOT NULL DEFAULT '0'",
 			'stopLineBreakConversion'	=> "INT(1) NOT NULL DEFAULT '0'",
+			'trimContent'		=> "INT(1) NOT NULL DEFAULT '0'",
 			'wrapping_tag'		=> "varchar(30) NOT NULL DEFAULT 'none'",
 			'wrapping_option'	=> "TEXT DEFAULT NULL",
 			'parseOptions'		=> "INT(1) NOT NULL DEFAULT '0'",
@@ -235,6 +236,11 @@ class BBM_Installer
 		{
 			self::addColumnIfNotExist($db, 'bbm', 'redactor_button_type', "varchar(55) DEFAULT NULL");
 			self::addColumnIfNotExist($db, 'bbm', 'redactor_button_type_opt', "varchar(155) DEFAULT NULL");
+		}
+
+		if(empty($addon) || $addon['version_id'] < 68)
+		{
+			self::addColumnIfNotExist($db, 'bbm', 'trimContent', "INT(1) NOT NULL DEFAULT '0'");
 		}
 
 		//Generate simple cache (users don't need anymore to edit a bbcode and save it (without operating any change) to activate the Simple Cache

@@ -460,6 +460,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 				$ParserOptionsNode->appendChild($document->createElement('plainChildren', $bbcode['plainChildren']));
 				$ParserOptionsNode->appendChild($document->createElement('stopSmilies', $bbcode['stopSmilies']));
 				$ParserOptionsNode->appendChild($document->createElement('stopLineBreakConversion', $bbcode['stopLineBreakConversion']));
+				$ParserOptionsNode->appendChild($document->createElement('trimContent', $bbcode['trimContent']));
 				$ParserOptionsNode->appendChild($document->createElement('wrapping_tag', $bbcode['wrapping_tag']));
 				$ParserOptionsNode->appendChild($document->createElement('wrapping_option', $bbcode['wrapping_option']));	
 				$ParserOptionsNode->appendChild($document->createElement('emptyContent_check', $bbcode['emptyContent_check']));
@@ -637,6 +638,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 				$ParserOptionsNode->appendChild($document->createElement('plainChildren', $bbcode['plainChildren']));
 				$ParserOptionsNode->appendChild($document->createElement('stopSmilies', $bbcode['stopSmilies']));
 				$ParserOptionsNode->appendChild($document->createElement('stopLineBreakConversion', $bbcode['stopLineBreakConversion']));
+				$ParserOptionsNode->appendChild($document->createElement('trimContent', $bbcode['trimContent']));
 				$ParserOptionsNode->appendChild($document->createElement('wrapping_tag', $bbcode['wrapping_tag']));
 				$ParserOptionsNode->appendChild($document->createElement('wrapping_option', $bbcode['wrapping_option']));		
 				$ParserOptionsNode->appendChild($document->createElement('emptyContent_check', $bbcode['emptyContent_check']));

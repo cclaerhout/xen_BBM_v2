@@ -167,6 +167,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       				$allBbmTags[$tagName]['stopLineBreakConversion'] = true;
       			}
 
+      			if($bbm['trimContent'])
+      			{
+      				$allBbmTags[$tagName]['trimContent'] = true;
+      			}
+
       			if($bbm['parseOptions'])
       			{
       				$allBbmTags[$tagName]['parseOptions'] = true;
@@ -441,6 +446,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		$tagInfo = $this->_tags[$tag['tag']];
 		$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
+		$this->bbmMethodInputFilter($tag, $rendererStates, $tagInfo);
 
 		if($increment == true)
 		{
@@ -523,6 +529,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		$tagInfo = $this->_tags[$tag['tag']];
 		$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
+		$this->bbmMethodInputFilter($tag, $rendererStates, $tagInfo);
 
 		if($increment == true)
 		{
@@ -632,6 +639,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		$tagInfo = $this->_tags[$tag['tag']];
 		$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
+		$this->bbmMethodInputFilter($tag, $rendererStates, $tagInfo);		
 
 		if($increment == true)
 		{
@@ -689,6 +697,28 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			call_user_func_array(array($phpcallback_class, $phpcallback_method), array($tag, $rendererStates, &$this)),
 			'bbm_php'
 		);
+	}
+
+	public function bbmMethodInputFilter(array &$tag, array &$rendererStates, array $tagInfo)
+	{
+		if(!empty($tagInfo['trimContent']))
+		{
+			$keys = array_keys($tag['children']);
+			if ($keys)
+			{
+				$first = reset($keys);
+				$last = end($keys);
+	
+				if (is_string($tag['children'][$first]))
+				{
+					$tag['children'][$first] = ltrim($tag['children'][$first]);
+				}
+				if (is_string($tag['children'][$last]))
+				{
+					$tag['children'][$last] = rtrim($tag['children'][$last]);
+				}
+			}
+		}
 	}
 
 	public function bbmMethodOutputFilter($string, $method = null)

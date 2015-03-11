@@ -61,6 +61,7 @@ class BBM_DataWriter_BbCodes extends XenForo_DataWriter
 				'plainChildren' => array('type' => self::TYPE_UINT, 'default' => 0),
 				'stopSmilies' => array('type' => self::TYPE_UINT, 'default' => 0),
 				'stopLineBreakConversion' => array('type' => self::TYPE_UINT, 'default' => 0),
+				'trimContent' => array('type' => self::TYPE_UINT, 'default' => 0),
 				'wrapping_tag' => array('type' => self::TYPE_STRING, 'default' => 'none', 'maxLength' => 30),
 				'wrapping_option' => array('type' => self::TYPE_STRING, 'default' => '', 'maxLength' => 500),
 				'emptyContent_check' => array('type' => self::TYPE_UINT, 'default' => 1),
