@@ -167,7 +167,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       				$allBbmTags[$tagName]['stopLineBreakConversion'] = true;
       			}
 
-      			if($bbm['trimContent'])
+      			if(!empty($bbm['trimContent']))
       			{
       				$allBbmTags[$tagName]['trimContent'] = true;
       			}
