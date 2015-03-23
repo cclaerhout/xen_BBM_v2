@@ -1866,6 +1866,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$params = $view->getParams();
 			$xenOptions = XenForo_Application::get('options');
 			$this->_checkIfDebug($params);
+			$viewName = $this->bbmGetViewName();
 
 			if(!empty($params['bbmBypassPermissions']))
 			{
@@ -1875,7 +1876,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				$disableProtectionViewNames = array_map('trim', explode("\n", $xenOptions->Bbm_DisablePermsViewName));
 
-				if(in_array($this->bbmGetViewName(), $disableProtectionViewNames))
+				if(in_array($viewName, $disableProtectionViewNames))
 				{
 					$this->_bbmByPassPerms = true;
 				}
@@ -1901,7 +1902,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				if(XenForo_Visitor::getInstance()->get('is_admin'))
 				{
-					Zend_Debug::dump($this->bbmGetViewName());
+					Zend_Debug::dump($viewName);
 				}
 			}
 
@@ -1921,7 +1922,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_createBbCodesMap($this->_postsDatas, 'post');
 			}
 			/**
-			 *  Preview new post in thread or new thread
+			 *  Preview new post/edit preview in thread or new thread
 			 **/
 			else if( (!isset($params['posts']) && isset($params['thread']) || isset($params['forum']))  && isset($params['message']) 
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
@@ -1955,10 +1956,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			
 			/**
 			 *  For conversations: check conversation & messages
-			 *  It's not perfect, but let's use the same functions than thread & posts
+			 *  Let's use viewNames here, it's unlikely the content of conversations are reused in other views
 			 **/
-			if(	isset($params['messages']) && is_array($params['messages']) && isset($params['conversation']) 
-				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
+			if(	$viewName == 'XenForo_ViewPublic_Conversation_View' && isset($params['messages'], $params['conversation'])
+				&& is_array($params['messages']) && $this->_disableTagsMap == false && !isset($params['bbm_config'])
 			)
 			{
 				$this->_bbmMessageKey = 'message';
@@ -1973,6 +1974,50 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				);
 				
 				$this->_createBbCodesMap($this->_postsDatas);
+			}
+			/**
+			 *  Preview new message/edit preview in conversation or new conversation
+			 **/
+			else if( $viewName == 'XenForo_ViewPublic_Conversation_Preview' && isset($params['message']) 
+				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
+			)
+			{
+				$visitor = XenForo_Visitor::getInstance()->ToArray();
+
+				$this->_bbmMessageKey = 'message';
+
+				if (isset($params['conversation']))
+				{
+					$this->_threadParams = $params['conversation'];
+				}
+				else
+				{
+					$this->_threadParams = array();
+				}
+
+				if (isset($params['message']['message']))
+				{
+					$id = $params['message']['message_id'];
+					$message = $params['message']['message'];
+				}
+				else
+				{
+					$id = 0;
+					$message = $params['message'];
+				}
+
+				$this->_postsDatas = array( 
+					$id => array(
+						'post_date' => XenForo_Application::$time, 
+						'user_id' => $visitor['user_id'], 
+						'post_id' => $id, 
+						'user_group_id' => $visitor['user_group_id'], 
+						'secondary_group_ids' => $visitor['secondary_group_ids'],
+						'message' => $message
+					)
+				);
+
+				$this->_createBbCodesMap($this->_postsDatas, Null);
 			}
 
 			/**
