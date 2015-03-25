@@ -1976,7 +1976,27 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_createBbCodesMap($this->_postsDatas);
 			}
 			/**
-			 *  Preview new message/edit preview in conversation or new conversation
+			 *  Preview edit message in conversation or new conversation
+			 **/
+			else if( isset($params['conversationMessage'])  && isset($params['message']) 
+				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
+			)
+			{
+				$visitor = XenForo_Visitor::getInstance()->ToArray();
+
+				$this->_bbmMessageKey = 'message';
+
+				$this->_threadParams = $params['conversation'];
+				$params['conversationMessage']['message'] = $params['message'];
+
+				$this->_postsDatas = array( 
+					$params['conversationMessage']['message_id'] => $params['conversationMessage']
+				);
+
+				$this->_createBbCodesMap($this->_postsDatas, Null);
+			}
+			/**
+			 *  Preview new message in conversation or new conversation
 			 **/
 			else if( $viewName == 'XenForo_ViewPublic_Conversation_Preview' && isset($params['message']) 
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
@@ -1986,40 +2006,20 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 				$this->_bbmMessageKey = 'message';
 
-				if (isset($params['conversation']))
-				{
-					$this->_threadParams = $params['conversation'];
-				}
-				else
-				{
-					$this->_threadParams = array();
-				}
-
-				if (isset($params['message']['message']))
-				{
-					$id = $params['message']['message_id'];
-					$message = $params['message']['message'];
-				}
-				else
-				{
-					$id = 0;
-					$message = $params['message'];
-				}
-
+				$this->_threadParams = array();
 				$this->_postsDatas = array( 
-					$id => array(
+					0 => array(
 						'post_date' => XenForo_Application::$time, 
 						'user_id' => $visitor['user_id'], 
-						'post_id' => $id, 
+						'post_id' => 0, 
 						'user_group_id' => $visitor['user_group_id'], 
 						'secondary_group_ids' => $visitor['secondary_group_ids'],
-						'message' => $message
+						'message' => $params['message']
 					)
 				);
 
 				$this->_createBbCodesMap($this->_postsDatas, Null);
 			}
-
 			/**
 			 *  For RM (resource & category)
 			 **/
