@@ -1940,13 +1940,47 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				{
 					$this->_threadParams = array( 'node_id' => $params['forum']['node_id']);
 				}
+
+				$isNewMessage = (!isset($params['post']));
+
+				if($isNewMessage)
+				{
+					$id = 0;
+					$user_id = $visitor['user_id'];
+				}
+				else
+				{
+					$id = $params['post']['post_id'];
+					$user_id = $params['post']['user_id'];
+				}
+
+				if ($user_id == $visitor['user_id'])
+				{
+					$user = $visitor;
+				}
+				else
+				{
+					$user = XenForo_Model::Create('XenForo_Model_User')->getUserById($user_id);
+				}
+					
+				if (!empty($user))
+				{
+					$user_group_id = $user['user_group_id'];
+					$secondary_group_ids = $user['secondary_group_ids'];
+				}
+				else
+				{
+					$user_group_id = '';
+					$secondary_group_ids = '';
+				}
+
 				$this->_postsDatas = array( 
-					0 => array(
+					$id => array(
 						'post_date' => XenForo_Application::$time, 
-						'user_id' => $visitor['user_id'], 
-						'post_id' => 0, 
-						'user_group_id' => $visitor['user_group_id'], 
-						'secondary_group_ids' => $visitor['secondary_group_ids'],
+						'user_id' => $user_id, 
+						'post_id' => $id, 
+						'user_group_id' => $user_group_id, 
+						'secondary_group_ids' => $secondary_group_ids,
 						'message' => $params['message']
 					)
 				);
