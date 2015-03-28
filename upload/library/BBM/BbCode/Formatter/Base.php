@@ -1970,8 +1970,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 				else
 				{
-					$user_group_id = '';
-					$secondary_group_ids = '';
+					/*Safety fallback*/
+					$user_group_id = 1; //Unregistered / Unconfirmed
+					$secondary_group_ids = array();
 				}
 
 				$this->_postsDatas = array( 
@@ -1985,9 +1986,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					)
 				);
 
-				$this->_createBbCodesMap($this->_postsDatas, Null);
+				$this->_createBbCodesMap($this->_postsDatas);
 			}
-			
+
 			/**
 			 *  For conversations: check conversation & messages
 			 *  Let's use viewNames here, it's unlikely the content of conversations are reused in other views
@@ -1997,7 +1998,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			)
 			{
 				$this->_bbmMessageKey = 'message';
-				$this->_bbmExtraKeys = array('signature');
+				$this->_bbmExtraKeys = array('signature'); //needed
 
 				$this->_threadParams = $params['conversation'];
 				$this->_postsDatas = $params['messages'];
@@ -2010,27 +2011,25 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_createBbCodesMap($this->_postsDatas);
 			}
 			/**
-			 *  Preview edit message in conversation or new conversation
+			 *  Preview an existed message in conversation
 			 **/
 			else if( isset($params['conversationMessage'])  && isset($params['message']) 
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
 			)
 			{
-				$visitor = XenForo_Visitor::getInstance()->ToArray();
-
+				//Viewname: XenForo_ViewPublic_Conversation_EditMessagePreview
 				$this->_bbmMessageKey = 'message';
+				$this->_bbmExtraKeys = array('signature'); //Should not be needed
 
 				$this->_threadParams = $params['conversation'];
-				$params['conversationMessage']['message'] = $params['message'];
-
 				$this->_postsDatas = array( 
 					$params['conversationMessage']['message_id'] => $params['conversationMessage']
 				);
 
-				$this->_createBbCodesMap($this->_postsDatas, Null);
+				$this->_createBbCodesMap($this->_postsDatas);
 			}
 			/**
-			 *  Preview new message in conversation or new conversation
+			 *  Preview a new conversation or a new message in a conversation
 			 **/
 			else if( $viewName == 'XenForo_ViewPublic_Conversation_Preview' && isset($params['message']) 
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
@@ -2039,6 +2038,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$visitor = XenForo_Visitor::getInstance()->ToArray();
 
 				$this->_bbmMessageKey = 'message';
+				$this->_bbmExtraKeys = array('signature'); //Should not be needed			
 
 				$this->_threadParams = array();
 				$this->_postsDatas = array( 
@@ -2052,8 +2052,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					)
 				);
 
-				$this->_createBbCodesMap($this->_postsDatas, Null);
+				$this->_createBbCodesMap($this->_postsDatas);
 			}
+			
 			/**
 			 *  For RM (resource & category)
 			 **/
