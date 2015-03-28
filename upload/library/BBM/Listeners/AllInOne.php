@@ -50,6 +50,14 @@ class BBM_Listeners_AllInOne
 	}
 
 	/***
+	 * FILES HEALTH CHECK
+	 **/
+	public static function files_health_check(XenForo_ControllerAdmin_Abstract $controller, array &$hashes)
+	{
+		$hashes += BBM_FileSums::getHashes();
+	}
+
+	/***
 	 * EXTENDS FORUM DATAWRITER
 	 **/
 	public static function DataWriterAdmin($class, array &$extend)
