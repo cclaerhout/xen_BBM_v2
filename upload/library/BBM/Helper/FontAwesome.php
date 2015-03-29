@@ -484,7 +484,48 @@ class BBM_Helper_FontAwesome
 			'fa-angellist' => 'xf209',
 			'fa-cc' => 'xf20a',
 			'fa-shekel' => 'xf20b',
-			'fa-meanpath' => 'xf20c'
+			'fa-meanpath' => 'xf20c',
+			/*FA 4.3.0*/
+			'fa-buysellads' => 'xf20d',
+			'fa-connectdevelop' => 'xf20e',
+			'fa-dashcube' => 'xf210',
+			'fa-forumbee' => 'xf211',
+			'fa-leanpub' => 'xf212',
+			'fa-sellsy' => 'xf213',
+			'fa-shirtsinbulk' => 'xf214',
+			'fa-simplybuilt' => 'xf215',
+			'fa-skyatlas' => 'xf216',
+			'fa-cart-plus' => 'xf217',
+			'fa-cart-arrow-down' => 'xf218',
+			'fa-diamond' => 'xf219',
+			'fa-ship' => 'xf21a',
+			'fa-user-secret' => 'xf21b',
+			'fa-motorcycle' => 'xf21c',
+			'fa-street-view' => 'xf21d',
+			'fa-heartbeat' => 'xf21e',
+			'fa-venus' => 'xf221',
+			'fa-mars' => 'xf222',
+			'fa-mercury' => 'xf223',
+			'fa-transgender' => 'xf224',
+			'fa-transgender-alt' => 'xf225',
+			'fa-venus-double' => 'xf226',
+			'fa-mars-double' => 'xf227',
+			'fa-venus-mars' => 'xf228',
+			'fa-mars-stroke' => 'xf229',
+			'fa-mars-stroke-v' => 'xf22a',
+			'fa-mars-stroke-h' => 'xf22b',
+			'fa-neuter' => 'xf22c',
+			'fa-facebook-official' => 'xf230',
+			'fa-pinterest-p' => 'xf231',
+			'fa-whatsapp' => 'xf232',
+			'fa-server' => 'xf233',
+			'fa-user-plus' => 'xf234',
+			'fa-user-times' => 'xf235',
+			'fa-hotel' => 'xf236',
+			'fa-viacoin' => 'xf237',
+			'fa-train' => 'xf238',
+			'fa-subway' => 'xf239',
+			'fa-medium' => 'xf23a'
 		);
 	}
 
@@ -495,7 +536,7 @@ class BBM_Helper_FontAwesome
 			'fa-fw', 
 			'fa-ul', 'fa-li', //Not supported by the BbCode: it's good for menus, not for messages
 			'fa-border', 'pull-right', 'pull-left',
-			'fa-spin', //IE >= 10
+			'fa-spin', 'fa-pulse' //IE >= 10
 			'fa-rotate-90', 'fa-rotate-180', 'fa-rotate-270', 'fa-flip-horizontal', 'fa-flip-vertical',
 			'fa-stack', 'fa-stack-1x', 'fa-stack-2x', 'fa-inverse'
 		);
