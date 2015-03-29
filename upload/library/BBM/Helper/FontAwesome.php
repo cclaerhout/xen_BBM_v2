@@ -536,7 +536,7 @@ class BBM_Helper_FontAwesome
 			'fa-fw', 
 			'fa-ul', 'fa-li', //Not supported by the BbCode: it's good for menus, not for messages
 			'fa-border', 'pull-right', 'pull-left',
-			'fa-spin', 'fa-pulse' //IE >= 10
+			'fa-spin', 'fa-pulse', //IE >= 10
 			'fa-rotate-90', 'fa-rotate-180', 'fa-rotate-270', 'fa-flip-horizontal', 'fa-flip-vertical',
 			'fa-stack', 'fa-stack-1x', 'fa-stack-2x', 'fa-inverse'
 		);
