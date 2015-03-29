@@ -32,6 +32,10 @@ class BBM_Helper_Buttons
 
 		//Check if Quattro is enable
 		$quattroEnable = BBM_Helper_Bbm::checkIfAddonActive('sedo_tinymce_quattro', true);
+		if(BBM_Helper_Bbm::callbackChecker('Sedo_TinyQuattro_Helper_Quattro', 'isEnabled') && $quattroEnable)
+		{
+			$quattroEnable = Sedo_TinyQuattro_Helper_Quattro::isEnabled();
+		}
 
 		//Which editor is being used? $options->quattro_iconsize is only use to check if the addon is installed or enable
 		$editor = (empty($visitor->permissions['sedo_quattro']['display']) || !$quattroEnable) ? 'xen' : 'mce';

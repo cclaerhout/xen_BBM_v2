@@ -22,7 +22,7 @@ class BBM_FileSums
   'library/BBM/DataWriter/Post.php' => '317874e6de99ec27e4e9dd7bb2e4bd9c',
   'library/BBM/Helper/BbCodes.php' => '6188af033c560704b34d9014f28320f4',
   'library/BBM/Helper/Bbm.php' => 'f8a8e91b749539fa265ce27f424a28e9',
-  'library/BBM/Helper/Buttons.php' => 'b34ff04a373b6ea72063de8316453a5b',
+  'library/BBM/Helper/Buttons.php' => '17f266abdb0549b56d6835693c3c1e37',
   'library/BBM/Helper/Editors.php' => '33abd5dc75be58c6bc9df943f07e32b2',
   'library/BBM/Helper/FontAwesome.php' => 'b3bc6674c77dc1e2988639d929880883',
   'library/BBM/Helper/HtmlFixer.php' => '17420d9a7a0321d3cac6af6e2e5fb979',
