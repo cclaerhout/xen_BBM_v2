@@ -24,7 +24,7 @@ class BBM_FileSums
   'library/BBM/Helper/Bbm.php' => 'f8a8e91b749539fa265ce27f424a28e9',
   'library/BBM/Helper/Buttons.php' => 'b34ff04a373b6ea72063de8316453a5b',
   'library/BBM/Helper/Editors.php' => '33abd5dc75be58c6bc9df943f07e32b2',
-  'library/BBM/Helper/FontAwesome.php' => '4d115f4d924e921e0a7ef0a4f4d029c7',
+  'library/BBM/Helper/FontAwesome.php' => 'b3bc6674c77dc1e2988639d929880883',
   'library/BBM/Helper/HtmlFixer.php' => '17420d9a7a0321d3cac6af6e2e5fb979',
   'library/BBM/Helper/QuattroUnicode.php' => 'f0df7b6de16c04d945ffb6b8338dc4d4',
   'library/BBM/Installer.php' => '97ff5ed404be9175a6e4f5a624b500be',
