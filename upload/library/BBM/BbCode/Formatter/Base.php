@@ -2022,6 +2022,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_bbmExtraKeys = array('signature'); //Should not be needed
 
 				$this->_threadParams = $params['conversation'];
+
+				$params['conversationMessage']['message'] = $params['message'];
 				$this->_postsDatas = array( 
 					$params['conversationMessage']['message_id'] => $params['conversationMessage']
 				);
