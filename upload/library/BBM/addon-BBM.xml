@@ -2084,9 +2084,14 @@ li.buttons span{
 }
 
 ]]></template>
-    <template title="bbm_fa_integration"><![CDATA[<xen:if is="{$xenOptions.bbm_admin_fa_integration} == 1">
-	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-<xen:elseif is="{$xenOptions.bbm_admin_fa_integration} == 2"/>
+    <template title="bbm_fa_integration"><![CDATA[<xen:if is="{$xenOptions.bbm_fa_integration} == 1">
+	<xen:set var="$faCDN">//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css</xen:set>
+	<xen:if is="{xen:helper sedo_is_https, $xenOptions.boardUrl}">
+		<link href="{xen:helper sedo_is_https, $faCDN, '{xen:array 'toSSL=1'}'}" rel="stylesheet">
+	<xen:else />
+		<link href="{$faCDN}" rel="stylesheet">
+	</xen:if>
+<xen:elseif is="{$xenOptions.bbm_fa_integration} == 2"/>
 	<link href="styles/bbm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 </xen:if>]]></template>
     <template title="bbm_forum_edit_bbm_editor"><![CDATA[			<fieldset>
@@ -3914,6 +3919,16 @@ html body .redactor_toolbar li a.BbmFa:hover {
 }
 
 ]]></template>
+    <template title="bbm_fa_integration" version_id="71" version_string="3.2.1"><![CDATA[<xen:if is="{$xenOptions.bbm_fa_integration} == 1">
+	<xen:set var="$faCDN">//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css</xen:set>
+	<xen:if is="{xen:helper sedo_is_https, $xenOptions.boardUrl}">
+		<link href="{xen:helper sedo_is_https, $faCDN, '{xen:array 'toSSL=1'}'}" rel="stylesheet">
+	<xen:else />
+		<link href="{$faCDN}" rel="stylesheet">
+	</xen:if>
+<xen:elseif is="{$xenOptions.bbm_fa_integration} == 2"/>
+	<link href="styles/bbm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+</xen:if>]]></template>
     <template title="bbm_js" version_id="0" version_string="1.0"><![CDATA[<xen:require css="bbm_buttons.css" />
 
 ]]></template>
@@ -3983,14 +3998,10 @@ html .redactor_toolbar li a.redactor_btn_draftdelete{
 	background-position: 3px -1853px;
 }]]></replace>
     </modification>
-    <modification template="page_container_js_head" modification_key="bbm_fa_cdn_integration" description="Font awesome BbCode CDN integration" execution_order="10" enabled="1" action="preg_replace">
+    <modification template="page_container_js_head" modification_key="bbm_fa_cdn_integration" description="Font awesome BbCode CDN integration" execution_order="20" enabled="1" action="preg_replace">
       <find><![CDATA[#^.*$#su]]></find>
       <replace><![CDATA[$0
-<xen:if is="{$xenOptions.bbm_fa_integration} == 1">
-	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-<xen:elseif is="{$xenOptions.bbm_fa_integration} == 2"/>
-	<link href="styles/bbm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-</xen:if>]]></replace>
+<xen:include template="bbm_fa_integration" />]]></replace>
     </modification>
     <modification template="editor" modification_key="bbm_redactor_autocss" description="Auto css for Custom Buttons" execution_order="10" enabled="1" action="preg_replace">
       <find><![CDATA[#(^.*$)#s]]></find>

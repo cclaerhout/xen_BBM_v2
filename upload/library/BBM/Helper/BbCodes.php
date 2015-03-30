@@ -190,6 +190,45 @@ class BBM_Helper_BbCodes
 	}
 
 	/***
+	 * Check if an url is using SSL - Option to convert it to SSL if needed 
+	 **/
+	public static function isHttps($url, array $options = array())
+	{
+		$https = strpos(trim($url), 'https');
+		$isSSL = ($https !== false && $https === 0);
+
+		if(empty($options['toSSL']))
+		{
+			return $isSSL;
+		}
+		
+		if($isSSL)
+		{
+			return $url;
+		}
+		else
+		{
+			$http = strpos($url, 'http');
+			if($http !== false && $http === 0)
+			{
+				return preg_replace('#^http#', 'https', $url);
+			}
+			else
+			{
+				$s = strpos($url, '//');
+				if($s !== false && $s === 0)
+				{
+					return "https:{$url}";
+				}
+				else
+				{
+					return "https://{$url}";
+				}
+			}
+		}
+	}
+
+	/***
 	 * Strip Bb Codes
 	 **/
 	public static function stripBbCodes($string, $stripHtmlTags = false, $regexMethod = true)
