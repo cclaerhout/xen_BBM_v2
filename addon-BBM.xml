@@ -2086,7 +2086,7 @@ li.buttons span{
 ]]></template>
     <template title="bbm_fa_integration"><![CDATA[<xen:if is="{$xenOptions.bbm_fa_integration} == 1">
 	<xen:set var="$faCDN">//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css</xen:set>
-	<xen:if is="{xen:helper sedo_is_https, $xenOptions.boardUrl}">
+	<xen:if is="{xen:helper sedo_is_https, $requestPaths.fullBasePath}">
 		<link href="{xen:helper sedo_is_https, $faCDN, '{xen:array 'toSSL=1'}'}" rel="stylesheet">
 	<xen:else />
 		<link href="{$faCDN}" rel="stylesheet">
@@ -2244,6 +2244,53 @@ li.buttons span{
 		{xen:raw $editLink}
 	</xen:html>
 </xen:radiounit>]]></template>
+    <template title="bbm_permission_check_all"><![CDATA[<script>
+!function($, window, document, undefined)
+{    
+	var _bbmXenCheckAll = XenForo.CheckAll;
+
+	XenForo.CheckAll = function($control)
+	{
+		var savePropHooksChecked = {};
+	
+		if($.propHooks.checked != undefined && $.propHooks.checked.set != undefined){
+			savePropHooksChecked.set = $.propHooks.checked.set;
+		}
+	
+		$.propHooks.checked = {
+			set: function (el,v,n) {
+				if(el.name != undefined && (
+					el.name.indexOf('permissions[bbm_bbcodes_grp]') == 0
+					||
+					el.name.indexOf('permissions[forum][bbm') == 0
+				)){
+					var e = $.Event('change');
+					$(el).trigger(e);
+					if(e.result == 'stop') return false;
+				}
+				el.checked = v;
+				if(savePropHooksChecked.set != undefined) savePropHooksChecked.set(el,v,n);
+			}
+		};
+	
+		$control.on('click', function(){
+			var $this = $(this), target = $this.data('target');
+			if(target != undefined && target.indexOf("{xen:if $target, {xen:jsescape $target}, '#piGroups'}") == 0){
+				if(!target.length) return;
+				$(target).on('change', function(e){
+					if($(this).parents('#pg_bbm_bbcodes_interface')){
+						e.result = 'stop';
+					}else{
+						e.result = true;	
+					}
+				});
+			}
+		});
+
+		_bbmXenCheckAll($control);
+	}	
+}(jQuery, this, document);
+</script>]]></template>
     <template title="bbm_quattro_buttons_map"><![CDATA[<xen:require css="bbm_quattro_buttons_map.css" />
 
 <div class="quattro_icons_wrapper">
@@ -2503,7 +2550,13 @@ hint="{$preparedOption.hint}" class="{$extra.class} bbm_inline_checkbox">
 	color:grey;
 }]]></template>
   </admin_templates>
-  <admin_template_modifications/>
+  <admin_template_modifications>
+    <modification template="permission_check_all" modification_key="bbm_admin_perms" description="Prevent some of the Bbm perms to be modified byt the check all function" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#^.*$#sui]]></find>
+      <replace><![CDATA[$0
+<xen:include template="bbm_permission_check_all" />]]></replace>
+    </modification>
+  </admin_template_modifications>
   <code_events>
     <event event_id="bbm_callback_precache"><![CDATA[<p>If you need to make a database request for a  Bb Code, the problem is it will be executes several times. This preCache system executes the formatter twice before parsing your text. The first time you can add some info in this preCache, then this listener will be executed. You can make your database request here and modified the preCache again so that when the formatter will be executed the second time, you can use the new data.</p>
 <p>During the first execution, the $rendererStates will have the key 'bbmPreCacheInit'. During the second execution, it will have the key 'bbmPreCacheComplete'</p>
@@ -3921,7 +3974,7 @@ html body .redactor_toolbar li a.BbmFa:hover {
 ]]></template>
     <template title="bbm_fa_integration" version_id="71" version_string="3.2.1"><![CDATA[<xen:if is="{$xenOptions.bbm_fa_integration} == 1">
 	<xen:set var="$faCDN">//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css</xen:set>
-	<xen:if is="{xen:helper sedo_is_https, $xenOptions.boardUrl}">
+	<xen:if is="{xen:helper sedo_is_https, $requestPaths.fullBasePath}">
 		<link href="{xen:helper sedo_is_https, $faCDN, '{xen:array 'toSSL=1'}'}" rel="stylesheet">
 	<xen:else />
 		<link href="{$faCDN}" rel="stylesheet">
