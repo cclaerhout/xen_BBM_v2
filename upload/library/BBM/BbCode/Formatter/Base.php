@@ -2667,7 +2667,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		if(!$this->bbmToolTemplate)
 		{
-			$this->bbmToolTemplate = $this->getView()->createOwnTemplateObject();
+			$view = $this->getView();
+			$params = $view->getParams();
+			$params['bbm_templateSource'] = $view->getTemplateName();
+			$this->bbmToolTemplate = $view->createTemplateObject('__bbm_tool_template', $params);
+			//$this->bbmToolTemplate = $this->getView()->createOwnTemplateObject();
 		}
 		return $this->bbmToolTemplate;
 	}
