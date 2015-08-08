@@ -171,7 +171,7 @@ class BBM_Listeners_AllInOne
 		 	{
 		 		foreach($buttonGroup as $key => $button)
 		 		{
-		 			if(!self::filterButton($button, $editorOptions, $editorOptions, $showWysiwyg))
+		 			if(!self::filterButton($button, $editorOptions, $showWysiwyg))
 		 			{
 		 				unset($buttonGroup[$key]);
 		 				continue;
@@ -193,7 +193,7 @@ class BBM_Listeners_AllInOne
 			{
 	 			$customTag = "custom_$k";
 
-	 			if(!in_array($customTag, $allGridButtons) && self::filterButton($customTag, $editorOptions, $editorOptions, $showWysiwyg))
+	 			if(!in_array($customTag, $allGridButtons) && self::filterButton($customTag, $editorOptions, $showWysiwyg))
 	 			{
 	 				$customBbCodesButtons[] = $customTag;
 	 			}
@@ -368,7 +368,7 @@ class BBM_Listeners_AllInOne
 		}
 	}
 
-	public static function filterButton($button, $editorOptions, array $editorOptions, $showWysiwyg)
+	public static function filterButton($button, array $editorOptions, $showWysiwyg)
 	{
 		if($button == 'draft' && empty($editorOptions['autoSaveUrl']))
 		{
