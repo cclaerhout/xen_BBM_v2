@@ -5,7 +5,7 @@ class BBM_FileSums
 	public static function getHashes()
 	{
 		return array (
-  'library/BBM/BbCode/Formatter/Base.php' => 'e62699599c049dfec56e8625a6840f03',
+  'library/BBM/BbCode/Formatter/Base.php' => '094bd8a138b237d6e7ba473791524812',
   'library/BBM/BbCode/Formatter/BbCode/AutoLink.php' => '7b8941bcf6a58efe1646430ed25b76fd',
   'library/BBM/BbCode/Formatter/Default.php' => '130f4a97f3fbd7d38c12f8b470bedb3c',
   'library/BBM/BbCode/Formatter/Extensions/PreCacheBase.php' => '0362efa7c8ae3579093cde62278c10c1',
@@ -28,7 +28,7 @@ class BBM_FileSums
   'library/BBM/Helper/HtmlFixer.php' => '17420d9a7a0321d3cac6af6e2e5fb979',
   'library/BBM/Helper/QuattroUnicode.php' => 'f0df7b6de16c04d945ffb6b8338dc4d4',
   'library/BBM/Installer.php' => '97ff5ed404be9175a6e4f5a624b500be',
-  'library/BBM/Listeners/AllInOne.php' => 'db4fb1fafa4de746d1ab80425cd7107e',
+  'library/BBM/Listeners/AllInOne.php' => 'cf0a3068a058968ed683cb096e83989f',
   'library/BBM/Listeners/Templates/Admin.php' => '3cb94796c0e5547a683fe288ec09f913',
   'library/BBM/Listeners/Templates/Preloader.php' => 'dd5bc34646d7de716480215ef4a116e2',
   'library/BBM/Listeners/Templates/Public.php' => '58d3c12fd4cfa071c1f484ecef124f6a',
