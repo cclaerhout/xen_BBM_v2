@@ -446,6 +446,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		$tagInfo = $this->_tags[$tag['tag']];
 		$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
+		$this->_createCurrentCallbackTag($tag, $tagInfo, $rendererStates);
 		$this->bbmMethodInputFilter($tag, $rendererStates, $tagInfo);
 
 		if($increment == true)
@@ -529,6 +530,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		$tagInfo = $this->_tags[$tag['tag']];
 		$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
+		$this->_createCurrentCallbackTag($tag, $tagInfo, $rendererStates);		
 		$this->bbmMethodInputFilter($tag, $rendererStates, $tagInfo);
 
 		if($increment == true)
@@ -639,6 +641,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		$tagInfo = $this->_tags[$tag['tag']];
 		$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
+		$this->_createCurrentCallbackTag($tag, $tagInfo, $rendererStates);		
 		$this->bbmMethodInputFilter($tag, $rendererStates, $tagInfo);		
 
 		if($increment == true)
@@ -740,6 +743,21 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$this->currentRendererStates = $rendererStates;
 	}
 
+
+	/****
+	*	Current callback tag datas 
+	***/
+	
+	public $currentCallbackTag = array();
+	public $currentCallbackRendererStates = array();	
+	
+	protected function _createCurrentCallbackTag($tag, array $tagInfo, array $rendererStates)
+	{
+		$this->currentCallbackTag['tag'] = $tag;
+		$this->currentCallbackTag['tagInfo'] = $tagInfo;
+		$this->currentCallbackRendererStates = $rendererStates;
+	}
+
 	/****
 	*	Get advanced tag data
 	***/
@@ -776,6 +794,26 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	public function bbmGetCurrentRendererStates()
 	{
 		return $this->currentRendererStates;
+	}
+
+	public function bbmGetCurrentCallbackTag()
+	{
+		if( isset($this->currentCallbackTag['tag'], $this->currentCallbackTag['tag']['tag']) )
+		{
+			return $this->currentCallbackTag['tag']['tag'];
+		}
+		
+		return null;
+	}
+
+	public function bbmGetCurrentCallbackTagData()
+	{
+		return $this->currentCallbackTag;
+	}
+
+	public function bbmGetCurrentCallbackRendererStates()
+	{
+		return $this->currentCallbackRendererStates;
 	}
 
 	/****
@@ -1011,7 +1049,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	
 	public function addTagExtra($infoKey, $info, $arrayMode = false)
 	{
-		$tag = $this->bbmGetCurrentTag();
+		$tag = ($this->bbmGetCurrentCallbackTag()) ? $this->bbmGetCurrentCallbackTag() : $this->bbmGetCurrentTag();
+		
 		if($arrayMode)
 		{
 			$this->_tagNewInfo[$tag][$infoKey][] = $info;
@@ -1029,7 +1068,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			return $this->_tagNewInfo;
 		}
 
-		$tag = $this->bbmGetCurrentTag();
+		$tag = ($this->bbmGetCurrentCallbackTag()) ? $this->bbmGetCurrentCallbackTag() : $this->bbmGetCurrentTag();
 		
 		if( !isset($this->_tagNewInfo[$tag]) || !isset($this->_tagNewInfo[$tag][$infoKey]) )
 		{
