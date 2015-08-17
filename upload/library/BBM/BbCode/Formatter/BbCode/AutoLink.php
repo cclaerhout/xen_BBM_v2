@@ -46,6 +46,7 @@ class BBM_BbCode_Formatter_BbCode_AutoLink extends XFCP_BBM_BbCode_Formatter_BbC
 
 	public function _bakeBbmTags()
 	{
+
 		$bbmTags = XenForo_Model::create('BBM_Model_BbCodes')->getAllBbCodes('strict');
 
 		if(!is_array($bbmTags))
@@ -106,6 +107,23 @@ class BBM_BbCode_Formatter_BbCode_AutoLink extends XFCP_BBM_BbCode_Formatter_BbC
 
 		return parent::autoLinkTag($tag, $rendererStates);
 	}	
+
+	protected function _autoLinkUrlCallback(array $match)
+	{
+		/***
+		 *	Detect special tags to take them out of the autolinking callback 
+		 * 	IE: http://www.xenforo{/td} => http://www.xenforo => autolinking fct => result + {/td}
+		 **/
+		 	
+		if(preg_match('#^(.*)({/[a-z_]+?})$#i', $match[0], $specialTagsDetected))
+		{
+			$match[0] = $specialTagsDetected[1];
+			$link = parent::_autoLinkUrlCallback($match);
+			return $link . $specialTagsDetected[2];
+		}
+	
+		return parent::_autoLinkUrlCallback($match);
+	}
 
 	public function isOnlyUrl($string)
 	{
