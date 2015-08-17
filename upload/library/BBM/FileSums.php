@@ -5,8 +5,8 @@ class BBM_FileSums
 	public static function getHashes()
 	{
 		return array (
-  'library/BBM/BbCode/Formatter/Base.php' => '094bd8a138b237d6e7ba473791524812',
-  'library/BBM/BbCode/Formatter/BbCode/AutoLink.php' => '7b8941bcf6a58efe1646430ed25b76fd',
+  'library/BBM/BbCode/Formatter/Base.php' => '644a000bc9c388403021dea4612501f6',
+  'library/BBM/BbCode/Formatter/BbCode/AutoLink.php' => '7530a0fc2933c570b0fcb6f720fbd00d',
   'library/BBM/BbCode/Formatter/Default.php' => '130f4a97f3fbd7d38c12f8b470bedb3c',
   'library/BBM/BbCode/Formatter/Extensions/PreCacheBase.php' => '0362efa7c8ae3579093cde62278c10c1',
   'library/BBM/BbCode/Formatter/Extensions/PreCacheWysiwyg.php' => 'd2ec833ccca15204c61f77e274b1a1bf',
