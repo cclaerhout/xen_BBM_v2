@@ -117,30 +117,6 @@ class BBM_BbCode_Formatter_Wysiwyg extends XFCP_BBM_BbCode_Formatter_Wysiwyg
 	}
 
 	/****
-	*	CLASS LOADER TOOLS
-	*	Reason: no need to load class several times
-	***/
-	protected $_classToLoad = array();
-	
-	protected function _prepareClassToLoad($class)
-	{
-		if(!in_array($class, $this->_classToLoad))
-		{
-			$this->_classToLoad[] = $class;
-		}
-	}
-	
-	protected function _loadClass($class)
-	{
-		if(in_array($class, $this->_classToLoad))
-		{
-			XenForo_Application::autoload($class);
-			$key = array_search($class, $this->_classToLoad);
-			unset($this->_classToLoad[$key]);
-		}		
-	}
-
-	/****
 	*	PARSER TOOLS
 	***/
 	protected $_bbmParser;

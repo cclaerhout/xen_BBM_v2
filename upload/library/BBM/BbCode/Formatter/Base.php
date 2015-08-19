@@ -100,8 +100,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
     	  				$allBbmTags[$tagName]['phpcallback_method'] = $bbm['phpcallback_method'];
     	  				$allBbmTags[$tagName]['callback'] = array($this, 'PhpMethodRenderer');
 
-      					$this->_prepareClassToLoad($bbm['phpcallback_class']);
-
     	  				if($bbm['plainCallback'])
     	  				{
     	  					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
@@ -127,7 +125,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
     		  				$allBbmTags[$tagName]['template_callback']['class'] = $bbm['template_callback_class'];
     		  				$allBbmTags[$tagName]['template_callback']['method'] = $bbm['template_callback_method'];
 
-    	  					$this->_prepareClassToLoad($bbm['template_callback_class']);
     	  					$this->_preLoadTemplatesFromCallback($bbm['template_callback_class'], $bbm['template_callback_method']);
     	  				}
     	  				else
@@ -342,8 +339,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			
 			$this->_xenWrappersCallback['class'] = $xenWrapperCallback['class'];
 			$this->_xenWrappersCallback['method'] = $xenWrapperCallback['method'];
-
-			$this->_prepareClassToLoad($xenWrapperCallback['class']);
 		}
 		
 		if(!empty($options->Bbm_PreCache_XenTags))
@@ -413,30 +408,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	public function preParserEnableFor($tagName)
 	{
 		return isset($this->_bbmPreParserBbCodes[$tagName]);
-	}
-
-	/****
-	*	CLASS LOADER TOOLS
-	*	Reason: no need to load class several times
-	***/
-	protected $_classToLoad = array();
-	
-	protected function _prepareClassToLoad($class)
-	{
-		if(!in_array($class, $this->_classToLoad))
-		{
-			$this->_classToLoad[] = $class;
-		}
-	}
-	
-	protected function _loadClass($class)
-	{
-		if(in_array($class, $this->_classToLoad))
-		{
-			XenForo_Application::autoload($class);
-			$key = array_search($class, $this->_classToLoad);
-			unset($this->_classToLoad[$key]);
-		}		
 	}
 
 	/****
@@ -607,8 +578,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$template_callback_class = $tagInfo['template_callback']['class'];
 			$template_callback_method = $tagInfo['template_callback']['method'];
-		
-			$this->_loadClass($template_callback_class);
 
 			if(method_exists($template_callback_class, '__construct'))
 			{
@@ -693,8 +662,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		
 		$phpcallback_class = $tagInfo['phpcallback_class'];
 		$phpcallback_method = $tagInfo['phpcallback_method'];
-
-		$this->_loadClass($phpcallback_class);
 
 		return $this->bbmMethodOutputFilter(
 			call_user_func_array(array($phpcallback_class, $phpcallback_method), array($tag, $rendererStates, &$this)),
@@ -885,7 +852,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       		//Bbm Tag Wrapping option
       		if($this->_xenWrappersCallback && in_array($tag['tag'], $this->_xenOriginalTags))
       		{
-			$this->_loadClass($this->_xenWrappersCallback['class']);
 			call_user_func_array(array($this->_xenWrappersCallback['class'], $this->_xenWrappersCallback['method']), array($tag, $this));
       		}
 
