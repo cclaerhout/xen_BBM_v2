@@ -2253,6 +2253,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 	}
     
+    protected $_parseCache = array();
+    protected $_cacheBbcodeTree = false;
+
 	protected function _createBbCodesMap($posts = NULL, $content_type = NULL)
 	{
 		if( $posts === NULL || !is_array($posts) )
@@ -2331,10 +2334,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			else
 			{
 				//Restrictive method => will only check the message & signature elements of the post array
+				$BbCodesTree = null;
 				if (!$has_loaded_tags)
 				{
-					$BbCodesTree = null;
-
 					if (isset($data[$parsedMessageKey]))
 					{
 						$BbCodesTree = @unserialize($data[$parsedMessageKey]);
@@ -2347,6 +2349,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					}
 					$this->_tagBBCodeFromTree(!$has_loaded_tags && $cache_enabled, $tag_cache, $post_id, $BbCodesTree );
 				}
+                if ($this->_cacheBbcodeTree && $BbCodesTree === null)
+                {
+                    $BbCodesTree = @unserialize($data[$parsedMessageKey]);
+                }
+                if ($BbCodesTree !== null)
+                {
+                    $this->_parseCache[$post_id . $messageKey] = $BbCodesTree;
+                }
 
 				// extra data should be relatively small, don't do tag map caching. This also ensures cache invalidation stays sane
 				foreach($extraKeys as $extrakey)
@@ -2370,6 +2380,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 						$target = $data[$extrakey];
 						$BbCodesTree = $this->getParser()->parse($target);
 					}
+
+                    if ($this->_cacheBbcodeTree && $BbCodesTree !== null)
+                    {
+                        $this->_parseCache[$post_id . $extrakey] = $BbCodesTree;
+                    }
 
 					$tmp = array();
 					$this->_tagBBCodeFromTree(false, $tmp, $post_id, $BbCodesTree);
