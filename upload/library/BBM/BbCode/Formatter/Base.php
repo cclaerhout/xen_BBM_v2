@@ -793,19 +793,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
     
 	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
 	{
-		//Increment tags using the XenForo Standard Replacement Method & all other callback methods than bbm
-		if (	!empty($tagInfo['replace']) 
-			||
-			(	isset($tagInfo['callback'][1]) 
-				&&
-				!isset(self::$renderHash[$tagInfo['callback'][1]])
-			)
-		)
-		{
-			$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
-			$this->_bakeCurrentPostParams($tag, $rendererStates);
-		}
-
+        $this->incrementTagMap($tagInfo, $tag, $rendererStates);
       		//Check if xen tags content can be displayed 
 		$tagInfo = $this->_xenTagControl($tag, $tagInfo);
 
@@ -866,6 +854,36 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		return $parent;
 	}
+
+
+    protected $bbm_advanceTagMapOnInvalid = false;
+    
+    public function renderInvalidTag(array $tag, array $rendererStates)
+    {
+        // ensure that invalid tags (for whatever reason) which are a part of the tag map are still consumed.
+        if ($this->bbm_advanceTagMapOnInvalid)
+        {
+            $this->incrementTagMap(array(), $tag, $rendererStates);
+        }
+        return parent::renderInvalidTag($tag, $rendererStates);
+    }
+
+    public function incrementTagMap(array $tagInfo, array $tag, array $rendererStates)
+    {
+        $this->bbm_advanceTagMapOnInvalid = false;
+		//Increment tags using the XenForo Standard Replacement Method & all other callback methods than bbm
+		if (	!empty($tagInfo['replace']) 
+			||
+			(	isset($tagInfo['callback'][1]) 
+				&&
+				!isset(self::$renderHash[$tagInfo['callback'][1]])
+			)
+		)
+		{
+			$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
+			$this->_bakeCurrentPostParams($tag, $rendererStates);
+		}
+    }
 
 	static $xenTagArray = array('attach' => true, 'email' => true, 'img' => true, 'media' => true, 'url' => true);
     
@@ -1594,6 +1612,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			return '';
 		}
 		
+		$this->bbm_advanceTagMapOnInvalid = true;
 		return  parent::renderTag($element, $rendererStates, $trimLeadingLines);
 	}
 

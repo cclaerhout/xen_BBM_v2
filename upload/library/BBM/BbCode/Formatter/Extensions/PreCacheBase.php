@@ -66,6 +66,32 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 		return parent::renderTree($tree, $extraStates);
 	}
 
+    protected $bbm_preCache_tags = null;
+    
+	protected function _getOriginalTagRule($tagName)
+	{
+		$tagName = strtolower($tagName);
+
+		if (!empty($this->bbm_preCache_tags[$tagName]) && is_array($this->bbm_preCache_tags[$tagName]))
+		{
+			return $this->bbm_preCache_tags[$tagName];
+		}
+		else
+		{
+			return array();
+		}
+	}
+
+    //@extended
+    public function incrementTagMap(array $tagInfo, array $tag, array $rendererStates)
+    {
+        if (empty($tagInfo))
+        {
+            $tagInfo = $this->_getOriginalTagRule($tag['tag']);
+        }
+        return parent::incrementTagMap($tagInfo, $tag, $rendererStates);
+    }
+
 	//@extended
 	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
 	{
@@ -121,8 +147,8 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 		if ($view && XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
 		{
             // check if there are any tags with preParser enabled
-            $_tags = $this->_tags;
-            $sanitizedTags = $this->sanitizeTagsForPreParse($_tags);
+            $this->bbm_preCache_tags = $this->_tags;
+            $sanitizedTags = $this->sanitizeTagsForPreParse($this->bbm_preCache_tags);
             if (empty($sanitizedTags))
             {
                 return;
@@ -288,7 +314,7 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
             {
                 $this->renderTree($BbCodesTree, array('bbmPreCacheInit' => true));
             }
-            $this->_tags = $_tags;
+            $this->_tags = $this->bbm_preCache_tags;
             $this->_smilieTranslate = $_smilieTranslate;
             $extraStates = array();
             XenForo_CodeEvent::fire('bbm_callback_precache', array(&$this->_bbmPreCache, &$extraStates, 'base'));
