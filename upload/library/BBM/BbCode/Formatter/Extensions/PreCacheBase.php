@@ -6,7 +6,6 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 	***/
 	protected $_bbmTextView = '';
 	
-	protected $_bbmPreCacheActive = false;
 	protected $_bbmPreCache = array();
 
 	public function getBbmPreCache()
@@ -46,64 +45,115 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 		}
 	}
 
-	protected $_bbmPreCacheDone = false;
+    protected $bbm_preCache_base = null;
 
 	//@extended
 	public function renderTree(array $tree, array $extraStates = array())
 	{
-		if(XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
-		{
-			if(!empty($extraStates['bbmPreCacheInit']) && !$this->_bbmPreCacheDone)
-			{
-				parent::renderTree($tree, $extraStates);
-				unset($extraStates['bbmPreCacheInit']);
-				
-				XenForo_CodeEvent::fire('bbm_callback_precache', array(&$this->_bbmPreCache, &$extraStates, 'base'));
-				XenForo_Application::set('bbm_preCache_base', array($this->_bbmPreCache, $extraStates));
-
-				$this->_bbmPreCacheDone = true;
-
-				/*Bb Codes MAP*/
-				$this->_resetIncrementation();
-				return '';
-			}
-
-			if (XenForo_Application::isRegistered('bbm_preCache_base'))
-			{
-				list($_bbmPreCache, $_extraStates) = XenForo_Application::get('bbm_preCache_base');
-				$this->_bbmPreCache = $_bbmPreCache;
-				$extraStates['bbmPreCacheComplete'] = true;
-				$extraStates += $_extraStates;
-			}
-		}
+        if(!empty($extraStates['bbmPreCacheInit']))
+        {
+            parent::renderTree($tree, $extraStates);
+            return '';
+        }
+        else if ($this->bbm_preCache_base !== null)
+        {
+            list($_bbmPreCache, $_extraStates) = $this->bbm_preCache_base;
+            $this->_bbmPreCache = $_bbmPreCache;
+            $extraStates['bbmPreCacheComplete'] = true;
+            $extraStates += $_extraStates;
+        }
 
 		return parent::renderTree($tree, $extraStates);
 	}
+
+    protected $bbm_preCache_tags = null;
+    
+	protected function _getOriginalTagRule($tagName)
+	{
+		$tagName = strtolower($tagName);
+
+		if (!empty($this->bbm_preCache_tags[$tagName]) && is_array($this->bbm_preCache_tags[$tagName]))
+		{
+			return $this->bbm_preCache_tags[$tagName];
+		}
+		else
+		{
+			return array();
+		}
+	}
+
+    //@extended
+    public function incrementTagMap(array $tagInfo, array $tag, array $rendererStates)
+    {
+        if (empty($tagInfo))
+        {
+            $tagInfo = $this->_getOriginalTagRule($tag['tag']);
+        }
+        return parent::incrementTagMap($tagInfo, $tag, $rendererStates);
+    }
 
 	//@extended
 	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
 	{
 		//Need to call the parent in both cases - reason: the bbm post params management is done trough this function
 		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
-		$tagName = $tag['tag'];
 
-		if(!empty($rendererStates['bbmPreCacheInit']) && !$this->preParserEnableFor($tagName) )
-		{
-			return '';
-		}
-		else
+		if(empty($rendererStates['bbmPreCacheInit']))
 		{
 			return $parent;
 		}
+		return '';
 	}
+
+    //@extended
+    public function renderString($string, array $rendererStates, &$trimLeadingLines)
+    {
+        if(empty($rendererStates['bbmPreCacheInit']))
+        {
+            return parent::renderString($string, $rendererStates, $trimLeadingLines);
+        }
+        return '';
+    }
+
+    //@extended
+    public function renderTagUnparsed(array $tag, array $rendererStates)
+    {
+        if(empty($rendererStates['bbmPreCacheInit']))
+        {
+            return parent::renderTagUnparsed($tag, $rendererStates);
+        }
+        $this->renderSubTree($tag['children'], $rendererStates);
+        return '';
+    }
+
+    protected function sanitizeTagsForPreParse(array $tags)
+    {
+        foreach($tags as $tagName => &$tag)
+        {
+            if (!$this->preParserEnableFor($tagName))
+            {
+                unset($tags[$tagName]);
+            }
+        }
+        return $tags;
+    }
 	
 	//@extended
 	public function setView(XenForo_View $view = null)
 	{
+		$this->_cacheBbcodeTree = true;
 		parent::setView($view);
 
 		if ($view && XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
 		{
+            // check if there are any tags with preParser enabled
+            $this->bbm_preCache_tags = $this->_tags;
+            $sanitizedTags = $this->sanitizeTagsForPreParse($this->bbm_preCache_tags);
+            if (empty($sanitizedTags))
+            {
+                return;
+            }
+
 			/**
 			 * Purpose: get back the original text and parse it will a special rendererState
 			 * It will manage inside the renderTree function (global init), then in the 
@@ -216,49 +266,62 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 				}
 			}
 
+			$trees = array();
+			$parser = $this->getParser();
 			if(!empty($data))
 			{
 				if(!is_array($data))
 				{
 					$data = array($data);
 				}
+                
+                $parsedKeySuffix = $this->_bbmPostfixParsedKey;
+                
+                foreach($data as $key => $data)
+                {
+                    foreach($keys as $index)
+                    {
+                        if(!isset($data[$index]) || !is_string($data[$index]))
+                        {
+                            continue;
+                        }
 
-				if(!$multiMode)
-				{
-					foreach($data as $key => $value)
-					{
-						if(!in_array($key, $keys) || !is_string($value))
-						{
-							continue;
-						}
-					
-						$text .= $value;
-					}
-				}
-				else
-				{
-					foreach($data as $multi)
-					{
-						foreach($multi as $key => $value)
-						{
-							if(!in_array($key, $keys) || !is_string($value))
-							{
-								continue;
-							}
-						
-							$text .= $value;
-						}					
-					}
-				}
+                        $BbCodesTree = null;
+                        if (isset($this->_parseCache[$key.$index]))
+                        {
+                            $BbCodesTree = $this->_parseCache[$key.$index];
+                        }
+
+                        if (!$BbCodesTree && isset($data[$index . $parsedKeySuffix]))
+                        {
+                            $BbCodesTree = @unserialize($data[$index . $parsedKeySuffix]);
+                        }
+
+                        if (!$BbCodesTree)
+                        {
+                            $BbCodesTree = $parser->parse($data[$index]);
+                        }
+                        $trees[] = $BbCodesTree;
+                    }
+                }
 			}
 
-			$this->_bbmTextView = $text;
-			
-			if(!empty($text))
-			{
-				$parser = $this->getParser();
-				$parser->render($text, array('bbmPreCacheInit' => true));
-			}
+            // optimize a bunch of known bbcodes to be near no-ops
+            $this->_tags = $sanitizedTags;
+            $_smilieTranslate = $this->_smilieTranslate;
+            $this->_smilieTranslate = array();
+            foreach($trees as $BbCodesTree)
+            {
+                $this->renderTree($BbCodesTree, array('bbmPreCacheInit' => true));
+            }
+            $this->_tags = $this->bbm_preCache_tags;
+            $this->_smilieTranslate = $_smilieTranslate;
+            $extraStates = array();
+            XenForo_CodeEvent::fire('bbm_callback_precache', array(&$this->_bbmPreCache, &$extraStates, 'base'));
+            $this->bbm_preCache_base = array($this->_bbmPreCache, $extraStates);
+
+            /*Bb Codes MAP*/
+            $this->_resetIncrementation();
 		}
 	}	
 }

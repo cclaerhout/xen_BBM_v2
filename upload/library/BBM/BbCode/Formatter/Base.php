@@ -100,8 +100,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
     	  				$allBbmTags[$tagName]['phpcallback_method'] = $bbm['phpcallback_method'];
     	  				$allBbmTags[$tagName]['callback'] = array($this, 'PhpMethodRenderer');
 
-      					$this->_prepareClassToLoad($bbm['phpcallback_class']);
-
     	  				if($bbm['plainCallback'])
     	  				{
     	  					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
@@ -127,7 +125,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
     		  				$allBbmTags[$tagName]['template_callback']['class'] = $bbm['template_callback_class'];
     		  				$allBbmTags[$tagName]['template_callback']['method'] = $bbm['template_callback_method'];
 
-    	  					$this->_prepareClassToLoad($bbm['template_callback_class']);
     	  					$this->_preLoadTemplatesFromCallback($bbm['template_callback_class'], $bbm['template_callback_method']);
     	  				}
     	  				else
@@ -342,8 +339,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			
 			$this->_xenWrappersCallback['class'] = $xenWrapperCallback['class'];
 			$this->_xenWrappersCallback['method'] = $xenWrapperCallback['method'];
-
-			$this->_prepareClassToLoad($xenWrapperCallback['class']);
 		}
 		
 		if(!empty($options->Bbm_PreCache_XenTags))
@@ -413,30 +408,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	public function preParserEnableFor($tagName)
 	{
 		return isset($this->_bbmPreParserBbCodes[$tagName]);
-	}
-
-	/****
-	*	CLASS LOADER TOOLS
-	*	Reason: no need to load class several times
-	***/
-	protected $_classToLoad = array();
-	
-	protected function _prepareClassToLoad($class)
-	{
-		if(!in_array($class, $this->_classToLoad))
-		{
-			$this->_classToLoad[] = $class;
-		}
-	}
-	
-	protected function _loadClass($class)
-	{
-		if(in_array($class, $this->_classToLoad))
-		{
-			XenForo_Application::autoload($class);
-			$key = array_search($class, $this->_classToLoad);
-			unset($this->_classToLoad[$key]);
-		}		
 	}
 
 	/****
@@ -607,8 +578,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$template_callback_class = $tagInfo['template_callback']['class'];
 			$template_callback_method = $tagInfo['template_callback']['method'];
-		
-			$this->_loadClass($template_callback_class);
 
 			if(method_exists($template_callback_class, '__construct'))
 			{
@@ -693,8 +662,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		
 		$phpcallback_class = $tagInfo['phpcallback_class'];
 		$phpcallback_method = $tagInfo['phpcallback_method'];
-
-		$this->_loadClass($phpcallback_class);
 
 		return $this->bbmMethodOutputFilter(
 			call_user_func_array(array($phpcallback_class, $phpcallback_method), array($tag, $rendererStates, &$this)),
@@ -826,19 +793,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
     
 	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
 	{
-		//Increment tags using the XenForo Standard Replacement Method & all other callback methods than bbm
-		if (	!empty($tagInfo['replace']) 
-			||
-			(	isset($tagInfo['callback'][1]) 
-				&&
-				!isset(self::$renderHash[$tagInfo['callback'][1]])
-			)
-		)
-		{
-			$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
-			$this->_bakeCurrentPostParams($tag, $rendererStates);
-		}
-
+        $this->incrementTagMap($tagInfo, $tag, $rendererStates);
       		//Check if xen tags content can be displayed 
 		$tagInfo = $this->_xenTagControl($tag, $tagInfo);
 
@@ -885,7 +840,6 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
       		//Bbm Tag Wrapping option
       		if($this->_xenWrappersCallback && in_array($tag['tag'], $this->_xenOriginalTags))
       		{
-			$this->_loadClass($this->_xenWrappersCallback['class']);
 			call_user_func_array(array($this->_xenWrappersCallback['class'], $this->_xenWrappersCallback['method']), array($tag, $this));
       		}
 
@@ -900,6 +854,36 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		return $parent;
 	}
+
+
+    protected $bbm_advanceTagMapOnInvalid = false;
+    
+    public function renderInvalidTag(array $tag, array $rendererStates)
+    {
+        // ensure that invalid tags (for whatever reason) which are a part of the tag map are still consumed.
+        if ($this->bbm_advanceTagMapOnInvalid)
+        {
+            $this->incrementTagMap(array(), $tag, $rendererStates);
+        }
+        return parent::renderInvalidTag($tag, $rendererStates);
+    }
+
+    public function incrementTagMap(array $tagInfo, array $tag, array $rendererStates)
+    {
+        $this->bbm_advanceTagMapOnInvalid = false;
+		//Increment tags using the XenForo Standard Replacement Method & all other callback methods than bbm
+		if (	!empty($tagInfo['replace']) 
+			||
+			(	isset($tagInfo['callback'][1]) 
+				&&
+				!isset(self::$renderHash[$tagInfo['callback'][1]])
+			)
+		)
+		{
+			$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
+			$this->_bakeCurrentPostParams($tag, $rendererStates);
+		}
+    }
 
 	static $xenTagArray = array('attach' => true, 'email' => true, 'img' => true, 'media' => true, 'url' => true);
     
@@ -1628,6 +1612,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			return '';
 		}
 		
+		$this->bbm_advanceTagMapOnInvalid = true;
 		return  parent::renderTag($element, $rendererStates, $trimLeadingLines);
 	}
 
@@ -2287,6 +2272,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 	}
     
+    protected $_parseCache = array();
+    protected $_cacheBbcodeTree = false;
+
 	protected function _createBbCodesMap($posts = NULL, $content_type = NULL)
 	{
 		if( $posts === NULL || !is_array($posts) )
@@ -2365,10 +2353,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			else
 			{
 				//Restrictive method => will only check the message & signature elements of the post array
+				$BbCodesTree = null;
 				if (!$has_loaded_tags)
 				{
-					$BbCodesTree = null;
-
 					if (isset($data[$parsedMessageKey]))
 					{
 						$BbCodesTree = @unserialize($data[$parsedMessageKey]);
@@ -2381,6 +2368,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					}
 					$this->_tagBBCodeFromTree(!$has_loaded_tags && $cache_enabled, $tag_cache, $post_id, $BbCodesTree );
 				}
+                if ($this->_cacheBbcodeTree && $BbCodesTree === null)
+                {
+                    $BbCodesTree = @unserialize($data[$parsedMessageKey]);
+                }
+                if ($BbCodesTree !== null)
+                {
+                    $this->_parseCache[$post_id . $messageKey] = $BbCodesTree;
+                }
 
 				// extra data should be relatively small, don't do tag map caching. This also ensures cache invalidation stays sane
 				foreach($extraKeys as $extrakey)
@@ -2404,6 +2399,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 						$target = $data[$extrakey];
 						$BbCodesTree = $this->getParser()->parse($target);
 					}
+
+                    if ($this->_cacheBbcodeTree && $BbCodesTree !== null)
+                    {
+                        $this->_parseCache[$post_id . $extrakey] = $BbCodesTree;
+                    }
 
 					$tmp = array();
 					$this->_tagBBCodeFromTree(false, $tmp, $post_id, $BbCodesTree);
