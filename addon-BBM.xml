@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.2.3" version_id="75" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.3.0" version_id="76" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -2629,7 +2629,7 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
     <listener event_id="file_health_check" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="files_health_check" active="1" hint="" description="Check BBM files hashes"/>
     <listener event_id="front_controller_post_view" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPostView" active="1" hint="" description="BbCode content protection: implementation"/>
     <listener event_id="front_controller_pre_dispatch" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPreDispatch" active="1" hint="" description="BbCode content protection: get response type"/>
-    <listener event_id="front_controller_pre_view" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="setApplications" active="1" hint="" description="Set Applications"/>
+    <listener event_id="front_controller_pre_view" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="controllerPreView" active="1" hint="" description="Set Applications"/>
     <listener event_id="front_controller_pre_view" execute_order="10" callback_class="BBM_Protection_Helper_ContentProtection" callback_method="controllerPreView" active="1" hint="" description="BbCode content protection: get controller &amp; implementation"/>
     <listener event_id="init_dependencies" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="initTemplateHelpers" active="1" hint="" description="Init template helpers"/>
     <listener event_id="load_class" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="ModifyParser" active="1" hint="XenForo_BbCode_Parser" description="Modify Parser"/>
@@ -2643,10 +2643,10 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
     <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="XenForo_Model_Search" description="BbCode content protection: models - XenForo_Model_Search"/>
     <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Protection_Listener_Models" callback_method="protectModels" active="1" hint="XenForo_Model_ThreadWatch" description="BbCode content protection: models - XenForo_Model_ThreadWatch"/>
     <listener event_id="load_class_model" execute_order="10" callback_class="BBM_Listeners_AllInOne" callback_method="extendAttachmentModel" active="1" hint="XenForo_Model_Attachment" description="Extends XenForo_Model_Attachment"/>
+    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="home" description="Templates preloader - home"/>
     <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="help_bb_codes" description="Templates preloader - help_bb_codes"/>
     <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="editor" description="Templates preloader - editor"/>
     <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="forum_edit" description="Templates preloader - forum_edit"/>
-    <listener event_id="template_create" execute_order="10" callback_class="BBM_Listeners_Templates_Preloader" callback_method="preloader" active="1" hint="home" description="Templates preloader - home"/>
     <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="editor" description="Public templates hooks - editor"/>
     <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="help_bb_codes" description="Public templates hooks - help_bb_codes"/>
     <listener event_id="template_hook" execute_order="5" callback_class="BBM_Listeners_Templates_Public" callback_method="hooks" active="1" hint="page_container_head" description="Public templates hooks - page_container_head"/>

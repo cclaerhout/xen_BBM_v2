@@ -5,12 +5,12 @@ class BBM_FileSums
 	public static function getHashes()
 	{
 		return array (
-  'library/BBM/BbCode/Formatter/Base.php' => '644a000bc9c388403021dea4612501f6',
+  'library/BBM/BbCode/Formatter/Base.php' => '07639daf0477a432288b6c9f1a494f6e',
   'library/BBM/BbCode/Formatter/BbCode/AutoLink.php' => '7530a0fc2933c570b0fcb6f720fbd00d',
   'library/BBM/BbCode/Formatter/Default.php' => '130f4a97f3fbd7d38c12f8b470bedb3c',
-  'library/BBM/BbCode/Formatter/Extensions/PreCacheBase.php' => '0362efa7c8ae3579093cde62278c10c1',
-  'library/BBM/BbCode/Formatter/Extensions/PreCacheWysiwyg.php' => 'd2ec833ccca15204c61f77e274b1a1bf',
-  'library/BBM/BbCode/Formatter/Wysiwyg.php' => '8f3db8c7ad8f8c6b6f18efc16e803e8e',
+  'library/BBM/BbCode/Formatter/Extensions/PreCacheBase.php' => '4d90171f6241a1ad9ad118bdb4fdfa54',
+  'library/BBM/BbCode/Formatter/Extensions/PreCacheWysiwyg.php' => '908562ceb79dcedc28b235705197e9c1',
+  'library/BBM/BbCode/Formatter/Wysiwyg.php' => 'dcaf428ed341e29f6cfb304e519b7b74',
   'library/BBM/BbCode/Parser.php' => '5db41c6fa6a8461605243b24a325d9b5',
   'library/BBM/ControllerAdmin/BbCodes.php' => '97fa150b4ec0bae3a93ef602169ba3ec',
   'library/BBM/ControllerAdmin/Bbm.php' => 'ec430d7fc48607ad49d3c65b40fdf20a',
@@ -28,7 +28,7 @@ class BBM_FileSums
   'library/BBM/Helper/HtmlFixer.php' => '17420d9a7a0321d3cac6af6e2e5fb979',
   'library/BBM/Helper/QuattroUnicode.php' => 'f0df7b6de16c04d945ffb6b8338dc4d4',
   'library/BBM/Installer.php' => '97ff5ed404be9175a6e4f5a624b500be',
-  'library/BBM/Listeners/AllInOne.php' => 'cf0a3068a058968ed683cb096e83989f',
+  'library/BBM/Listeners/AllInOne.php' => '3835edd21037ca7b027647277afa1f0e',
   'library/BBM/Listeners/Templates/Admin.php' => '3cb94796c0e5547a683fe288ec09f913',
   'library/BBM/Listeners/Templates/Preloader.php' => 'dd5bc34646d7de716480215ef4a116e2',
   'library/BBM/Listeners/Templates/Public.php' => '58d3c12fd4cfa071c1f484ecef124f6a',

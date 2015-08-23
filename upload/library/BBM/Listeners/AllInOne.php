@@ -1,11 +1,11 @@
 <?php
 class BBM_Listeners_AllInOne
 {
-	public static $class_check = null;
-
 	/***
 	 * BB CODES LISTENER
 	 **/
+	public static $class_check = null;
+
 	public static function BbCodes($class, array &$extend)
 	{
 		if (self::$class_check === null)
@@ -20,7 +20,7 @@ class BBM_Listeners_AllInOne
 				case 'XenForo_BbCode_Formatter_BbCode_AutoLink':
 					$extend[] = 'BBM_BbCode_Formatter_BbCode_AutoLink';
 				break;
-				  	
+
 				case 'XenForo_BbCode_Formatter_Base':
 					$extend[] = 'BBM_BbCode_Formatter_Base';
 					if(XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
@@ -37,9 +37,9 @@ class BBM_Listeners_AllInOne
 						$extend[] = 'BBM_BbCode_Formatter_Extensions_PreCacheWysiwyg';
 					}
 				break;
-				
+
 				case 'XenForo_ControllerPublic_Help':
-					$extend[] = 'BBM_ControllerPublic_Help';				
+					$extend[] = 'BBM_ControllerPublic_Help';
 				break;
 
 				case 'XenForo_DataWriter_DiscussionMessage_Post':
@@ -80,17 +80,26 @@ class BBM_Listeners_AllInOne
 	}
 
 	/***
-	 * SET APPLICATIONS
+	 * SET APPLICATIONS + GET CCV
 	 **/
-	public static function setApplications(
+	protected static $_controllerName = NULL;
+	protected static $_controllerAction = NULL;
+	protected static $_viewName = NULL;
+
+	public static function controllerPreView(
 		XenForo_FrontController $fc,
-		XenForo_ControllerResponse_Abstract &$controllerResponse, 
+		XenForo_ControllerResponse_Abstract &$controllerResponse,
 		XenForo_ViewRenderer_Abstract &$viewRenderer, array &$containerParams
 	)
 	{
 		//SET BBM BM EDITOR BY FORUM LISTENER
 		$bbmEditor = (isset($controllerResponse->params['forum']['bbm_bm_editor'])) ? $controllerResponse->params['forum']['bbm_bm_editor'] : false;
 		XenForo_Application::set('bbm_bm_editor', $bbmEditor);
+
+      		//GET CCV
+      		self::$_controllerName = (isset($controllerResponse->controllerName)) ? $controllerResponse->controllerName : NULL;
+      		self::$_controllerAction = (isset($controllerResponse->controllerAction)) ? $controllerResponse->controllerAction : NULL;
+      		self::$_viewName = (isset($controllerResponse->viewName)) ? $controllerResponse->viewName : NULL;
 	}
 
 
@@ -129,18 +138,13 @@ class BBM_Listeners_AllInOne
 		}
 
 		$xenOptions = XenForo_Application::get('options');
-		
+
 		if($xenOptions->bbm_debug_tinymcehookdisable)
 		{
 			return false;
 		}
-		
-		$template = $view->createOwnTemplateObject();
-		$controllerName = $template->getParam('controllerName');
-		$controllerAction = $template->getParam('controllerAction');
-		$viewName = $template->getParam('viewName');	
-		
-		$bbmParams = BBM_Helper_Buttons::getConfig($controllerName, $controllerAction, $viewName);
+
+		$bbmParams = BBM_Helper_Buttons::getConfig(self::$_controllerName, self::$_controllerAction, self::$_viewName);
 
 		if(empty($bbmParams['bbmButtonsJsGridArray']))
 		{
@@ -164,7 +168,7 @@ class BBM_Listeners_AllInOne
 		 * Filter buttons grid
 		 */
 		 $allGridButtons = array();
-		 
+
 		 if(!empty($bbmButtonsJsGrid))
 		 {
 		 	foreach($bbmButtonsJsGrid as &$buttonGroup)
@@ -188,7 +192,7 @@ class BBM_Listeners_AllInOne
 		if(!empty($editorOptions['json']['bbCodes']))
 		{
 			$customBbCodesButtons = array();
-			
+
 			foreach($editorOptions['json']['bbCodes'] as $k => $v)
 			{
 	 			$customTag = "custom_$k";
@@ -262,14 +266,14 @@ class BBM_Listeners_AllInOne
 			{
 				//Extend custom buttons
 				$jsonButtons += $extendedButtonsBackup;
-			
+
 				//Extend buttons grid
 				$extendedgrid = array();
 				foreach($extendedButtonsBackup as $buttonCode => $extendedButton)
 				{
 					$extendedgrid[] = $buttonCode;
 				}
-				
+
 				array_push($bbmButtonsJsGrid, $extendedgrid);
 			}
 		}
@@ -282,11 +286,11 @@ class BBM_Listeners_AllInOne
 
 		/*Bbm Buttons Grid - will have to inject this with Javascript to be able to fully override the editor grid*/
 		$editorOptions['json']['bbmButtonConfig'] = $bbmButtonsJsGrid;
-		
+
 		/***
 		 * Fallback if any problem occurs to have the most accurate editor configuration
 		 **/
- 
+
 		if(empty($bbmButtonsJsGrid))
 		{
 			return false;
@@ -299,7 +303,7 @@ class BBM_Listeners_AllInOne
 
 		$xenDefaultButtonConfig = &$editorOptions['json']['buttonConfig'];
 
-		if(XenForo_Application::get('options')->get('currentVersionId') < 1030031) 
+		if(XenForo_Application::get('options')->get('currentVersionId') < 1030031)
 		{
 			//XenForo 1.2
 			$xenConfigStack = array(
@@ -311,7 +315,7 @@ class BBM_Listeners_AllInOne
 				'indent' =>	array('outdent', 'indent'),
 				'block' => 	array('code', 'quote'),
 				'media' => 	array('media'),
-				'image' => 	array('image'),				
+				'image' => 	array('image'),
 				'smilies' => 	array('smilies')
 			);
 		}
@@ -340,7 +344,7 @@ class BBM_Listeners_AllInOne
 				{
 					continue;
 				}
-				
+
 				if(array_intersect($stackBtnGroup, $editorBtnGroup))
 				{
 					/***
@@ -349,7 +353,7 @@ class BBM_Listeners_AllInOne
 					$xenConfigStack[$groupName] = false;
 					break;
 				}
-			}				
+			}
 		}
 
 		if(!empty($xenConfigStack))
@@ -362,7 +366,7 @@ class BBM_Listeners_AllInOne
 				}
 				else
 				{
-					$xenDefaultButtonConfig[$groupName] = false;				
+					$xenDefaultButtonConfig[$groupName] = false;
 				}
 			}
 		}
@@ -374,8 +378,8 @@ class BBM_Listeners_AllInOne
 		{
 			return false;
 		}
-		
+
 		return true;
-	}	
+	}
 }
 //Zend_Debug::dump($abc);
