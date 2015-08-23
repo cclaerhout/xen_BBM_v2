@@ -8,16 +8,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_bbmTags = null;
 
 	protected $_xenOriginalTags = array(
-		'b', 'i', 'u', 's', 'color', 'font', 'size', 'left', 'center', 
-		'right', 'indent', 'url', 'email', 'img', 'quote', 'code', 'php', 
+		'b', 'i', 'u', 's', 'color', 'font', 'size', 'left', 'center',
+		'right', 'indent', 'url', 'email', 'img', 'quote', 'code', 'php',
 		'html', 'plain', 'media', 'attach'
 	);
-	
+
 	protected $_xenContentCheck;
 	protected $_bbmSeparator;
 	protected $_bbmDisableMethod;
 	protected $_bbmXenTagsParsingAllowedUsergroups = array();
-	protected $_bbmXenTagsParsingAllowedNodes = array();	
+	protected $_bbmXenTagsParsingAllowedNodes = array();
 
 	protected $_formatterUniqid;
 
@@ -27,7 +27,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$this->updateFormatterUniqid();
 		return parent::__construct();
 	}
-	
+
 	//@extended
 	public function getTags()
 	{
@@ -37,13 +37,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$this->bakeBbmTags();
 		}
-		
+
 		if($this->_bbmTags !== null)
 		{
 			$parentTags = $this->_filterXenTags($parentTags);
 			return array_merge((array) $parentTags, (array) $this->_bbmTags);
 		}
-		
+
 		return $parentTags;
 	}
 
@@ -78,183 +78,183 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 			$tagName = $bbm['tag'];
 
-      			if($bbm['start_range'])
-      			{
-      				$allBbmTags[$tagName]['options_number'] = $bbm['options_number'];
-      				$allBbmTags[$tagName]['start_range'] = $bbm['start_range'];
-      				$allBbmTags[$tagName]['end_range'] = $bbm['end_range'];
-      				$allBbmTags[$tagName]['callback'] = array($this, 'replacementMethodRenderer');
+			if($bbm['start_range'])
+ 			{
+ 				$allBbmTags[$tagName]['options_number'] = $bbm['options_number'];
+ 				$allBbmTags[$tagName]['start_range'] = $bbm['start_range'];
+ 				$allBbmTags[$tagName]['end_range'] = $bbm['end_range'];
+ 				$allBbmTags[$tagName]['callback'] = array($this, 'replacementMethodRenderer');
 
-      				if($bbm['plainCallback'])
-      				{
-      					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
-      				}
-      			}
-      			elseif($bbm['phpcallback_class'])
-      			{
-      				$this->_preLoadTemplatesFromCallback($bbm['phpcallback_class'], $bbm['phpcallback_method']);
-      				
-      				if( $this->_bbmCallbackChecker($bbm['phpcallback_class'], $bbm['phpcallback_method']) )
-      				{
-      					$allBbmTags[$tagName]['phpcallback_class'] = $bbm['phpcallback_class'];
-    	  				$allBbmTags[$tagName]['phpcallback_method'] = $bbm['phpcallback_method'];
-    	  				$allBbmTags[$tagName]['callback'] = array($this, 'PhpMethodRenderer');
+ 				if($bbm['plainCallback'])
+ 				{
+ 					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
+ 				}
+ 			}
+ 			elseif($bbm['phpcallback_class'])
+ 			{
+ 				$this->_preLoadTemplatesFromCallback($bbm['phpcallback_class'], $bbm['phpcallback_method']);
 
-    	  				if($bbm['plainCallback'])
-    	  				{
-    	  					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
-    	  				}	  						
-    	  			}
-    	  			else
-    	  			{
-    	  				$allBbmTags[$tagName]['callback'] = array($this, 'renderInvalidTag');
-    	  			}
-      			}
-      			elseif($bbm['template_active'])
-      			{
-    				//Preload template automatically
-    				$this->_preloadBbmTemplates[] = $bbm['template_name'];
-    				
-      				$allBbmTags[$tagName]['template_name'] = $bbm['template_name'];
-      				$allBbmTags[$tagName]['callback'] = array($this, 'TemplateMethodRenderer');
+ 				if( $this->_bbmCallbackChecker($bbm['phpcallback_class'], $bbm['phpcallback_method']) )
+ 				{
+ 					$allBbmTags[$tagName]['phpcallback_class'] = $bbm['phpcallback_class'];
+					$allBbmTags[$tagName]['phpcallback_method'] = $bbm['phpcallback_method'];
+	 				$allBbmTags[$tagName]['callback'] = array($this, 'PhpMethodRenderer');
 
-      				if($bbm['template_callback_class'])
-      				{
-    	  				if( $this->_bbmCallbackChecker($bbm['template_callback_class'], $bbm['template_callback_method']) )
-    	  				{
-    		  				$allBbmTags[$tagName]['template_callback']['class'] = $bbm['template_callback_class'];
-    		  				$allBbmTags[$tagName]['template_callback']['method'] = $bbm['template_callback_method'];
+	 				if($bbm['plainCallback'])
+	 				{
+	 					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
+	 				}
+				}
+				else
+				{
+					$allBbmTags[$tagName]['callback'] = array($this, 'renderInvalidTag');
+				}
+			}
+			elseif($bbm['template_active'])
+			{
+				//Preload template automatically
+				$this->_preloadBbmTemplates[] = $bbm['template_name'];
 
-    	  					$this->_preLoadTemplatesFromCallback($bbm['template_callback_class'], $bbm['template_callback_method']);
-    	  				}
-    	  				else
-    		  			{
-    		  				$allBbmTags[$tagName]['callback'] = array($this, 'renderInvalidTag');
-    		  			}			  				
-    	  			}
+				$allBbmTags[$tagName]['template_name'] = $bbm['template_name'];
+				$allBbmTags[$tagName]['callback'] = array($this, 'TemplateMethodRenderer');
 
-      				if($bbm['plainCallback'])
-      				{
-      					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
-      				}
-      			}
-      			
-      			if($bbm['trimLeadingLinesAfter'] > 0 && $bbm['trimLeadingLinesAfter'] < 3)
-      			{
-      				$allBbmTags[$tagName]['trimLeadingLinesAfter'] = $bbm['trimLeadingLinesAfter'];
-      			}
-      			
-      			if($bbm['regex'])
-      			{
-      				$allBbmTags[$tagName]['optionRegex'] = $bbm['regex'];
-      			}
-      			
-      			if($bbm['plainChildren'])
-      			{
-      				$allBbmTags[$tagName]['plainChildren'] = true;
-      			}
-      			
-      			if($bbm['stopSmilies'])
-      			{
-      				$allBbmTags[$tagName]['stopSmilies'] = true;
-      			}
-      			
-      			if($bbm['stopLineBreakConversion'])
-      			{
-      				$allBbmTags[$tagName]['stopLineBreakConversion'] = true;
-      			}
+				if($bbm['template_callback_class'])
+				{
+					if( $this->_bbmCallbackChecker($bbm['template_callback_class'], $bbm['template_callback_method']) )
+					{
+						$allBbmTags[$tagName]['template_callback']['class'] = $bbm['template_callback_class'];
+						$allBbmTags[$tagName]['template_callback']['method'] = $bbm['template_callback_method'];
 
-      			if(!empty($bbm['trimContent']))
-      			{
-      				$allBbmTags[$tagName]['trimContent'] = true;
-      			}
+						$this->_preLoadTemplatesFromCallback($bbm['template_callback_class'], $bbm['template_callback_method']);
+					}
+					else
+					{
+						$allBbmTags[$tagName]['callback'] = array($this, 'renderInvalidTag');
+					}
+				}
 
-      			if($bbm['parseOptions'])
-      			{
-      				$allBbmTags[$tagName]['parseOptions'] = true;
-      			}
+				if($bbm['plainCallback'])
+				{
+					$allBbmTags[$tagName]['parseCallback'] = array($this, 'parseValidatePlainIfNoOption');
+				}
+			}
 
-      			if($bbm['parser_has_usr'])
-      			{
-      				$allBbmTags[$tagName]['parser_perms']['parser_has_usr'] = $bbm['parser_has_usr'];		  			
-      			}
+			if($bbm['trimLeadingLinesAfter'] > 0 && $bbm['trimLeadingLinesAfter'] < 3)
+			{
+				$allBbmTags[$tagName]['trimLeadingLinesAfter'] = $bbm['trimLeadingLinesAfter'];
+			}
 
-      			if($bbm['parser_usr'])
-      			{
-      				$allBbmTags[$tagName]['parser_perms']['parser_usr'] = $bbm['parser_usr'];		  			
-      			}
+			if($bbm['regex'])
+			{
+				$allBbmTags[$tagName]['optionRegex'] = $bbm['regex'];
+			}
 
-      			if($bbm['parser_return'])
-      			{
-      				$allBbmTags[$tagName]['parser_perms']['parser_return'] = $bbm['parser_return'];		  			
-      			}
+			if($bbm['plainChildren'])
+			{
+				$allBbmTags[$tagName]['plainChildren'] = true;
+			}
 
-      			if($bbm['parser_return_delay'])
-      			{
-      				$allBbmTags[$tagName]['parser_perms']['parser_return_delay'] = $bbm['parser_return_delay'];
-      			}
+			if($bbm['stopSmilies'])
+			{
+				$allBbmTags[$tagName]['stopSmilies'] = true;
+			}
 
-      			$allBbmTags[$tagName]['view_perms']['can_view_content'] = true;
-      				
-      			if($bbm['view_has_usr'])
-      			{
-    				$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
-    				$visitorsOk = unserialize($bbm['view_usr']);
-    				$canViewBbCode = (array_intersect($visitorUserGroupIds, $visitorsOk)) ? true : false;
-    				
-    				$allBbmTags[$tagName]['view_perms']['can_view_content'] = $canViewBbCode;
-      				$allBbmTags[$tagName]['view_perms']['view_return'] = $bbm['view_return'];	
+			if($bbm['stopLineBreakConversion'])
+			{
+				$allBbmTags[$tagName]['stopLineBreakConversion'] = true;
+			}
 
-          				/*
-          				if($bbm['view_return'] == 'default_template' && array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
-          				{
-          					$this->_preloadBbmTemplates[] = 'bbm_viewer_content_protected';
-          				}
-          				*/
+			if(!empty($bbm['trimContent']))
+			{
+				$allBbmTags[$tagName]['trimContent'] = true;
+			}
 
-    	  			if($bbm['view_return_delay'])
-    	  			{
-    	  				$allBbmTags[$tagName]['view_perms']['view_return_delay'] = $bbm['view_return_delay'];
-    	  			}
-      			}
-      			
-      			if($bbm['wrapping_tag'] != 'none')
-      			{
-      				$allBbmTags[$tagName]['wrappingTag']['tag'] = $bbm['wrapping_tag'];
+			if($bbm['parseOptions'])
+			{
+				$allBbmTags[$tagName]['parseOptions'] = true;
+			}
 
-      				if(!empty($bbm['wrapping_option']))
-      				{
-    	  				$allBbmTags[$tagName]['wrappingTag']['option'] = $bbm['wrapping_option'];		  				
-      				}
-      			}
-      			
-      			if($bbm['emptyContent_check'])
-      			{
-      				$allBbmTags[$tagName]['emptyContent_check'] = true;
-      			}
+			if($bbm['parser_has_usr'])
+			{
+				$allBbmTags[$tagName]['parser_perms']['parser_has_usr'] = $bbm['parser_has_usr'];
+			}
 
-      			if(!empty($bbm['preParser']))
-      			{
-      				$this->addPreParserBbCode($tagName);
-      			}
+			if($bbm['parser_usr'])
+			{
+				$allBbmTags[$tagName]['parser_perms']['parser_usr'] = $bbm['parser_usr'];
+			}
+
+			if($bbm['parser_return'])
+			{
+				$allBbmTags[$tagName]['parser_perms']['parser_return'] = $bbm['parser_return'];
+			}
+
+			if($bbm['parser_return_delay'])
+			{
+				$allBbmTags[$tagName]['parser_perms']['parser_return_delay'] = $bbm['parser_return_delay'];
+			}
+
+			$allBbmTags[$tagName]['view_perms']['can_view_content'] = true;
+
+			if($bbm['view_has_usr'])
+			{
+				$visitorUserGroupIds = array_merge(array((string)$visitor['user_group_id']), (explode(',', $visitor['secondary_group_ids'])));
+				$visitorsOk = unserialize($bbm['view_usr']);
+				$canViewBbCode = (array_intersect($visitorUserGroupIds, $visitorsOk)) ? true : false;
+
+				$allBbmTags[$tagName]['view_perms']['can_view_content'] = $canViewBbCode;
+				$allBbmTags[$tagName]['view_perms']['view_return'] = $bbm['view_return'];
+
+					/*
+	 				if($bbm['view_return'] == 'default_template' && array_search('bbm_viewer_content_protected', $this->_preloadBbmTemplates) === false)
+					{
+	 					$this->_preloadBbmTemplates[] = 'bbm_viewer_content_protected';
+					}
+					*/
+
+				if($bbm['view_return_delay'])
+				{
+					$allBbmTags[$tagName]['view_perms']['view_return_delay'] = $bbm['view_return_delay'];
+				}
+			}
+
+			if($bbm['wrapping_tag'] != 'none')
+			{
+				$allBbmTags[$tagName]['wrappingTag']['tag'] = $bbm['wrapping_tag'];
+
+				if(!empty($bbm['wrapping_option']))
+				{
+					$allBbmTags[$tagName]['wrappingTag']['option'] = $bbm['wrapping_option'];
+				}
+			}
+
+			if($bbm['emptyContent_check'])
+			{
+				$allBbmTags[$tagName]['emptyContent_check'] = true;
+			}
+
+			if(!empty($bbm['preParser']))
+			{
+				$this->addPreParserBbCode($tagName);
+			}
 
 			$allBbmTags[$tagName]['allowSignature'] = $bbm['allow_signature'];
 
-      			$allBbmTags[$tagName]['options_separator'] = $bbm['options_separator'];
-      			
-      			$allBbmTags[$tagName]['bbcode_id'] = $bbm['bbcode_id'];
+			$allBbmTags[$tagName]['options_separator'] = $bbm['options_separator'];
+
+			$allBbmTags[$tagName]['bbcode_id'] = $bbm['bbcode_id'];
 		}
 
 		$this->_bbmTags = $allBbmTags;
-		
+
 		/****
 		*	XenForo Options - only need to call once the options
 		***/
 		$options = XenForo_Application::get('options');
-		
+
 		$this->_xenContentCheck = $options->Bbm_XenContentCheck;
 		$this->_bbmSeparator = $options->Bbm_BbCode_Options_Separator;
-		$disabledXenTags = !empty($options->Bbcm_xenTags_disabled) ? $options->Bbcm_xenTags_disabled : array(); 
+		$disabledXenTags = !empty($options->Bbcm_xenTags_disabled) ? $options->Bbcm_xenTags_disabled : array();
 
 		$this->_bbmXenTagsParsingAllowedUsergroups = array(
 			'attach' => $options->Bbm_xenTags_disabled_usrgrp_attach,
@@ -285,13 +285,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		if($options->Bbm_wrapper_allcode != 'none')
 		{
 			$phcTags = array('php', 'html', 'code');
-			
+
 			foreach($phcTags as $tag)
 			{
 				if(!in_array($tag, $disabledXenTags))
 				{
 					$this->_xenWrappers[$tag] = $options->Bbm_wrapper_allcode;
-	
+
 					if(!empty($options->Bbm_wrapper_allcode_option))
 					{
 						$this->_xenWrappersOption[$tag] = $options->Bbm_wrapper_allcode_option;
@@ -299,10 +299,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 			}
 		}
-		
+
 		if($options->Bbm_wrapper_attach != 'none' && !in_array('attach', $disabledXenTags))
 		{
-			$this->_xenWrappers['attach'] = $options->Bbm_wrapper_attach;		
+			$this->_xenWrappers['attach'] = $options->Bbm_wrapper_attach;
 
 			if(!empty($options->Bbm_wrapper_attach_option))
 			{
@@ -312,7 +312,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		if($options->Bbm_wrapper_media != 'none' && !in_array('media', $disabledXenTags))
 		{
-			$this->_xenWrappers['media'] = $options->Bbm_wrapper_media;		
+			$this->_xenWrappers['media'] = $options->Bbm_wrapper_media;
 
 			if(!empty($options->Bbm_wrapper_media_option))
 			{
@@ -322,7 +322,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		if($options->Bbm_wrapper_url != 'none' && !in_array('url', $disabledXenTags))
 		{
-			$this->_xenWrappers['url'] = $options->Bbm_wrapper_url;		
+			$this->_xenWrappers['url'] = $options->Bbm_wrapper_url;
 
 			if(!empty($options->Bbm_wrapper_url_option))
 			{
@@ -336,11 +336,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		)
 		{
 			$xenWrapperCallback = $options->get('Bbm_wrapper_callback', false);
-			
+
 			$this->_xenWrappersCallback['class'] = $xenWrapperCallback['class'];
 			$this->_xenWrappersCallback['method'] = $xenWrapperCallback['method'];
 		}
-		
+
 		if(!empty($options->Bbm_PreCache_XenTags))
 		{
 			foreach($options->Bbm_PreCache_XenTags as $tagName)
@@ -356,7 +356,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			return (class_exists($class) && method_exists($class, $method));
 		}
-		
+
 		return class_exists($class);
 	}
 
@@ -366,8 +366,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$disabledXenTags = $options->Bbm_xenTags_disabled;
 		$disabledMethod = $options->Bbm_xenTags_disabled_method;
 
-		$this->_bbmDisableMethod = $disabledMethod;	
-		
+		$this->_bbmDisableMethod = $disabledMethod;
+
 		if(empty($disabledXenTags))
 		{
 			return $parentTags;
@@ -382,19 +382,19 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			else
 			{
 				$parentTags[$tag] = array('replace' => array('', ''));
-			}	
+			}
 		}
-		
+
 		return $parentTags;
 	}
 
 	/****
-	*	PREPARSER BB-CODES	
-	*	Bb Codes that can use the pre-parser function. Purpose: 
+	*	PREPARSER BB-CODES
+	*	Bb Codes that can use the pre-parser function. Purpose:
 	*	limit the renderer execution to only those that need it
 	***/
 	protected $_bbmPreParserBbCodes = array();
-	
+
 	public function addPreParserBbCode($tagName)
 	{
 		$this->_bbmPreParserBbCodes[$tagName] = true;
@@ -404,7 +404,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		return $this->_bbmPreParserBbCodes;
 	}
-	
+
 	public function preParserEnableFor($tagName)
 	{
 		return isset($this->_bbmPreParserBbCodes[$tagName]);
@@ -433,7 +433,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$viewPermissionsReturn = $this->checkBbCodeViewPerms($tag, $rendererStates);
-		
+
 		if($viewPermissionsReturn !== true)
 		{
 			return $viewPermissionsReturn;
@@ -447,14 +447,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$endRange = $tagInfo['end_range'];
 
 		preg_match_all('#{(\d+?)=([^}]*)}#ui', $startRange.$endRange, $captures, PREG_SET_ORDER);
-		
+
 		if(!empty($captures))
 		{
 			$startRange = preg_replace('#{(\d+?)=[^}]*}#ui', '{$1}', $startRange);
 			$endRange = preg_replace('#{(\d+?)=[^}]*}#ui', '{$1}', $endRange);
 		}
 
-		if (  (!empty($tag['option']) || ( isset($tag['option']) && is_numeric($tag['option']) ))  
+		if (  (!empty($tag['option']) || ( isset($tag['option']) && is_numeric($tag['option']) ))
 			&& $this->parseMultipleOptions($tag['option'], $tagInfo['options_separator'])
 		)
 		{
@@ -464,7 +464,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				return $fallBack;
 			}
-			
+
 			if( isset($tagInfo['parseOptions']) )
 			{
 				//False parameter because the options are securised in the next loop
@@ -483,15 +483,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		if($captures && is_array($captures))
 		{
-			foreach($captures as $capture)	
+			foreach($captures as $capture)
 			{
 				$curlyTag = '{'.$capture[1].'}';
 				$fallbackReplacement = htmlspecialchars($capture[2]); //Securise if a user inserts a curly tag in the tag options
-				$startRange = str_replace($curlyTag, $fallbackReplacement, $startRange);				
+				$startRange = str_replace($curlyTag, $fallbackReplacement, $startRange);
 				$endRange = str_replace($curlyTag, $fallbackReplacement, $endRange);
 			}
 		}
-		
+
 		return $this->bbmMethodOutputFilter(
 			$startRange.$content.$endRange, 'bbm_direct'
 		);
@@ -501,18 +501,18 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		$tagInfo = $this->_tags[$tag['tag']];
 		$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
-		$this->_createCurrentCallbackTag($tag, $tagInfo, $rendererStates);		
+		$this->_createCurrentCallbackTag($tag, $tagInfo, $rendererStates);
 		$this->bbmMethodInputFilter($tag, $rendererStates, $tagInfo);
 
 		if($increment == true)
 		{
 			$this->_bakeCurrentPostParams($tag, $rendererStates);
 		}
-			
+
 		if(!isset($rendererStates['canUseBbCode']))
 		{
 			$parserPermissionsReturn = $this->checkBbCodeParsingPerms($tag, $rendererStates);
-	
+
 			if($parserPermissionsReturn !== true)
 			{
 				//Will a short loop with changing the rendererStates
@@ -534,12 +534,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		if(!isset($rendererStates['canViewBbCode']))
 		{
 			$viewPermissionsReturn = $this->checkBbCodeViewPerms($tag, $rendererStates);
-			
+
 			if($viewPermissionsReturn !== true)
 			{
 				return $viewPermissionsReturn;
 			}
-			
+
 			$rendererStates['canViewBbCode'] = true;
 		}
 		elseif($rendererStates['canViewBbCode'] && $this->checkBbCodeViewPerms($tag, $rendererStates, true) !== true)
@@ -552,7 +552,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$content = $this->renderSubTree($tag['children'], $rendererStates);
-		
+
 		$options = array();
 		$templateName = $tagInfo['template_name'];
 
@@ -561,7 +561,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$options = $this->parseMultipleOptions($tag['option'], $tagInfo['options_separator']);
 			array_unshift($options, 'killMe');
 			unset($options[0]);
-			
+
 			if( isset($tagInfo['parseOptions']) )
 			{
 				$options = $this->parseAndSecuriseBbCodesInOptions($options);
@@ -583,7 +583,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				new $template_callback_class($this);
 			}
-			
+
 			call_user_func_array(array($template_callback_class, $template_callback_method), array(&$content, &$options, &$templateName, &$fallBack, $rendererStates, $this));
 		}
 
@@ -605,13 +605,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$this->renderBbmTemplate($templateName, $templateArguments, $fallBack), 'bbm_template'
 		);
 	}
-	
+
 	public function PhpMethodRenderer(array $tag, array $rendererStates, $increment = true)
 	{
 		$tagInfo = $this->_tags[$tag['tag']];
 		$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
-		$this->_createCurrentCallbackTag($tag, $tagInfo, $rendererStates);		
-		$this->bbmMethodInputFilter($tag, $rendererStates, $tagInfo);		
+		$this->_createCurrentCallbackTag($tag, $tagInfo, $rendererStates);
+		$this->bbmMethodInputFilter($tag, $rendererStates, $tagInfo);
 
 		if($increment == true)
 		{
@@ -648,7 +648,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				return $viewPermissionsReturn;
 			}
-			
+
 			$rendererStates['canViewBbCode'] = true;
 		}
 		elseif($rendererStates['canViewBbCode'] && $this->checkBbCodeViewPerms($tag, $rendererStates, true) !== true)
@@ -659,7 +659,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 			return $viewPermissionsReturn;
 		}
-		
+
 		$phpcallback_class = $tagInfo['phpcallback_class'];
 		$phpcallback_method = $tagInfo['phpcallback_method'];
 
@@ -678,7 +678,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				$first = reset($keys);
 				$last = end($keys);
-	
+
 				if (is_string($tag['children'][$first]))
 				{
 					$tag['children'][$first] = ltrim($tag['children'][$first]);
@@ -699,10 +699,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	/****
 	*	Current tag datas (easy access in this class or in callbacks to tag datas)
 	***/
-	
+
 	public $currentTag = array();
-	public $currentRendererStates = array();	
-	
+	public $currentRendererStates = array();
+
 	protected function _createCurrentTag($tag, array $tagInfo, array $rendererStates)
 	{
 		$this->currentTag['tag'] = $tag;
@@ -712,12 +712,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 
 	/****
-	*	Current callback tag datas 
+	*	Current callback tag datas
 	***/
-	
+
 	public $currentCallbackTag = array();
-	public $currentCallbackRendererStates = array();	
-	
+	public $currentCallbackRendererStates = array();
+
 	protected function _createCurrentCallbackTag($tag, array $tagInfo, array $rendererStates)
 	{
 		$this->currentCallbackTag['tag'] = $tag;
@@ -734,12 +734,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$rendererStates = $this->bbmGetCurrentRendererStates();
 		}
-		
+
 		if( isset($rendererStates['tagDataStack'], $rendererStates['tagDataStack'][0], $rendererStates['tagDataStack'][0]['tag']) )
 		{
 			return $rendererStates['tagDataStack'][0]['tag'];
 		}
-		
+
 		return null;
 	}
 
@@ -749,7 +749,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			return $this->currentTag['tag']['tag'];
 		}
-		
+
 		return null;
 	}
 
@@ -769,7 +769,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			return $this->currentCallbackTag['tag']['tag'];
 		}
-		
+
 		return null;
 	}
 
@@ -787,39 +787,39 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	*	@extended
 	*
 	*	The "renderValidTag" is executed before all replacement methods
-	***/	
+	***/
 
 	static $renderHash = array('replacementMethodRenderer' => true, 'PhpMethodRenderer' => true, 'TemplateMethodRenderer' => true);
-    
+
 	public function renderValidTag(array $tagInfo, array $tag, array $rendererStates)
 	{
-        $this->incrementTagMap($tagInfo, $tag, $rendererStates);
-      		//Check if xen tags content can be displayed 
+		$this->incrementTagMap($tagInfo, $tag, $rendererStates);
+		//Check if xen tags content can be displayed
 		$tagInfo = $this->_xenTagControl($tag, $tagInfo);
 
 		if(!empty($tagInfo['_bbmNoViewPerms']))
 		{
 			$fallBack = new XenForo_Phrase('bbm_viewer_content_protected');
 			$templateArguments = array('tagName' => $tag['tag'], 'phrase' => $fallBack, 'rendererStates' => $rendererStates);
-			return $this->renderBbmTemplate('bbm_viewer_content_protected', $templateArguments, $fallBack);					
+			return $this->renderBbmTemplate('bbm_viewer_content_protected', $templateArguments, $fallBack);
 		}
 
-      		//Parent function 
+		//Parent function
 		$parent = parent::renderValidTag($tagInfo, $tag, $rendererStates);
 
-    		/***
+		/***
 		*	Empty content check: do NOT use the function "renderSubTree" => it will do some problematic loops
-		*	0 check content solutions: is_numeric() or  $content !== '0'
-    		***/
-      		$content = (isset($tag['children'][0])) ? $tag['children'][0] : '';
-      		if(	(empty($content) && !is_numeric($content) && isset($tagInfo['emptyContent_check']))
-      			||
-      			(empty($content) && !is_numeric($content) && $this->_xenContentCheck && in_array($tag['tag'], $this->_xenOriginalTags))
-      		)
-      		{
-      			//This will work for all methods
-      			return $this->renderInvalidTag($tag, $rendererStates);
-      		}
+		*	0 check content solutions: is_numeric() or $content !== '0'
+		***/
+		$content = (isset($tag['children'][0])) ? $tag['children'][0] : '';
+		if(	(empty($content) && !is_numeric($content) && isset($tagInfo['emptyContent_check']))
+			||
+			(empty($content) && !is_numeric($content) && $this->_xenContentCheck && in_array($tag['tag'], $this->_xenOriginalTags))
+		)
+		{
+			//This will work for all methods
+			return $this->renderInvalidTag($tag, $rendererStates);
+		}
 
 		//Xen Standard replacement
 		if (!empty($tagInfo['replace']))
@@ -837,44 +837,44 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 		}
 
-      		//Bbm Tag Wrapping option
-      		if($this->_xenWrappersCallback && in_array($tag['tag'], $this->_xenOriginalTags))
-      		{
+		//Bbm Tag Wrapping option
+		if($this->_xenWrappersCallback && in_array($tag['tag'], $this->_xenOriginalTags))
+		{
 			call_user_func_array(array($this->_xenWrappersCallback['class'], $this->_xenWrappersCallback['method']), array($tag, $this));
-      		}
+		}
 
-      		if( isset($tagInfo['wrappingTag']['tag']) )
-      		{
-      			return $this->wrapMe($tag, $rendererStates, $parent);
-      		}
-      		elseif( isset($this->_xenWrappers[$tag['tag']]) )
-      		{
-      			return $this->wrapMe($tag, $rendererStates, $parent, true);
-      		}
+		if( isset($tagInfo['wrappingTag']['tag']) )
+		{
+			return $this->wrapMe($tag, $rendererStates, $parent);
+		}
+		elseif( isset($this->_xenWrappers[$tag['tag']]) )
+		{
+			return $this->wrapMe($tag, $rendererStates, $parent, true);
+		}
 
 		return $parent;
 	}
 
 
-    protected $bbm_advanceTagMapOnInvalid = false;
-    
-    public function renderInvalidTag(array $tag, array $rendererStates)
-    {
-        // ensure that invalid tags (for whatever reason) which are a part of the tag map are still consumed.
-        if ($this->bbm_advanceTagMapOnInvalid)
-        {
-            $this->incrementTagMap(array(), $tag, $rendererStates);
-        }
-        return parent::renderInvalidTag($tag, $rendererStates);
-    }
+	protected $bbm_advanceTagMapOnInvalid = false;
 
-    public function incrementTagMap(array $tagInfo, array $tag, array $rendererStates)
-    {
-        $this->bbm_advanceTagMapOnInvalid = false;
+	public function renderInvalidTag(array $tag, array $rendererStates)
+	{
+		// ensure that invalid tags (for whatever reason) which are a part of the tag map are still consumed.
+		if ($this->bbm_advanceTagMapOnInvalid)
+		{
+			$this->incrementTagMap(array(), $tag, $rendererStates);
+		}
+		return parent::renderInvalidTag($tag, $rendererStates);
+	}
+
+	public function incrementTagMap(array $tagInfo, array $tag, array $rendererStates)
+	{
+		$this->bbm_advanceTagMapOnInvalid = false;
 		//Increment tags using the XenForo Standard Replacement Method & all other callback methods than bbm
-		if (	!empty($tagInfo['replace']) 
+		if (	!empty($tagInfo['replace'])
 			||
-			(	isset($tagInfo['callback'][1]) 
+			(	isset($tagInfo['callback'][1])
 				&&
 				!isset(self::$renderHash[$tagInfo['callback'][1]])
 			)
@@ -883,14 +883,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$this->_createCurrentTag($tag, $tagInfo, $rendererStates);
 			$this->_bakeCurrentPostParams($tag, $rendererStates);
 		}
-    }
+	}
 
 	static $xenTagArray = array('attach' => true, 'email' => true, 'img' => true, 'media' => true, 'url' => true);
-    
+
 	protected function _xenTagControl($tag, $tagInfo)
 	{
 		$tagName = strtolower($tag['tag']);
-		
+
 		if(!isset(self::$xenTagArray[$tagName]))
 		{
 			return $tagInfo;
@@ -919,12 +919,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$proceed = true;
 			$node_id = $this->getThreadParam('node_id');
-		
+
 			if($node_id)
 			{
 				$options = XenForo_Application::get('options');
 				$allowedNodes = $this->_bbmXenTagsParsingAllowedNodes[$tagName];
-				
+
 				if(!empty($allowedNodes) && !in_array('all', $allowedNodes))
 				{
 					if(!in_array($node_id, $allowedNodes))
@@ -947,10 +947,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 			}
 		}
-	
+
 		return $tagInfo;
 	}
-    
+
 	/*
 	 * Use of tag-type caching means this function scales per bb code tag type rather than on the number of uses of the bb code
 	 */
@@ -983,7 +983,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$disableViewPerms = $visitor->hasPermission('forum', $permKey);
 		}
-		
+
 		if($disableViewPerms)
 		{
 			if($this->_bbmDisableMethod == 'real')
@@ -992,7 +992,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 			else
 			{
-				$tagInfo = array('replace' => array('', ''));				
+				$tagInfo = array('replace' => array('', ''));
 			}
 		}
 
@@ -1000,7 +1000,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$permKey = "bbm_hide_{$tagName}";
 
 		$tagInfo['_bbmNoViewPerms'] = $visitor->hasPermission('bbm_bbcodes_grp', $permKey);
-		
+
 		$this->_viewPermCache[$tagName] = $tagInfo;
 
 		return $tagInfo;
@@ -1030,21 +1030,21 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	}
 
 	protected $_tagNewInfo;
-	
+
 	public function addTagExtra($infoKey, $info, $arrayMode = false)
 	{
 		$tag = ($this->bbmGetCurrentCallbackTag()) ? $this->bbmGetCurrentCallbackTag() : $this->bbmGetCurrentTag();
-		
+
 		if($arrayMode)
 		{
 			$this->_tagNewInfo[$tag][$infoKey][] = $info;
 		}
 		else
 		{
-			$this->_tagNewInfo[$tag][$infoKey] = $info;		
+			$this->_tagNewInfo[$tag][$infoKey] = $info;
 		}
-	}	
-	
+	}
+
 	public function getTagExtra($infoKey = false, $arrayKey = false)
 	{
 		if(!$infoKey)
@@ -1053,12 +1053,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$tag = ($this->bbmGetCurrentCallbackTag()) ? $this->bbmGetCurrentCallbackTag() : $this->bbmGetCurrentTag();
-		
+
 		if( !isset($this->_tagNewInfo[$tag]) || !isset($this->_tagNewInfo[$tag][$infoKey]) )
 		{
 			return null;
 		}
-		
+
 		if($arrayKey)
 		{
 
@@ -1071,20 +1071,20 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				return null;
 			}
 		}
-		
+
 		return $this->_tagNewInfo[$tag][$infoKey];
 	}
 
 
 	protected $bbmBypassImgPerms;
 	protected $bbmBypassImgPermsExt = array();
-	protected $bbmBypassImgPermsContentTypes = array();	
+	protected $bbmBypassImgPermsContentTypes = array();
 
 	public function getAttachmentParams($id, array $validExtensions = null, array $fallbackVisitorPerms = null)
 	{
 		$currentTag = $this->bbmGetCurrentTag();
 		$rendererStates = $this->bbmGetCurrentRendererStates();
-		
+
 		if($this->bbmBypassImgPerms == null)
 		{
 			$xenOptions = XenForo_Application::get('options');
@@ -1128,7 +1128,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$canView = false;
 			$url = XenForo_Link::buildPublicLink('attachments', $attachment);
 			$fallbackPerms = false;
-			
+
 			if($fallbackVisitorPerms != null)
 			{
 				foreach($fallbackVisitorPerms as $visitorPerm)
@@ -1137,13 +1137,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					{
 						continue;
 					}
-					
+
 					if(!isset($visitorPerm['permissions']))
 					{
 						$visitor = XenForo_Visitor::getInstance();
 						$visitorPerm['permissions'] = $visitor['permissions'];
 					}
-					
+
 					$perms = XenForo_Permission::hasPermission($visitorPerm['permissions'], $visitorPerm['group'], $visitorPerm['permission']);
 
 					if($perms == true)
@@ -1163,15 +1163,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			'url' => $url,
 			'fallbackPerms' => $fallbackPerms
 		);
-		
+
 		return $output;
 	}
 
 	public function getTextDirection($cssReturn = null)
 	{
-		
+
 		$dir = strtolower($this->_textDirection);
-		
+
 		if($cssReturn == 'align' || $cssReturn == 'float')
 		{
 			return ($dir == 'ltr') ? 'left' : 'right';
@@ -1184,12 +1184,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			return ($dir == 'ltr') ? 'margin-left' : 'margin-right';
 		}
-		
+
 		return $dir;
 	}
 
 	protected $_bbmWrapMeBypassContent = false;
-	
+
 	public function getBbmWrapMeBypassContentState()
 	{
 		return $this->_bbmWrapMeBypassContent;
@@ -1205,12 +1205,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$this->_bbmProtectedBridgeStack[$function] = method_exists(__CLASS__, $function);
 		}
-		
+
 		if(!$this->_bbmProtectedBridgeStack[$function])
-	        {
+		{
 			return -1;
-	        }
-		
+		}
+
 		return call_user_func_array(array($this, $function), $args);
 	}
 
@@ -1221,9 +1221,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function updateFormatterUniqid()
 	{
-		$this->_formatterUniqid =  uniqid();
+		$this->_formatterUniqid = uniqid();
 		return;
-		
+
 		/**
 		*	If you don't want to use at all the php uniqid function, the below
 		*	code can be used (ref: http://php.net/manual/fr/function.uniqid.php)
@@ -1231,7 +1231,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		*	But since the uniq id is now only called once, it shouldn't be a problem
 		*	anymore
 		***/
-		
+
 		$m=microtime(true);
 		$this->_formatterUniqid = sprintf("%8x%05x\n",floor($m),($m-floor($m))*1000000);
 	}
@@ -1248,10 +1248,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$this->_bbmUniqidStack[$key] = 1;
 		}
-		
+
 		$formatterUniqid = $this->_formatterUniqid;
 		$tagUniqId = $this->_bbmUniqidStack[$key];
-		
+
 		return "{$key}{$formatterUniqid}_{$tagUniqId}";
 	}
 
@@ -1279,23 +1279,23 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$posterUserGroupIds = array_merge(array((string)$postParams['user_group_id']), (explode(',', $postParams['secondary_group_ids'])));
 			$postersOk = unserialize($perms['parser_usr']);
-		
+
 			if(array_intersect($posterUserGroupIds, $postersOk))
 			{
-				return true;	
+				return true;
 			}
 		}
 
 		if( isset($perms['parser_return_delay']) )
 		{
 			$autorisedLimit = $perms['parser_return_delay'];
-			$post_date = $this->getPostParam('post_date');			
+			$post_date = $this->getPostParam('post_date');
 
 			if($post_date !== NULL)
 			{
 				$interval = XenForo_Application::$time - $post_date;
 				$diff_hours = floor($interval / 3600);
-				
+
 				if($diff_hours <= $autorisedLimit)
 				{
 					return true;
@@ -1307,7 +1307,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			return false;
 		}
-		
+
 		$rendererStates['canUseBbCode'] = false; //Default: if is not a post, no way to get this value anyway
 		$output = '';
 
@@ -1350,7 +1350,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			return true;
 		}
-		
+
 		$perms = $this->_tags[$tag['tag']]['view_perms'];
 
 		if($perms['can_view_content'] === true)
@@ -1361,7 +1361,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		if( isset($perms['view_return_delay']) )
 		{
 			$autorisedLimit = $perms['view_return_delay'];
-			$post_date = $this->getPostParam('post_date');			
+			$post_date = $this->getPostParam('post_date');
 
 			if($post_date !== NULL)
 			{
@@ -1401,9 +1401,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$fallBack = new XenForo_Phrase('bbm_viewer_content_protected');
 			$templateArguments = array('tagName' => $tag['tag'], 'phrase' => $fallBack, 'rendererStates' => $rendererStates);
-			return $this->renderBbmTemplate('bbm_viewer_content_protected', $templateArguments, $fallBack);			
+			return $this->renderBbmTemplate('bbm_viewer_content_protected', $templateArguments, $fallBack);
 		}
-		
+
 		return $output;
 	}
 
@@ -1422,7 +1422,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		*	Don't use the wrapMe function if the previous tag was the Url tag
 		***/
 		$parentTag = $this->bbmGetParentTag();
-		
+
 		if( in_array($parentTag, $this->_dontWrapMeParentTags) && !in_array($currentTagData['tag'], $this->_dontWrapMeParentTags) )
 		{
 			return $content;
@@ -1440,7 +1440,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		$wrappingTagInfo = $this->_tags[$wrappingTag];
 		$this->_wrapMeContent = $content;
-		
+
 		$uniqContent = uniqid('wrapme_content_');
 
 		/****
@@ -1451,7 +1451,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			'original' => array(0 => "[$wrappingTag]", 1 => "[/$wrappingTag]"),
 			'children' => array(0 => $uniqContent)
 		);
-		
+
 			if( $isXenTag == false && isset($this->_tags[$currentTagData['tag']]['wrappingTag']['option']) )
 			{
 				$wrapper['option'] = $this->_tags[$currentTagData['tag']]['wrappingTag']['option'];
@@ -1468,7 +1468,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					}
 				}
 			}
-			
+
 			if( $isXenTag == true && isset($this->_xenWrappersOption[$currentTagData['tag']]) )
 			{
 				$wrapper['option'] = $this->_xenWrappersOption[$currentTagData['tag']];
@@ -1477,44 +1477,44 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		/****
 		*	Return manager
 		***/
-	
+
 		$rendererStates['isWrapper'] = true;
 		$rendererStates['stopWhiteSpaceEmulation'] = true;
 
 		if($parentTag == $wrappingTag)
 		{
-			$rendererStates['wrapMeIndenticalParent'] = true;		
+			$rendererStates['wrapMeIndenticalParent'] = true;
 		}
-	
+
 		$this->_bbmWrapMeBypassContent = true;
-		
-      		if( isset($wrappingTagInfo['callback'][1]) )
-      		{
+
+		if( isset($wrappingTagInfo['callback'][1]) )
+		{
 			$callBack = $wrappingTagInfo['callback'][1];
 			switch ($callBack)
 			{
 				case 'replacementMethodRenderer':
 					//Bbm Replacement Method
-				        $output = $this->replacementMethodRenderer($wrapper, $rendererStates, false);
-			        	break;
+					$output = $this->replacementMethodRenderer($wrapper, $rendererStates, false);
+					break;
 				case 'PhpMethodRenderer':
 					//PHP Callback Method
-				        $output = $this->PhpMethodRenderer($wrapper, $rendererStates, false);
-				        break;
+					$output = $this->PhpMethodRenderer($wrapper, $rendererStates, false);
+					break;
 				case 'TemplateMethodRenderer':
-				    	//Template Method
-				        $output = $this->TemplateMethodRenderer($wrapper, $rendererStates, false);
-				        break;
+					//Template Method
+					$output = $this->TemplateMethodRenderer($wrapper, $rendererStates, false);
+					break;
 				default:
 					//Other callbacks (php/html/etc...)
 					$rendererStates['stopIncrement'] = true;
 					$output = $this->renderValidTag($wrappingTagInfo, $wrapper, $rendererStates);
 			}
-      		}
+		}
 		else
 		{
 			//XenForo Replacement Method
-			$rendererStates['stopIncrement'] = true;		
+			$rendererStates['stopIncrement'] = true;
 			$output = $this->renderValidTag($wrappingTagInfo, $wrapper, $rendererStates);
 		}
 
@@ -1533,7 +1533,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	public function renderTree(array $tree, array $extraStates = array())
 	{
 		$this->_bbmGiveIdToTreeChildren($tree);
-		return parent::renderTree($tree,  $extraStates);
+		return parent::renderTree($tree, $extraStates);
 	}
 
 	protected $_bbmTreeChildrenId = 1;
@@ -1552,7 +1552,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	//This variable will get all IDs of the tree branches that would have been processed by the renderSubtree function
 	protected $_bbmSubtreeIdsProcessed = array();
-	
+
 	//Extended
 	public function renderSubTree(array $tree, array $rendererStates)
 	{
@@ -1565,7 +1565,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		/***
 		 * Let's check if a subtree branch has already been processed - if it is, stop the incrementation
 		 *
-		 * 	This problem occurs when someone extends a renderer by first calling the parent (will certainly use in the background the renderSubtree function), 
+		 * 	This problem occurs when someone extends a renderer by first calling the parent (will certainly use in the background the renderSubtree function),
 		 *	then uses the renderSubTree for some reasons, which makes this function used twice and will mess up with the tags map.
 		 *	Ie:
 		 *	public function renderBbCode(array $tag, array $rendererStates)
@@ -1576,14 +1576,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		 *		{
 		 *			return $this->renderSubTree($tag['children'], $rendererStates);
 		 *		}
-		 *		
+		 *
 		 *		return $parentOuput;
 		 *	}
 		 **/
 		if(isset($tree['bbm_subtree_id']))
 		{
 			$id = $tree['bbm_subtree_id']['bbmSubtreeId'];
-			
+
 			if(isset($this->_bbmSubtreeIdsProcessed[$id]))
 			{
 				//The purpose of all of this !
@@ -1606,14 +1606,14 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			/**
 			 * This can occur with some Bb Codes such as "List" which is using the renderTag instead of renderSubTree
-			 *  The faked children is to avoid the subtree id to be converted into a real string and be displayed
+			 * The faked children is to avoid the subtree id to be converted into a real string and be displayed
 			 * The below code is not useful but since it's useless to go further, let's end with it
 			 **/
 			return '';
 		}
-		
+
 		$this->bbm_advanceTagMapOnInvalid = true;
-		return  parent::renderTag($element, $rendererStates, $trimLeadingLines);
+		return parent::renderTag($element, $rendererStates, $trimLeadingLines);
 	}
 
 	public function addWrapper($wrapperTag, $wrapperOptions = false, $separator = false)
@@ -1634,9 +1634,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		else
 		{
 			//from Bbm tag
-			$this->_tags[$tag]['wrappingTag']['tag'] = $wrapperTag;		
+			$this->_tags[$tag]['wrappingTag']['tag'] = $wrapperTag;
 		}
-		
+
 		/*Set wrapper options*/
 		if($wrapperOptions != false)
 		{
@@ -1653,7 +1653,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			else
 			{
 				//from Bbm tag
-				$this->_tags[$tag]['wrappingTag']['option'] = $wrapperOptions;			
+				$this->_tags[$tag]['wrappingTag']['option'] = $wrapperOptions;
 			}
 		}
 	}
@@ -1667,7 +1667,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			unset($this->_xenWrappers[$tag], $this->_xenWrappersOption[$tag]);
 		}
 		else
-		{		
+		{
 			unset($this->_tags[$tag]['wrappingTag']);
 		}
 	}
@@ -1702,29 +1702,29 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	public function secureBbCodesInOptions(array $options)
 	{
-      		foreach ($options as &$option)
-      		{
+		foreach ($options as &$option)
+		{
 			$option = htmlspecialchars($option);
-    		}
-      		
-      		return $options;
+		}
+
+		return $options;
 	}
 
 	public function parseAndSecuriseBbCodesInOptions(array $options, $secure = true)
 	{
-      		foreach ($options as &$option)
-      		{
+		foreach ($options as &$option)
+		{
 			if($secure === true)
 			{
 				$option = htmlspecialchars($option); //Protection
 			}
-			
+
 			$option = $this->ParseMyBBcodesOptions($option);
-    		}
-      		
-      		return $options;
+		}
+
+		return $options;
 	}
-	
+
 	public function ParseMyBBcodesOptions($string)
 	{
 		$tester = strlen($string) - strlen(strip_tags($string));
@@ -1741,7 +1741,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$string = $parser->render($string);
 
 			//Fix for htmlspecialchars
-			$string = str_replace(array('&amp;lt;', '&amp;gt;', '&amp;amp;'), array('&lt;', '&gt;', '&amp;'), $string); 
+			$string = str_replace(array('&amp;lt;', '&amp;gt;', '&amp;amp;'), array('&lt;', '&gt;', '&amp;'), $string);
 		}
 
 		return $string;
@@ -1751,19 +1751,19 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	*	PRELOAD & RENDER TEMPLATES TOOL
 	***/
 	protected $_preloadBbmTemplates = array();
-	
+
 	//@Extended
 	public function preLoadTemplates(XenForo_View $view)
 	{
 		 //Preload Bbm Templates
 		$bbmListenerTemplateCache = array();
 		XenForo_CodeEvent::fire('bbm_callback_template_cache', array(&$bbmListenerTemplateCache));
-		
+
 		if(!empty($bbmListenerTemplateCache) && is_array($bbmListenerTemplateCache) && is_array($this->_preloadBbmTemplates))
 		{
 			$this->_preloadBbmTemplates = array_unique(array_merge($this->_preloadBbmTemplates, $bbmListenerTemplateCache));
-		}	 
-		 
+		}
+
 		if($this->_view && is_array($this->_preloadBbmTemplates))
 		{
 			foreach($this->_preloadBbmTemplates as $templateName)
@@ -1779,25 +1779,25 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	protected function _preLoadTemplatesFromCallback($class, $method)
 	{
-      		//Search if the callback has some templates to preload (from the method "preloadTemplates")
-      		if( $this->_bbmCallbackChecker($class, 'preloadTemplates') )
-      		{
-      			//$templateNames = $class::preloadTemplates($method); //Only after php 5.3
-      			$templateNames = call_user_func(array($class, 'preloadTemplates'), $method);
+		//Search if the callback has some templates to preload (from the method "preloadTemplates")
+		if( $this->_bbmCallbackChecker($class, 'preloadTemplates') )
+		{
+			//$templateNames = $class::preloadTemplates($method); //Only after php 5.3
+			$templateNames = call_user_func(array($class, 'preloadTemplates'), $method);
 
-      			if(!is_array($templateNames))
-      			{
-      				$templateNames = array($templateNames);
-      			}
-      			
-      			foreach($templateNames as $templateName)
-      			{
-      				if(!empty($templateName) && array_search($templateName, $this->_preloadBbmTemplates) === false)
-      				{
-      					$this->_preloadBbmTemplates[] = $templateName;
-      				}
-      			}
-      		}
+			if(!is_array($templateNames))
+			{
+				$templateNames = array($templateNames);
+			}
+
+			foreach($templateNames as $templateName)
+			{
+				if(!empty($templateName) && array_search($templateName, $this->_preloadBbmTemplates) === false)
+				{
+					$this->_preloadBbmTemplates[] = $templateName;
+				}
+			}
+		}
 	}
 
 	public function renderBbmTemplate($templateName, array $params = array(), $fallBack = false)
@@ -1821,61 +1821,61 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_bbCodesIncrementation = array();
 	protected $_currentPostParams = null;
 	protected $_useDefaultPostParams = false;
-	
+
 	/****
 	*	GET RESSOURCE/CATEGORY PARAMS
 	***/
 	protected $_rmParams = null;
 
 	/***
-	 *  When you pass the view in the Bb Codes formaters, your have set a main key
-	 *  Ie: for XenForo posts, it's "posts", for XenForo thread, it's "thread", for Extra Portal it's "items"
+	 * When you pass the view in the Bb Codes formaters, your have set a main key
+	 * Ie: for XenForo posts, it's "posts", for XenForo thread, it's "thread", for Extra Portal it's "items"
 	 **/
 	protected $_bbmViewParamsMainKey = '';
 
 	/***
-	 *  Most of the time, the targeted key (the one that will contain the messages to parse) is the main key,
-	 *  but some addons uses a subkey to stock all elements (ie: Extra portal, items['data']) . Just use this variable to specify
-	 *  this array sub key (ie: data). This parameter is optional
+	 * Most of the time, the targeted key (the one that will contain the messages to parse) is the main key,
+	 * but some addons uses a subkey to stock all elements (ie: Extra portal, items['data']) . Just use this variable to specify
+	 * this array sub key (ie: data). This parameter is optional
 	 **/
 	protected $_bbmViewParamsTargetedKey = null;
 
 	/***
-	 *  The message key (string) where Bb Codes will be parsed. Should be 'message' most of the time
+	 * The message key (string) where Bb Codes will be parsed. Should be 'message' most of the time
 	 **/
 	protected $_bbmMessageKey = 'message';
-    
+
 	/***
-	 *  The key postpended to the message/signature key (string) which may contain pre-parsed bbcodes - Optional feature of Xenforo 1.2 upwards. Should be '%_parsed' most of the time
+	 * The key postpended to the message/signature key (string) which may contain pre-parsed bbcodes - Optional feature of Xenforo 1.2 upwards. Should be '%_parsed' most of the time
 	 **/
 	protected $_bbmPostfixParsedKey = '_parsed';
 
 
 	/***
-	 *  The id key for the item (use for debuging)
+	 * The id key for the item (use for debuging)
 	 **/
 	protected $_bbmIdKey = 'post_id';
 
 	/***
-	 *  All extra keys to check (array). This parameter is important. To try to have data per posts, an itterator is used to create a map of the parsing tags.
-	 *  If somes tags are not in the map the parser will still parse them, but the map will not be accurate anymore. For example, in XenForo posts
-	 *  the signature will be all parsed. So the signature key must be added.
+	 * All extra keys to check (array). This parameter is important. To try to have data per posts, an itterator is used to create a map of the parsing tags.
+	 * If somes tags are not in the map the parser will still parse them, but the map will not be accurate anymore. For example, in XenForo posts
+	 * the signature will be all parsed. So the signature key must be added.
 	 **/
 	protected $_bbmExtraKeys = array();
 
 	/***
-	 *  To avoid to specify all above extra keys that must be checked you can select to use a recursive itterator that will look for all keys with string values
-	 *  inside the Targeted key. The admin board can also select to use this mode in the addon options.
+	 * To avoid to specify all above extra keys that must be checked you can select to use a recursive itterator that will look for all keys with string values
+	 * inside the Targeted key. The admin board can also select to use this mode in the addon options.
 	 **/
 	protected $_bbmRecursiveMode = null;
 
 	/***
-	 *  To remap some values (old key to new key). 
+	 * To remap some values (old key to new key).
 	 **/
 	protected $_bbmRemapOptions = false;
 
 	/***
-	 *  If the key 'bbmBypassPermissions' has been enabled in the view, then Bbm Bb Codes permissions will be ignored
+	 * If the key 'bbmBypassPermissions' has been enabled in the view, then Bbm Bb Codes permissions will be ignored
 	 **/
 	protected $_bbmByPassPerms = false;
 
@@ -1916,7 +1916,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					{
 						if(isset($this->_tags[$bbCodeTag]))
 						{
-							unset($this->_tags[$bbCodeTag]);				
+							unset($this->_tags[$bbCodeTag]);
 						}
 					}
 				}
@@ -1931,9 +1931,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 
 			/**
-			 *  For posts: check thread & posts
+			 * For posts: check thread & posts
 			 **/
-			if(	isset($params['posts']) && is_array($params['posts']) && isset($params['thread']) 
+			if(	isset($params['posts']) && is_array($params['posts']) && isset($params['thread'])
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
 			)
 			{
@@ -1946,9 +1946,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_createBbCodesMap($this->_postsDatas, 'post');
 			}
 			/**
-			 *  Preview new post/edit preview in thread or new thread
+			 * Preview new post/edit preview in thread or new thread
 			 **/
-			else if( (!isset($params['posts']) && isset($params['thread']) || isset($params['forum']))  && isset($params['message']) 
+			else if( (!isset($params['posts']) && isset($params['thread']) || isset($params['forum'])) && isset($params['message'])
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
 			)
 			{
@@ -1986,7 +1986,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				{
 					$user = XenForo_Model::Create('XenForo_Model_User')->getUserById($user_id);
 				}
-					
+
 				if (!empty($user))
 				{
 					$user_group_id = $user['user_group_id'];
@@ -1999,12 +1999,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					$secondary_group_ids = array();
 				}
 
-				$this->_postsDatas = array( 
+				$this->_postsDatas = array(
 					$id => array(
-						'post_date' => XenForo_Application::$time, 
-						'user_id' => $user_id, 
-						'post_id' => $id, 
-						'user_group_id' => $user_group_id, 
+						'post_date' => XenForo_Application::$time,
+						'user_id' => $user_id,
+						'post_id' => $id,
+						'user_group_id' => $user_group_id,
 						'secondary_group_ids' => $secondary_group_ids,
 						'message' => $params['message']
 					)
@@ -2014,8 +2014,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 
 			/**
-			 *  For conversations: check conversation & messages
-			 *  Let's use viewNames here, it's unlikely the content of conversations are reused in other views
+			 * For conversations: check conversation & messages
+			 * Let's use viewNames here, it's unlikely the content of conversations are reused in other views
 			 **/
 			if(	$viewName == 'XenForo_ViewPublic_Conversation_View' && isset($params['messages'], $params['conversation'])
 				&& is_array($params['messages']) && $this->_disableTagsMap == false && !isset($params['bbm_config'])
@@ -2026,18 +2026,18 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 				$this->_threadParams = $params['conversation'];
 				$this->_postsDatas = $params['messages'];
-				
+
 				$this->_bbmRemapOptions = array(
 					'message_date' => 'post_date',
-					'conversation_id'  => 'post_id'
+					'conversation_id' => 'post_id'
 				);
-				
+
 				$this->_createBbCodesMap($this->_postsDatas);
 			}
 			/**
-			 *  Preview an existed message in conversation
+			 * Preview an existed message in conversation
 			 **/
-			else if( isset($params['conversationMessage'])  && isset($params['message']) 
+			else if( isset($params['conversationMessage']) && isset($params['message'])
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
 			)
 			{
@@ -2048,31 +2048,31 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_threadParams = $params['conversation'];
 
 				$params['conversationMessage']['message'] = $params['message'];
-				$this->_postsDatas = array( 
+				$this->_postsDatas = array(
 					$params['conversationMessage']['message_id'] => $params['conversationMessage']
 				);
 
 				$this->_createBbCodesMap($this->_postsDatas);
 			}
 			/**
-			 *  Preview a new conversation or a new message in a conversation
+			 * Preview a new conversation or a new message in a conversation
 			 **/
-			else if( $viewName == 'XenForo_ViewPublic_Conversation_Preview' && isset($params['message']) 
+			else if( $viewName == 'XenForo_ViewPublic_Conversation_Preview' && isset($params['message'])
 				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
 			)
 			{
 				$visitor = XenForo_Visitor::getInstance()->ToArray();
 
 				$this->_bbmMessageKey = 'message';
-				$this->_bbmExtraKeys = array('signature'); //Should not be needed			
+				$this->_bbmExtraKeys = array('signature'); //Should not be needed
 
 				$this->_threadParams = array();
-				$this->_postsDatas = array( 
+				$this->_postsDatas = array(
 					0 => array(
-						'post_date' => XenForo_Application::$time, 
-						'user_id' => $visitor['user_id'], 
-						'post_id' => 0, 
-						'user_group_id' => $visitor['user_group_id'], 
+						'post_date' => XenForo_Application::$time,
+						'user_id' => $visitor['user_id'],
+						'post_id' => 0,
+						'user_group_id' => $visitor['user_group_id'],
 						'secondary_group_ids' => $visitor['secondary_group_ids'],
 						'message' => $params['message']
 					)
@@ -2080,12 +2080,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 				$this->_createBbCodesMap($this->_postsDatas);
 			}
-			
+
 			/**
-			 *  For RM (resource & category)
+			 * For RM (resource & category)
 			 **/
-			if(	isset($params['resource']) && is_array($params['resource']) &&  isset($params['category'])
-				&& $this->_disableTagsMap == false  && !isset($params['bbm_config'])
+			if(	isset($params['resource']) && is_array($params['resource']) && isset($params['category'])
+				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
 			)
 			{
 				$rm = $params['resource'];
@@ -2095,31 +2095,31 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_remapKeyValuesToPostParams(
 					$rm, array(
 						'resource_date' => 'post_date',
-						'resource_id'  => 'post_id'
+						'resource_id' => 'post_id'
 					), true
 				);
 			}
 
 			/**
-			 *  For Custom Addons
+			 * For Custom Addons
 			 **/
 			if(isset($params['bbm_config']) && $this->_disableTagsMap == false)
 			{
 				$config = $params['bbm_config'];
-				
+
 				if(empty($config['viewParamsMainKey']))
 				{
 					Zend_Debug::dump('You must set a Main Key !');
 					return;
 				}
-				
-				//Main key check				
+
+				//Main key check
 				$mainKey = $config['viewParamsMainKey'];
 				if(!isset($params[$mainKey])) {
 					Zend_Debug::dump("The main key '{$mainKey}' doesn't exist.");
-					return;				
+					return;
 				} else {
-					$this->_bbmViewParamsMainKey = $mainKey;				
+					$this->_bbmViewParamsMainKey = $mainKey;
 				}
 
 				//Targeted key check (optional)
@@ -2133,11 +2133,11 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 				if($targetedKey && !isset($params[$mainKey][$targetedKey])) {
 					Zend_Debug::dump("The targeted key '{$targetedKey}' doesn't exist.");
-					return;				
+					return;
 				} else {
-					$this->_bbmViewParamsTargetedKey = $targetedKey;				
+					$this->_bbmViewParamsTargetedKey = $targetedKey;
 				}
-				
+
 				//MultiPostMode is TRUE by defaut
 				$multiPostMode = (isset($config['multiPostsMode']) ? $config['multiPostsMode'] : true);
 				$this->_bbmRemapOptions = (isset($config['remapOptions'])) ? $config['remapOptions'] : false;
@@ -2145,26 +2145,26 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				if($multiPostMode)
 				{
 					/***
-					 *  This mode is the one where several nodes (posts) with different posters
-					 *  are loaded on the same page. It requires to create a map of all tags
-					 *  To get the results, use the same functions than to get XenForo Posts/Threads
+					 * This mode is the one where several nodes (posts) with different posters
+					 * are loaded on the same page. It requires to create a map of all tags
+					 * To get the results, use the same functions than to get XenForo Posts/Threads
 					 **/
-					
+
 					if(!empty($config['messageKey']) && is_string($config['messageKey']))
 					{
 						$this->_bbmMessageKey = $config['messageKey'];
 					}
-					
+
 					if(!empty($config['extraKeys']) && is_array($config['extraKeys']))
 					{
 						$this->_bbmExtraKeys = $config['extraKeys'];
-					}			
-						
+					}
+
 					if(isset($config['recursiveMode']))
 					{
 						$this->_bbmRecursiveMode = $config['recursiveMode'];
 					}
-					
+
 					if(isset($config['idKey']))
 					{
 						$this->_bbmIdKey = $config['idKey'];
@@ -2176,17 +2176,17 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				else
 				{
 					/***
-					 *  This mode is the one where the elements on the page are coming from the same
-					 *  posters. Ie: the XenForo Ressource Manager
+					 * This mode is the one where the elements on the page are coming from the same
+					 * posters. Ie: the XenForo Ressource Manager
 					 *
-					 *  Let's use again the viewParamsMainKey & viewParamsTargetedKey to keep
-					 *  an unified code
+					 * Let's use again the viewParamsMainKey & viewParamsTargetedKey to keep
+					 * an unified code
 					 **/
 
 					$sourceValues = ($targetedKey) ? $params[$mainKey][$targetedKey] : $params[$mainKey];
 
 					if(is_array($sourceValues) && is_array($this->_remapOptions))
-					{				
+					{
 						$this->_remapKeyValuesToPostParams($sourceValues, $this->_bbmRemapOptions, true);
 					}
 				}
@@ -2194,15 +2194,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				if(!empty($config['moreInfoParamsKey']))
 				{
 					/***
-					 * This key is only to emulate the thread info, in other words 
+					 * This key is only to emulate the thread info, in other words
 					 * to have more info about the current view. It can be used to
-					 * create some Bb Codes. For example if the data from that key 
-					 * speficied the name of one page of your addon and you want to 
+					 * create some Bb Codes. For example if the data from that key
+					 * speficied the name of one page of your addon and you want to
 					 * set permissions on that page, you can use this.
 					 * Ok, it's not very clear, so for more information, ask me by pm.
 					 **/
-					 
-					$extraInfoKey = $config['moreInfoParamsKey'];	
+
+					$extraInfoKey = $config['moreInfoParamsKey'];
 
 					if(is_string($extraInfoKey) && isset($params[$extraInfoKey]))
 					{
@@ -2217,10 +2217,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 							{
 								continue;
 							}
-							
+
 							$wipInfo[] = $params[$extraInfoKey];
 						}
-						
+
 						$this->_threadParams = $wipInfo;
 					}
 				}
@@ -2238,23 +2238,23 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$this->_useDefaultPostParams = true;
 		}
-		
+
 		$keyValues = array('post_date', 'user_id', 'post_id', 'user_group_id', 'secondary_group_ids');
-		
+
 		foreach($remapOptions as $originalKey => $postParamKey)
 		{
 			if(!isset($values[$originalKey])){
 				continue;
 			}
-			
+
 			if(isset($this->_currentPostParams[$postParamKey])){
 				continue;
 			}
-			
+
 			$this->_currentPostParams[$postParamKey] = $values[$originalKey];
-			
+
 			$key = array_search($postParamKey, $keyValues);
-		
+
 			if($key !== false)
 			{
 				unset($keyValues[$key]);
@@ -2267,13 +2267,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				continue;
 			}
-			
+
 			$this->_currentPostParams[$keyValue] = $values[$keyValue];
 		}
 	}
-    
-    protected $_parseCache = array();
-    protected $_cacheBbcodeTree = false;
+
+	protected $_parseCache = array();
+	protected $_cacheBbcodeTree = false;
 
 	protected function _createBbCodesMap($posts = NULL, $content_type = NULL)
 	{
@@ -2282,16 +2282,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			return;
 		}
 
-	        $bbcodesModel = $this->_getBbCodesModel();
+		$bbcodesModel = $this->_getBbCodesModel();
 		$options = XenForo_Application::get('options');
 		$bbmRecursiveMode = ($this->_bbmRecursiveMode != null) ? $this->_bbmRecursiveMode : $options->Bbm_TagsMap_GlobalMethod;
-		$messageKey =  $this->_bbmMessageKey;
-		$extraKeys =  $this->_bbmExtraKeys;
+		$messageKey = $this->_bbmMessageKey;
+		$extraKeys = $this->_bbmExtraKeys;
 		$parsedKeySuffix = $this->_bbmPostfixParsedKey;
 		$parsedMessageKey = $messageKey . $parsedKeySuffix;
 		$cache_threshold = $options->Bbm_TagsMap_Cache_Threshold; // in milliseconds
 		$cache_enabled = $options->Bbm_TagsMap_Cache_Enabled && ($content_type != '');
-        
+
 		foreach($posts as $post_id => $post)
 		{
 			if(!empty($this->_bbmViewParamsTargetedKey))
@@ -2301,7 +2301,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				{
 					continue;
 				}
-				
+
 				$data = $post[$subKey];
 			}
 			else
@@ -2313,7 +2313,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			{
 				continue;
 			}
-			
+
 			$tag_cache = array();
 			$has_loaded_tags = false;
 			if ($cache_enabled)
@@ -2329,12 +2329,12 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 			}
 			$time = microtime(true);
-			
+
 			if($bbmRecursiveMode)
 			{
 				if (!$has_loaded_tags)
 				{
-					//Global method => will check  all the elements (if they are strings) of the post array
+					//Global method => will check all the elements (if they are strings) of the post array
 					$flattenPostIt = new RecursiveIteratorIterator( new RecursiveArrayIterator($data) );
 					$allPostItemsInOne = '';
 
@@ -2368,14 +2368,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 					}
 					$this->_tagBBCodeFromTree(!$has_loaded_tags && $cache_enabled, $tag_cache, $post_id, $BbCodesTree );
 				}
-                if ($this->_cacheBbcodeTree && $BbCodesTree === null)
-                {
-                    $BbCodesTree = @unserialize($data[$parsedMessageKey]);
-                }
-                if ($BbCodesTree !== null)
-                {
-                    $this->_parseCache[$post_id . $messageKey] = $BbCodesTree;
-                }
+
+				if ($this->_cacheBbcodeTree && $BbCodesTree === null)
+				{
+					$BbCodesTree = @unserialize($data[$parsedMessageKey]);
+				}
+
+				if ($BbCodesTree !== null)
+				{
+					$this->_parseCache[$post_id . $messageKey] = $BbCodesTree;
+				}
 
 				// extra data should be relatively small, don't do tag map caching. This also ensures cache invalidation stays sane
 				foreach($extraKeys as $extrakey)
@@ -2400,10 +2402,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 						$BbCodesTree = $this->getParser()->parse($target);
 					}
 
-                    if ($this->_cacheBbcodeTree && $BbCodesTree !== null)
-                    {
-                        $this->_parseCache[$post_id . $extrakey] = $BbCodesTree;
-                    }
+					if ($this->_cacheBbcodeTree && $BbCodesTree !== null)
+					{
+						$this->_parseCache[$post_id . $extrakey] = $BbCodesTree;
+					}
 
 					$tmp = array();
 					$this->_tagBBCodeFromTree(false, $tmp, $post_id, $BbCodesTree);
@@ -2422,25 +2424,25 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			Zend_Debug::dump($this->_bbCodesMap);
 		}
 	}
-    
+
 	protected function _tagBBCodeFromTree($canCacheTagMap, array &$tagMapCache, $post_id, $BbCodesTree)
 	{
 		if(!is_array($BbCodesTree))
 		{
 			return;
 		}
-		
+
 		foreach($BbCodesTree as $entry)
 		{
 			if (is_array($entry) && isset($entry['tag']))
 			{
-		                $tag = $entry['tag'];
+				$tag = $entry['tag'];
 				$this->_bbCodesMap[$tag][] = $post_id;
 
-                		if ($canCacheTagMap)
-                		{
-		                    $tagMapCache[] = $tag;
-		                }
+				if ($canCacheTagMap)
+				{
+					$tagMapCache[] = $tag;
+				}
 
 				if (!empty($entry['children']))
 				{
@@ -2449,7 +2451,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			}
 		}
 	}
-    
+
 	protected function _bakeCurrentPostParams($tag, $rendererStates)
 	{
 		if(!empty($rendererStates['stopIncrement']))
@@ -2474,7 +2476,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 			return 	$this->_currentPostParams = NULL;
 		}
-		
+
 		$postId = $this->_bbCodesMap[$tagName][$id];
 
 		if ( !isset($this->_postsDatas[$postId]) )
@@ -2488,10 +2490,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 
 		$this->_currentPostParams = $this->_postsDatas[$postId];
-		
+
 		if(!empty($this->_bbmRemapOptions) && is_array($this->_bbmRemapOptions))
 		{
-			$this->_remapKeyValuesToPostParams($this->_currentPostParams, $this->_bbmRemapOptions);		
+			$this->_remapKeyValuesToPostParams($this->_currentPostParams, $this->_bbmRemapOptions);
 		}
 
 		$this->_debugInit($tag['tag']);
@@ -2503,16 +2505,16 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 		if( !isset($this->_bbCodesIncrementation[$tagName]) )
 		{
-			$this->_bbCodesIncrementation[$tagName] = 0;	
+			$this->_bbCodesIncrementation[$tagName] = 0;
 		}
 		else
 		{
 			$this->_bbCodesIncrementation[$tagName] = $this->_bbCodesIncrementation[$tagName]+1;
 		}
-		
+
 		return $this->_bbCodesIncrementation[$tagName];
 	}
-	
+
 	protected function _resetIncrementation()
 	{
 		$this->_bbCodesIncrementation = array();
@@ -2522,7 +2524,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	{
 		return $this->_bbCodesMap;
 	}
-	
+
 	public function getThreadParams()
 	{
 		return $this->_threadParams;
@@ -2554,7 +2556,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			return NULL;
 		}
-		
+
 		if(	$inCategory
 			&& !empty($this->_rmParams['category'])
 			&& isset($this->_rmParams['category'][$param])
@@ -2564,9 +2566,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 		elseif( !$inCategory && isset($this->_rmParams[$param]) )
 		{
-			return $this->_rmParams['category'][$param];		
+			return $this->_rmParams['category'][$param];
 		}
-		
+
 		return NULL;
 	}
 
@@ -2576,7 +2578,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$dataKey = $this->_bbmViewParamsTargetedKey;
 			return $this->_currentPostParams[$dataKey];
-		}		
+		}
 
 		return $this->_currentPostParams;
 	}
@@ -2593,7 +2595,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			return $this->_currentPostParams[$param];
 		}
-			
+
 		if(self::$debug === true)
 		{
 			$callers = debug_backtrace();
@@ -2601,9 +2603,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$line = isset($callers[1]['line']) ? $callers[1]['line'] : 'Unknown';
 			echo "This Post parameter is missing: $param (calling function: $caller - line:$line)<br />";
 		}
-	
+
 		return NULL;
-	}	
+	}
 
 	/****
 	*	Debug Module
@@ -2615,7 +2617,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected function _checkIfDebug($params)
 	{
 		$options = XenForo_Application::get('options');
-		
+
 		if($options->Bbm_TagsMap_DebugInfo)
 		{
 			$visitor = XenForo_Visitor::getInstance();
@@ -2627,10 +2629,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			$visitor = XenForo_Visitor::getInstance();
 			if($visitor['is_admin'])
 			{
-				Zend_Debug::dump($params);			
+				Zend_Debug::dump($params);
 			}
 		}
-		
+
 		if($options->Bbm_TagsMap_Disable)
 		{
 			$this->_disableTagsMap = true;
@@ -2639,27 +2641,27 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 	protected function _debugInit($tagName)
 	{
-      		if(self::$debug === true)
-      		{
-      			$tagId = $this->_bbCodesIncrementation[$tagName];
-      			$postId = $this->getPostParam($this->_bbmIdKey);
-      			echo "The tag being processed is $tagName (ID:$tagId - Post ID:$postId)<br />";
-      		}
+		if(self::$debug === true)
+		{
+			$tagId = $this->_bbCodesIncrementation[$tagName];
+			$postId = $this->getPostParam($this->_bbmIdKey);
+			echo "The tag being processed is $tagName (ID:$tagId - Post ID:$postId)<br />";
+		}
 	}
 
 	/****
-	*	Set/Get Request Path 
+	*	Set/Get Request Path
 	*	Often use to create proper Bb Codes with anchors - Better to do this only once
 	***/
-	
+
 	protected $bbmRequestUri = null;
 	protected $bbmFullBasePath = null;
 	protected $bbmFullUri = null;
-		
+
 	protected function _bbmsetRequestPath()
 	{
 		$requestPath = XenForo_Application::get('requestPaths');
-		
+
 		if(isset($requestPath['requestUri']))
 		{
 			$this->bbmRequestUri = $requestPath['requestUri'];
@@ -2669,13 +2671,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		{
 			$this->bbmFullBasePath = $requestPath['fullBasePath'];
 		}
-		
+
 		if(isset($requestPath['fullUri']))
-		{		
+		{
 			$this->bbmFullUri = $requestPath['fullUri'];
 		}
 	}
-	
+
 	public function getRequestPath($mode = 'requestUri')
 	{
 		switch ($mode) {
@@ -2692,8 +2694,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				'requestUri' => $this->bbmRequestUri,
 				'fullBasePath' => $this->bbmFullBasePath,
 				'fullUri' => $this->bbmFullUri
-			);	
-		}	
+			);
+		}
 	}
 
 
@@ -2714,7 +2716,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 		return $this->bbmToolTemplate;
 	}
-	
+
 	public function bbmGetTemplateParam($param)
 	{
 		$bbmToolTemplate = $this->bbmGetToolTemplate();
@@ -2734,13 +2736,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	public function bbmGetViewName()
 	{
 		return $this->bbmGetTemplateParam('viewName');
-	}			
+	}
 
 	protected static $BbCodesModel = null;
 	protected function _getBbCodesModel()
 	{
-        	if (self::$BbCodesModel == null)
-	        {
+		if (self::$BbCodesModel == null)
+		{
 			self::$BbCodesModel = XenForo_Model::Create('BBM_Model_BbCodes');
 		}
 		return self::$BbCodesModel;
@@ -2750,13 +2752,13 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	public function filterFinalOutput($output)
 	{
 		$output = parent::filterFinalOutput($output);
-		
+
 		if(XenForo_Application::get('options')->get('bbm_unbreakable_double_quotes'))
 		{
 			$output = BBM_Helper_BbCodes::unbreakableQuote($output);
 		}
 
 		return $output;
-	}	
+	}
 }
 //Zend_Debug::dump($abc);
