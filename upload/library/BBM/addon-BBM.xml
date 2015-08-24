@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.3.0" version_id="76" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="BBM" title="Bb Codes &amp; Buttons Manager" version_string="3.3.0" version_id="77" url="http://xenforo.com/community/resources/bbcodes-buttons-manager.1731/" install_callback_class="BBM_Installer" install_callback_method="install" uninstall_callback_class="BBM_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="bbm_bbcodeManager" parent_navigation_id="sedo_bbm" display_order="100" link="bbm-bbcodes" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
     <navigation navigation_id="bbm_buttonsManager" parent_navigation_id="sedo_bbm" display_order="110" link="bbm-buttons" admin_permission_id="bbm_BbCodesAndButtons" debug_only="0" hide_no_children="0"/>
@@ -2522,6 +2522,46 @@ li.buttons span{
 }
 (jQuery, this, document);
 </script>]]></template>
+    <template title="option_bbm_title"><![CDATA[<xen:require css="option_bbm_title.css" />
+
+<div class="bbm_title">
+	<xen:controlunit label="" hint="">
+		<xen:html>
+			<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+			{xen:raw $editLink}
+		</xen:html>
+	</xen:controlunit>
+
+	<p class="title">{$preparedOption.title}</p>
+	<xen:if is="{$preparedOption.explain}">
+		<p class="explain">{xen:raw $preparedOption.explain}</p>
+	</xen:if>
+	<xen:if is="{$preparedOption.hint}">
+		<p class="hint">{xen:raw {$preparedOption.hint}}</p>
+	</xen:if>
+</div>]]></template>
+    <template title="option_bbm_title.css"><![CDATA[.bbm_title {
+		margin-left: 5px;
+		padding-bottom: 5px;
+}
+
+.bbm_title .ctrlUnit {
+    float: right;
+}
+
+.bbm_title p.title {
+	font-size: 18px;	
+	color: {xen:property primaryMedium};
+	font-weight: bold;
+	font-variant: small-caps;
+}
+
+.bbm_title p.explain {
+	font-size: 11px;
+	color: {xen:property mutedTextColor};
+	margin-top: 2px;
+	margin-right: 0;
+}]]></template>
     <template title="option_list_option_bbm_inline_checkbox"><![CDATA[<xen:require css="option_list_option_bbm_inline_checkbox.css" />
 
 <xen:checkboxunit label="{$preparedOption.title}" name="{$fieldPrefix}[{$preparedOption.option_id}]" value="{$preparedOption.option_value}"
@@ -2666,13 +2706,13 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
       <default_value></default_value>
       <edit_format_params>size=3</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="100"/>
+      <relation group_id="bbm_bbcodemanager" display_order="505"/>
     </option>
     <option option_id="Bbm_Bm_Cust_Config" edit_format="callback" data_type="array" can_backup="1" validation_class="BBM_Options_XenOptions" validation_method="verify_bm_cust">
       <default_value>a:0:{}</default_value>
       <edit_format_params>BBM_Options_XenOptions::render_bm_cust</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="700"/>
+      <relation group_id="bbm_buttonmanager" display_order="710"/>
     </option>
     <option option_id="Bbm_Bm_Forum_Config" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
@@ -2685,114 +2725,114 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
       <default_value>disable</default_value>
       <edit_format_params>BBM_Options_XenOptions::render_bm_mobile</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="500"/>
+      <relation group_id="bbm_buttonmanager" display_order="510"/>
     </option>
     <option option_id="Bbm_Bm_SetInAdmin" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="90"/>
+      <relation group_id="bbm_buttonmanager" display_order="120"/>
     </option>
     <option option_id="Bbm_Bm_ShowControllerInfo" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="710"/>
+      <relation group_id="bbm_buttonmanager" display_order="720"/>
     </option>
     <option option_id="Bbm_Bm_Tablets" edit_format="callback" data_type="string" can_backup="1">
       <default_value>disable</default_value>
       <edit_format_params>BBM_Options_XenOptions::render_bm_tablets</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="510"/>
+      <relation group_id="bbm_buttonmanager" display_order="520"/>
     </option>
     <option option_id="Bbm_Bypass_Visitor_Perms_For_Img" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_misc" display_order="100"/>
+      <relation group_id="bbm_xenforo_misc" display_order="110"/>
     </option>
     <option option_id="Bbm_Bypass_Visitor_Perms_Img_Ct" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_attachment_content_types</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_misc" display_order="120"/>
+      <relation group_id="bbm_xenforo_misc" display_order="130"/>
     </option>
     <option option_id="Bbm_Bypass_Visitor_Perms_Img_Ext" edit_format="textbox" data_type="string" can_backup="1">
       <default_value>jpg, jpe, gif, jpeg, png</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_misc" display_order="110"/>
+      <relation group_id="bbm_xenforo_misc" display_order="120"/>
     </option>
     <option option_id="Bbm_ContentProtection" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="500"/>
+      <relation group_id="bbm_bbcodemanager" display_order="510"/>
     </option>
     <option option_id="Bbm_DisablePermsBbCodes" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_active_tags_multi</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="6005"/>
+      <relation group_id="bbm_bbcodemanager" display_order="6030"/>
     </option>
     <option option_id="Bbm_DisablePermsViewName" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params>rows=6</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="6000"/>
+      <relation group_id="bbm_bbcodemanager" display_order="6010"/>
     </option>
     <option option_id="Bbm_DisplayViewName" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="6010"/>
+      <relation group_id="bbm_bbcodemanager" display_order="6020"/>
     </option>
     <option option_id="Bbm_HideTagsInFastPreview" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="510"/>
+      <relation group_id="bbm_bbcodemanager" display_order="520"/>
     </option>
     <option option_id="Bbm_HideTagsInFastPreviewInvisible" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="515"/>
+      <relation group_id="bbm_bbcodemanager" display_order="520"/>
     </option>
     <option option_id="Bbm_HtmlCleanerDom" edit_format="select" data_type="boolean" can_backup="1">
       <default_value>1</default_value>
       <edit_format_params>0={xen:phrase bbm_htmlcleaner_external}
 1={xen:phrase bbm_htmlcleanear_phpdom}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="550"/>
+      <relation group_id="bbm_bbcodemanager" display_order="560"/>
     </option>
     <option option_id="Bbm_Params_DebugInfo" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="9002"/>
+      <relation group_id="bbm_bbcodemanager" display_order="9020"/>
     </option>
     <option option_id="Bbm_PreCache_Enable" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="600"/>
+      <relation group_id="bbm_bbcodemanager" display_order="610"/>
     </option>
     <option option_id="Bbm_PreCache_XenTags" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_xen_tags</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="610"/>
+      <relation group_id="bbm_bbcodemanager" display_order="620"/>
     </option>
     <option option_id="Bbm_TagsMap_Cache_Enabled" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="5100"/>
+      <relation group_id="bbm_bbcodemanager" display_order="5110"/>
     </option>
     <option option_id="Bbm_TagsMap_Cache_Expiry" edit_format="spinbox" data_type="unsigned_integer" can_backup="1">
       <default_value>604800</default_value>
@@ -2804,185 +2844,197 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
       <default_value>5</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="5110"/>
+      <relation group_id="bbm_bbcodemanager" display_order="5120"/>
     </option>
     <option option_id="Bbm_TagsMap_DebugInfo" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="9000"/>
+      <relation group_id="bbm_bbcodemanager" display_order="9010"/>
     </option>
     <option option_id="Bbm_TagsMap_Disable" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="9020"/>
+      <relation group_id="bbm_bbcodemanager" display_order="9040"/>
     </option>
     <option option_id="Bbm_TagsMap_GlobalMethod" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="9010"/>
+      <relation group_id="bbm_bbcodemanager" display_order="9030"/>
     </option>
     <option option_id="Bbm_XenContentCheck" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="120"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="9001"/>
     </option>
     <option option_id="Bbm_ZenkakuConv" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="540"/>
+      <relation group_id="bbm_bbcodemanager" display_order="550"/>
     </option>
     <option option_id="Bbm_modify_parser" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_bbcodemanager" display_order="530"/>
+      <relation group_id="bbm_bbcodemanager" display_order="540"/>
     </option>
     <option option_id="Bbm_wrapper_allcode" edit_format="callback" data_type="string" can_backup="1">
       <default_value>none</default_value>
       <edit_format_params>BBM_Options_XenOptions::render_active_tags</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="220"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3010"/>
     </option>
     <option option_id="Bbm_wrapper_allcode_option" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params>size=40</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="230"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3015"/>
     </option>
     <option option_id="Bbm_wrapper_attach" edit_format="callback" data_type="string" can_backup="1">
       <default_value>none</default_value>
       <edit_format_params>BBM_Options_XenOptions::render_active_tags</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="240"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3020"/>
     </option>
     <option option_id="Bbm_wrapper_attach_option" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params>size=40</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="241"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3025"/>
     </option>
     <option option_id="Bbm_wrapper_callback" edit_format="template" data_type="array" can_backup="1" validation_class="BBM_Options_Verification" validation_method="xenWrapperCallback">
       <default_value>a:1:{s:20:"Bbm_wrapper_callback";s:4:"none";}</default_value>
       <edit_format_params>bbm_option_template_callback</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="299"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3050"/>
     </option>
     <option option_id="Bbm_wrapper_img" edit_format="callback" data_type="string" can_backup="1">
       <default_value>none</default_value>
       <edit_format_params>BBM_Options_XenOptions::render_active_tags</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="200"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3001"/>
     </option>
     <option option_id="Bbm_wrapper_img_option" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params>size=40</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="210"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3005"/>
     </option>
     <option option_id="Bbm_wrapper_media" edit_format="callback" data_type="string" can_backup="1">
       <default_value>none</default_value>
       <edit_format_params>BBM_Options_XenOptions::render_active_tags</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="250"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3030"/>
     </option>
     <option option_id="Bbm_wrapper_media_option" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params>size=40</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="251"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3035"/>
     </option>
     <option option_id="Bbm_wrapper_url" edit_format="callback" data_type="string" can_backup="1">
       <default_value>none</default_value>
       <edit_format_params>BBM_Options_XenOptions::render_active_tags</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="260"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3040"/>
     </option>
     <option option_id="Bbm_wrapper_url_option" edit_format="textbox" data_type="string" can_backup="1">
       <default_value></default_value>
       <edit_format_params>size=40</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="261"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3045"/>
     </option>
     <option option_id="Bbm_xenTags_disabled" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_xen_tags</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="300"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="1100"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_method" edit_format="select" data_type="string" can_backup="1">
       <default_value>real</default_value>
       <edit_format_params>real={xen:phrase bbm_xenTags_unparsed_real}
 fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="400"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="1001"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_nodes_attach" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_nodes_all</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="510"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2005"/>
+    </option>
+    <option option_id="Bbm_xenTags_disabled_nodes_color" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>BBM_Options_XenOptions::render_nodes_all</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2055"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_nodes_email" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_nodes_all</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="610"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2015"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_nodes_img" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_nodes_all</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="710"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2025"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_nodes_media" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_nodes_all</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="910"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2045"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_nodes_url" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_nodes_all</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="810"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2035"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_usrgrp_attach" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_usergroups</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="500"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2001"/>
+    </option>
+    <option option_id="Bbm_xenTags_disabled_usrgrp_color" edit_format="callback" data_type="array" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>BBM_Options_XenOptions::render_usergroups</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2050"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_usrgrp_email" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_usergroups</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="600"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2010"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_usrgrp_img" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_usergroups</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="700"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2020"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_usrgrp_media" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_usergroups</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="900"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2040"/>
     </option>
     <option option_id="Bbm_xenTags_disabled_usrgrp_url" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_usergroups</edit_format_params>
       <sub_options>*</sub_options>
-      <relation group_id="bbm_xenforo_bbcodes_control" display_order="800"/>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2030"/>
     </option>
     <option option_id="bbm_admin_fa_integration" edit_format="radio" data_type="integer" can_backup="1">
       <default_value>2</default_value>
@@ -2990,34 +3042,33 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
 1={xen:phrase bbm_fa_cdn_integration}
 2={xen:phrase bbm_fa_local_integration}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="110"/>
+      <relation group_id="bbm_buttonmanager" display_order="220"/>
     </option>
     <option option_id="bbm_debug_redactor_js_global" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="9000"/>
+      <relation group_id="bbm_buttonmanager" display_order="130"/>
     </option>
     <option option_id="bbm_debug_redactor_js_loader_novisitor" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="9001"/>
+      <relation group_id="bbm_buttonmanager" display_order="140"/>
     </option>
-    <option option_id="bbm_debug_tinymcehookcontent" edit_format="radio" data_type="boolean" can_backup="1">
+    <option option_id="bbm_debug_tinymcehookcontent" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
-      <edit_format_params>1={xen:phrase bbm_options_yes}
-0={xen:phrase bbm_options_no}</edit_format_params>
+      <edit_format_params></edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="9999"/>
+      <relation group_id="bbm_bbcodemanager" display_order="9020"/>
     </option>
     <option option_id="bbm_debug_tinymcehookdisable" edit_format="radio" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params>1={xen:phrase bbm_options_yes}
 0={xen:phrase bbm_options_no}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="10"/>
+      <relation group_id="bbm_buttonmanager" display_order="110"/>
     </option>
     <option option_id="bbm_fa_integration" edit_format="radio" data_type="integer" can_backup="1">
       <default_value>1</default_value>
@@ -3025,11 +3076,101 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
 1={xen:phrase bbm_fa_cdn_integration}
 2={xen:phrase bbm_fa_local_integration}</edit_format_params>
       <sub_options></sub_options>
-      <relation group_id="bbm_buttonmanager" display_order="100"/>
+      <relation group_id="bbm_buttonmanager" display_order="210"/>
     </option>
     <option option_id="bbm_unbreakable_double_quotes" edit_format="onoff" data_type="boolean" can_backup="1">
       <default_value>0</default_value>
       <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_misc" display_order="210"/>
+    </option>
+    <option option_id="bbm_xenbb_title_debug" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="9000"/>
+    </option>
+    <option option_id="bbm_xenbb_title_disablebyviewnames" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="6000"/>
+    </option>
+    <option option_id="bbm_xenbb_title_disablesettings" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="1000"/>
+    </option>
+    <option option_id="bbm_xenbb_title_generalsettings" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="500"/>
+    </option>
+    <option option_id="bbm_xenbb_title_misc" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="9000"/>
+    </option>
+    <option option_id="bbm_xenbb_title_parsingperms" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="2000"/>
+    </option>
+    <option option_id="bbm_xenbb_title_precache" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="600"/>
+    </option>
+    <option option_id="bbm_xenbb_title_tagsmapcaching" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="5100"/>
+    </option>
+    <option option_id="bbm_xenbb_title_wrapper" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_bbcodes_control" display_order="3000"/>
+    </option>
+    <option option_id="bbm_xenbm_title_advconfig" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_buttonmanager" display_order="700"/>
+    </option>
+    <option option_id="bbm_xenbm_title_fa" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_buttonmanager" display_order="200"/>
+    </option>
+    <option option_id="bbm_xenbm_title_generalsettings" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_buttonmanager" display_order="100"/>
+    </option>
+    <option option_id="bbm_xenbm_title_mobileconfig" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_buttonmanager" display_order="500"/>
+    </option>
+    <option option_id="bbm_xenmisc_title_advimgaccess" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_xenforo_misc" display_order="100"/>
+    </option>
+    <option option_id="bbm_xenmisc_title_contentoption" edit_format="template" data_type="string" can_backup="1">
+      <default_value></default_value>
+      <edit_format_params>option_bbm_title</edit_format_params>
       <sub_options></sub_options>
       <relation group_id="bbm_xenforo_misc" display_order="200"/>
     </option>
@@ -3040,11 +3181,13 @@ fake={xen:phrase bbm_xenTags_unparsed_fake}</edit_format_params>
     </permission_groups>
     <permissions>
       <permission permission_group_id="bbm_bbcodes_grp" permission_id="bbm_hide_attach" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324571"/>
+      <permission permission_group_id="bbm_bbcodes_grp" permission_id="bbm_hide_color" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324576"/>
       <permission permission_group_id="bbm_bbcodes_grp" permission_id="bbm_hide_email" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324572"/>
       <permission permission_group_id="bbm_bbcodes_grp" permission_id="bbm_hide_img" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324573"/>
       <permission permission_group_id="bbm_bbcodes_grp" permission_id="bbm_hide_media" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324574"/>
       <permission permission_group_id="bbm_bbcodes_grp" permission_id="bbm_hide_url" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324575"/>
       <permission permission_group_id="forum" permission_id="bbm_disable_attach" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324561"/>
+      <permission permission_group_id="forum" permission_id="bbm_disable_color" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324566"/>
       <permission permission_group_id="forum" permission_id="bbm_disable_email" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324562"/>
       <permission permission_group_id="forum" permission_id="bbm_disable_img" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324563"/>
       <permission permission_group_id="forum" permission_id="bbm_disable_media" permission_type="flag" default_value="unset" interface_group_id="bbm_bbcodes_interface" display_order="324564"/>
@@ -3508,8 +3651,8 @@ If you want to use the options of the original tag with the wrapping tag, enter 
     <phrase title="bbm_xml_invalid" version_id="0" version_string="1.0"><![CDATA[Invalid BB Code XML File.]]></phrase>
     <phrase title="option_bbm_admin_fa_integration" version_id="55" version_string="3.0.0"><![CDATA[Font-Awesome Integration [admin side]]]></phrase>
     <phrase title="option_bbm_admin_fa_integration_explain" version_id="55" version_string="3.0.0"><![CDATA[Same setting as above but for some of the Bbm pages in the admin section.]]></phrase>
-    <phrase title="option_Bbm_BbCode_Options_Separator" version_id="0" version_string="1.0"><![CDATA[BbCodes Options Separator]]></phrase>
-    <phrase title="option_Bbm_BbCode_Options_Separator_explain" version_id="0" version_string="1.0"><![CDATA[You can customize here the Bb Codes separator used in their options. If you let this field blank, the default separator will be ", " (coma+ white space).<br />
+    <phrase title="option_Bbm_BbCode_Options_Separator" version_id="76" version_string="3.3.0"><![CDATA[Bbm Bb Codes Options Separator]]></phrase>
+    <phrase title="option_Bbm_BbCode_Options_Separator_explain" version_id="76" version_string="3.3.0"><![CDATA[You can customize here the Bbm Bb Codes separator used in their options. If you let this field blank, the default separator will be ", " (coma+ white space).<br />
 Ie: [bbcode=option1, option2]content[/bbcode]<br />
 <br />
 <b>Note:</b> This bbcode options separator might be overridden with bbcodes using a callback.<br />
@@ -3550,8 +3693,7 @@ It's easy once the option activated, go to "Applications", edit your node (forum
 <b>Important:</b><br />
 The  priority level of the "Configuration by Forum" is higher than the one of the "Configuration by Controller".]]></phrase>
     <phrase title="option_Bbm_Bm_Mobile" version_id="0" version_string="1.0"><![CDATA[Bbm Editor Configuration for mobile devices]]></phrase>
-    <phrase title="option_Bbm_Bm_Mobile_explain" version_id="0" version_string="1.0"><![CDATA[Select here which one of your bbm editors you would like to use with mobile devices.<br />
-To activate TinyMCE on mobiles, you must install and configure <a href="http://xenforo.com/community/resources/tinymce-fix.1162/" target="_blank">this addon</a>.]]></phrase>
+    <phrase title="option_Bbm_Bm_Mobile_explain" version_id="76" version_string="3.3.0"><![CDATA[Select here which one of your bbm editors you would like to use with mobile devices.]]></phrase>
     <phrase title="option_Bbm_Bm_SetInAdmin" version_id="0" version_string="1.0"><![CDATA[Enable the Buttons Manager in the admin side?]]></phrase>
     <phrase title="option_Bbm_Bm_SetInAdmin_explain" version_id="0" version_string="1.0"><![CDATA[Some addons might use the XenForo TinyMCE editor inside the Admin section. This option let you the choice to enable or disable it here. Default option is <b>no</b>.]]></phrase>
     <phrase title="option_Bbm_Bm_ShowControllerInfo" version_id="0" version_string="1.0"><![CDATA[Show Controller Information]]></phrase>
@@ -3584,17 +3726,13 @@ The Protection content has been successfully tested with: Posts (quote/edit), Co
     <phrase title="option_bbm_debug_redactor_js_loader_novisitor" version_id="45" version_string="2.6.2"><![CDATA[Don't include any of them with visitors]]></phrase>
     <phrase title="option_bbm_debug_redactor_js_loader_novisitor_explain" version_id="45" version_string="2.6.2"><![CDATA[]]></phrase>
     <phrase title="option_bbm_debug_tinymcehookcontent" version_id="0" version_string="1.0"><![CDATA[[DEBUG] Display TinyMCE hook content]]></phrase>
-    <phrase title="option_bbm_debug_tinymcehookcontent_explain" version_id="0" version_string="1.0"><![CDATA[If your TinyMCE editor doesn't display anymore, activate this option will help you to debug. If nothing is wrong in the code, maybe another addon uses the same hook after. You should use Firebug and look inside its console to see what is the problem.<br />
-<b>Only administrators can see the debug output</b><br />
-Default option is: no.]]></phrase>
+    <phrase title="option_bbm_debug_tinymcehookcontent_explain" version_id="76" version_string="3.3.0"><![CDATA[If your TinyMCE editor doesn't display anymore, activate this option will help you to debug. If nothing is wrong in the code, maybe another addon uses the same hook after. You should use Firebug and look inside its console to see what is the problem. <b>Only administrators can see the debug output</b>. Disabled by default.]]></phrase>
     <phrase title="option_bbm_debug_tinymcehookdisable" version_id="0" version_string="1.0"><![CDATA[Disable the Buttons Manager]]></phrase>
     <phrase title="option_bbm_debug_tinymcehookdisable_explain" version_id="0" version_string="1.0"><![CDATA[This option will turn off the hook which modifies the TinyMCE editor. Default option is: no.]]></phrase>
     <phrase title="option_Bbm_DisablePermsBbCodes" version_id="67" version_string="3.2.0"><![CDATA[Select Bb Codes to disable]]></phrase>
     <phrase title="option_Bbm_DisablePermsBbCodes_explain" version_id="67" version_string="3.2.0"><![CDATA[When the above View names are matched you can select some Bb Codes to disable them. It might be useful if you have sensitive Bb Codes.]]></phrase>
     <phrase title="option_Bbm_DisablePermsViewName" version_id="65" version_string="3.1.2"><![CDATA[Disable all Bb Codes permissions by Viewname]]></phrase>
-    <phrase title="option_Bbm_DisablePermsViewName_explain" version_id="65" version_string="3.1.2"><![CDATA[Sometimes you might need to disable the Bb Codes protection by Viewname. For example, if you're using an addon that caches pages, you don't want your users to see "Bb Code content protected" based on a cache information that might not be valid for the visitor.<br />
-<br />
-Just enter here the Viewnames for which you want to disable all Bb Codes permissions. Seperate every Viewnames with a carriage return.<br />
+    <phrase title="option_Bbm_DisablePermsViewName_explain" version_id="76" version_string="3.3.0"><![CDATA[Just enter here the Viewnames for which you want to disable all Bb Codes permissions. Seperate every Viewnames with a carriage return.<br />
 <br />
 Developers can also automate this process by adding "$this->_params['bbmBypassPermissions'] = true;" in their addon view (before parsing Bb Codes).]]></phrase>
     <phrase title="option_Bbm_DisplayViewName" version_id="65" version_string="3.1.2"><![CDATA[Display Viewname?]]></phrase>
@@ -3613,12 +3751,8 @@ Default value: "Font-Awesome CDN integration".]]></phrase>
 Once activated, It will automatically override the private function "_parseTag()" of the class "XenForo_BbCode_Parser". If you prefer to modify yourself the XenForo php file to avoid to override the function, just go <a href="http://xenforo.com/community/resources/bbcode-options-nested-tags-fix.1983/" target="_blank">here</a> and follow the instructions.]]></phrase>
     <phrase title="option_Bbm_Params_DebugInfo" version_id="0" version_string="1.0"><![CDATA[[DEBUG] Display available params in the formatter]]></phrase>
     <phrase title="option_Bbm_Params_DebugInfo_explain" version_id="0" version_string="1.0"><![CDATA[If activate, these debug information can only be seen by admins.]]></phrase>
-    <phrase title="option_Bbm_PreCache_Enable" version_id="48" version_string="2.6.2.3"><![CDATA[Enable the Bbm PreCache System for Bb Codes]]></phrase>
-    <phrase title="option_Bbm_PreCache_Enable_explain" version_id="51" version_string="2.8.0"><![CDATA[The pre-parser function is meant to be used by developers who would want to make a database request one time for all Bb Codes (with the same tag) available in the view (compatible by default with the forums, the conversations and the resource manager). For more information read the <a href="http://xenforo.com/community/resources/1731/field?field=faq" target="_blank">FAQ</a> paragraph on the subject.<br />
-<br />
- Don't forget, once enable, you still need to enable the feature by Bb Codes. For Bbm Bb Codes, go the their parsing options. For XenForo default Bb Codes, see below.<br />
-<br />
-Default value: off.]]></phrase>
+    <phrase title="option_Bbm_PreCache_Enable" version_id="76" version_string="3.3.0"><![CDATA[Enable the Bbm Pre-cache System for Bb Codes]]></phrase>
+    <phrase title="option_Bbm_PreCache_Enable_explain" version_id="76" version_string="3.3.0"><![CDATA[Don't forget, once enable, you still need to enable the feature by Bb Codes. For Bbm Bb Codes, go the their parsing options. For XenForo default Bb Codes, see below. Default value: off.]]></phrase>
     <phrase title="option_Bbm_PreCache_XenTags" version_id="51" version_string="2.8.0"><![CDATA[XenForo Bb Codes to use with the pre-parser]]></phrase>
     <phrase title="option_Bbm_PreCache_XenTags_explain" version_id="51" version_string="2.8.0"><![CDATA[If you need to enable the pre-parser with some XenForo default Bb Codes, here's a quick way to do it. Use the CTRL key to select/unselect Bb Codes.]]></phrase>
     <phrase title="option_Bbm_TagsMap_Cache_Enabled" version_id="61" version_string="3.0.4"><![CDATA[Tags Map Caching Enabled]]></phrase>
@@ -3641,41 +3775,73 @@ bla bla bla bla «<i><br />
 Hello world </i>»<br />
 <br />
 To fix this improper layout, some non-breaking spaces must be used. If you enable this option, all quotes made between double quote marks will be automatically fixed in any content parsed with the Bb Code parser.]]></phrase>
-    <phrase title="option_Bbm_wrapper_allcode" version_id="0" version_string="1.0"><![CDATA[XenForo html/php/code wrapper]]></phrase>
+    <phrase title="option_Bbm_wrapper_allcode" version_id="76" version_string="3.3.0"><![CDATA[[HTML/PHP/CODE] wrapper]]></phrase>
     <phrase title="option_Bbm_wrapper_allcode_explain" version_id="0" version_string="1.0"><![CDATA[If you want to embed the default php/html/code tags inside another tag, just select above which wrapping tag to use.]]></phrase>
-    <phrase title="option_Bbm_wrapper_allcode_option" version_id="0" version_string="1.0"><![CDATA[XenForo Php/Html/Code wrapper option]]></phrase>
+    <phrase title="option_Bbm_wrapper_allcode_option" version_id="76" version_string="3.3.0"><![CDATA[[HTML/PHP/CODE] wrapper option]]></phrase>
     <phrase title="option_Bbm_wrapper_allcode_option_explain" version_id="0" version_string="1.0"><![CDATA[You can enter here some options for the Php/Html/Code wrapping tag:<br />
 [wrappingTag=<b>options</b>][php]content[/php][/wrappingTag]]]></phrase>
-    <phrase title="option_Bbm_wrapper_attach" version_id="0" version_string="1.0"><![CDATA[XenForo Attach wrapper]]></phrase>
+    <phrase title="option_Bbm_wrapper_attach" version_id="76" version_string="3.3.0"><![CDATA[[ATTACH] wrapper]]></phrase>
     <phrase title="option_Bbm_wrapper_attach_explain" version_id="0" version_string="1.0"><![CDATA[If you want to embed the default attach tag inside another tag, just select above which wrapping tag to use.]]></phrase>
-    <phrase title="option_Bbm_wrapper_attach_option" version_id="0" version_string="1.0"><![CDATA[XenForo Attach wrapper option]]></phrase>
+    <phrase title="option_Bbm_wrapper_attach_option" version_id="76" version_string="3.3.0"><![CDATA[[ATTACH] wrapper option]]></phrase>
     <phrase title="option_Bbm_wrapper_attach_option_explain" version_id="0" version_string="1.0"><![CDATA[You can enter here some options for the Attach wrapping tag:<br />
 [wrappingTag=<b>options</b>][attach]content[/attach][/wrappingTag]]]></phrase>
     <phrase title="option_Bbm_wrapper_callback" version_id="0" version_string="1.0"><![CDATA[XenForo Tags Wrapper Callback]]></phrase>
     <phrase title="option_Bbm_wrapper_callback_explain" version_id="0" version_string="1.0"><![CDATA[If you want to customize the wrapping rules for XenForo tags, just use a callback. Go inside the extras directory of the archive, and then check & read "Demo - XenWrapper Callback".  Callback signature: <b>$tag, $parentClass</b>.]]></phrase>
-    <phrase title="option_Bbm_wrapper_img" version_id="0" version_string="1.0"><![CDATA[XenForo Img wrapper]]></phrase>
+    <phrase title="option_Bbm_wrapper_img" version_id="76" version_string="3.3.0"><![CDATA[[IMG] wrapper]]></phrase>
     <phrase title="option_Bbm_wrapper_img_explain" version_id="0" version_string="1.0"><![CDATA[If you want to embed the default Img tag inside another tag, just select above which wrapping tag to use.]]></phrase>
-    <phrase title="option_Bbm_wrapper_img_option" version_id="0" version_string="1.0"><![CDATA[XenForo Img wrapper option]]></phrase>
+    <phrase title="option_Bbm_wrapper_img_option" version_id="76" version_string="3.3.0"><![CDATA[[IMG] wrapper option]]></phrase>
     <phrase title="option_Bbm_wrapper_img_option_explain" version_id="0" version_string="1.0"><![CDATA[You can enter here some options for the Img wrapping tag:<br />
 [wrappingTag=<b>options</b>][img]content[/img][/wrappingTag]]]></phrase>
-    <phrase title="option_Bbm_wrapper_media" version_id="43" version_string="2.6.0"><![CDATA[XenForo Media wrapper]]></phrase>
+    <phrase title="option_Bbm_wrapper_media" version_id="76" version_string="3.3.0"><![CDATA[[MEDIA] wrapper]]></phrase>
     <phrase title="option_Bbm_wrapper_media_explain" version_id="43" version_string="2.6.0"><![CDATA[If you want to embed the default media tag inside another tag, just select above which wrapping tag to use.]]></phrase>
-    <phrase title="option_Bbm_wrapper_media_option" version_id="43" version_string="2.6.0"><![CDATA[XenForo Media wrapper option]]></phrase>
+    <phrase title="option_Bbm_wrapper_media_option" version_id="76" version_string="3.3.0"><![CDATA[[MEDIA] wrapper option]]></phrase>
     <phrase title="option_Bbm_wrapper_media_option_explain" version_id="43" version_string="2.6.0"><![CDATA[You can enter here some options for the Media wrapping tag:<br />
 [wrappingTag=<b>options</b>][media]content[/media][/wrappingTag]]]></phrase>
-    <phrase title="option_Bbm_wrapper_url" version_id="50" version_string="2.7.1"><![CDATA[XenForo Url wrapper]]></phrase>
+    <phrase title="option_Bbm_wrapper_url" version_id="76" version_string="3.3.0"><![CDATA[[URL] wrapper]]></phrase>
     <phrase title="option_Bbm_wrapper_url_explain" version_id="50" version_string="2.7.1"><![CDATA[If you want to embed the default url tag inside another tag, just select above which wrapping tag to use.]]></phrase>
-    <phrase title="option_Bbm_wrapper_url_option" version_id="50" version_string="2.7.1"><![CDATA[XenForo Url wrapper option]]></phrase>
+    <phrase title="option_Bbm_wrapper_url_option" version_id="76" version_string="3.3.0"><![CDATA[[URL] wrapper option]]></phrase>
     <phrase title="option_Bbm_wrapper_url_option_explain" version_id="50" version_string="2.7.1"><![CDATA[You can enter here some options for the Url wrapping tag:<br />
 [wrappingTag=<b>options</b>][url]content[/url][/wrappingTag]]]></phrase>
-    <phrase title="option_Bbm_XenContentCheck" version_id="0" version_string="1.0"><![CDATA[Xen tags - Empty Content Check]]></phrase>
+    <phrase title="option_bbm_xenbb_title_debug" version_id="76" version_string="3.3.0"><![CDATA[Debug options]]></phrase>
+    <phrase title="option_bbm_xenbb_title_debug_explain" version_id="76" version_string="3.3.0"><![CDATA[You should not modify these options unless you are told to or know what you do.]]></phrase>
+    <phrase title="option_bbm_xenbb_title_disablebyviewnames" version_id="76" version_string="3.3.0"><![CDATA[Disable by Viewname]]></phrase>
+    <phrase title="option_bbm_xenbb_title_disablebyviewnames_explain" version_id="76" version_string="3.3.0"><![CDATA[Sometimes you might need to disable the Bb Codes protection by Viewname. For example, if you're using an addon that caches pages, you don't want your users to see "Bb Code content protected" based on a cache information that might not be valid for the visitor.]]></phrase>
+    <phrase title="option_bbm_xenbb_title_disablesettings" version_id="76" version_string="3.3.0"><![CDATA[Disable Bb Codes settings]]></phrase>
+    <phrase title="option_bbm_xenbb_title_disablesettings_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_bbm_xenbb_title_generalsettings" version_id="76" version_string="3.3.0"><![CDATA[General Settings]]></phrase>
+    <phrase title="option_bbm_xenbb_title_generalsettings_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_bbm_xenbb_title_misc" version_id="76" version_string="3.3.0"><![CDATA[Misc.]]></phrase>
+    <phrase title="option_bbm_xenbb_title_misc_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_bbm_xenbb_title_parsingperms" version_id="76" version_string="3.3.0"><![CDATA[Parsing permissions]]></phrase>
+    <phrase title="option_bbm_xenbb_title_parsingperms_explain" version_id="76" version_string="3.3.0"><![CDATA[Parsing permissions are targeting the poster, not the viewer (the viewing permissions can be set in the XenForo permissions pages). <b>Disclaimer: this method is experimental</b>: it should work with XenForo posts, threads, conversations, etc. If you want more options to customize the return, then create instead a new Bbm Bb Code with permissions and use the wrapper options below.]]></phrase>
+    <phrase title="option_bbm_xenbb_title_precache" version_id="76" version_string="3.3.0"><![CDATA[Pre-cache System Configuration]]></phrase>
+    <phrase title="option_bbm_xenbb_title_precache_explain" version_id="76" version_string="3.3.0"><![CDATA[The pre-parser function is meant to be used by developers who would want to make a database request one time for all Bb Codes (with the same tag) available in the view (compatible by default with the forums, the conversations and the resource manager). For more information read the <a href="http://xenforo.com/community/resources/1731/field?field=faq" target="_blank">FAQ</a> paragraph on the subject.]]></phrase>
+    <phrase title="option_bbm_xenbb_title_tagsmapcaching" version_id="76" version_string="3.3.0"><![CDATA[Tags Map Caching]]></phrase>
+    <phrase title="option_bbm_xenbb_title_tagsmapcaching_explain" version_id="76" version_string="3.3.0"><![CDATA[The Bbm Bb Codes system is using a tags map to deal with permissions. This tags map can be cached to improve performance on boards that massively use Bb Codes.]]></phrase>
+    <phrase title="option_bbm_xenbb_title_wrapper" version_id="76" version_string="3.3.0"><![CDATA[Wrapper options]]></phrase>
+    <phrase title="option_bbm_xenbb_title_wrapper_explain" version_id="76" version_string="3.3.0"><![CDATA[Embed your XenForo Bb Codes inside another Bb Code in a few clicks.]]></phrase>
+    <phrase title="option_bbm_xenbm_title_advconfig" version_id="76" version_string="3.3.0"><![CDATA[Advanced Configuration]]></phrase>
+    <phrase title="option_bbm_xenbm_title_advconfig_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_bbm_xenbm_title_fa" version_id="76" version_string="3.3.0"><![CDATA[Font-Awesome]]></phrase>
+    <phrase title="option_bbm_xenbm_title_fa_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_bbm_xenbm_title_generalsettings" version_id="76" version_string="3.3.0"><![CDATA[General Settings]]></phrase>
+    <phrase title="option_bbm_xenbm_title_generalsettings_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_bbm_xenbm_title_mobileconfig" version_id="76" version_string="3.3.0"><![CDATA[Mobile configuration]]></phrase>
+    <phrase title="option_bbm_xenbm_title_mobileconfig_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_Bbm_XenContentCheck" version_id="76" version_string="3.3.0"><![CDATA[XenForo Tags - Empty Content Check]]></phrase>
     <phrase title="option_Bbm_XenContentCheck_explain" version_id="0" version_string="1.0"><![CDATA[This option will check if a XenForo default Bb Code (b, i, s, img, code, etc.) has an empty content. If the content is empty, the Bb Code will not be parsed.]]></phrase>
+    <phrase title="option_bbm_xenmisc_title_advimgaccess" version_id="76" version_string="3.3.0"><![CDATA[Advanced Image Access]]></phrase>
+    <phrase title="option_bbm_xenmisc_title_advimgaccess_explain" version_id="76" version_string="3.3.0"><![CDATA[Use the below settings with caution. Read carefully the provided information.]]></phrase>
+    <phrase title="option_bbm_xenmisc_title_contentoption" version_id="76" version_string="3.3.0"><![CDATA[Content Options]]></phrase>
+    <phrase title="option_bbm_xenmisc_title_contentoption_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled" version_id="0" version_string="1.0"><![CDATA[XenForo Tags to disable]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_explain" version_id="0" version_string="1.0"><![CDATA[If you want to disable one or several of the official XenForo Bb Codes, just select them in the list (use CTRL for a multi selection or to disable a selection).]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_method" version_id="0" version_string="1.0"><![CDATA[Disable methods]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_method_explain" version_id="0" version_string="1.0"><![CDATA[The fake unparsed method will render the Bb Codes with only their content in order to hide their tags.]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_nodes_attach" version_id="50" version_string="2.7.1"><![CDATA[[ATTACH] Targeted nodes]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_nodes_attach_explain" version_id="50" version_string="2.7.1"><![CDATA[Use the CTRL button to select/unselect several nodes. P.S: if you're viewing a page that is not a node and this XenForo Bb Code is disabled for some usergroups (above option), then it will be disabled (no matter the page is not a node).]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_nodes_color" version_id="76" version_string="3.3.0"><![CDATA[[COLOR] Targeted nodes]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_nodes_color_explain" version_id="76" version_string="3.3.0"><![CDATA[P.S: if you're viewing a page that is not a node and this XenForo Bb Code is disabled for some usergroups (above option), then it will be disabled (no matter the page is not a node).]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_nodes_email" version_id="50" version_string="2.7.1"><![CDATA[[EMAIL] Targeted nodes]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_nodes_email_explain" version_id="50" version_string="2.7.1"><![CDATA[P.S: if you're viewing a page that is not a node and this XenForo Bb Code is disabled for some usergroups (above option), then it will be disabled (no matter the page is not a node).]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_nodes_img" version_id="50" version_string="2.7.1"><![CDATA[[IMG] Targeted nodes]]></phrase>
@@ -3685,25 +3851,17 @@ To fix this improper layout, some non-breaking spaces must be used. If you enabl
     <phrase title="option_Bbm_xenTags_disabled_nodes_url" version_id="50" version_string="2.7.1"><![CDATA[[URL] Targeted nodes]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_nodes_url_explain" version_id="50" version_string="2.7.1"><![CDATA[P.S: if you're viewing a page that is not a node and this XenForo Bb Code is disabled for some usergroups (above option), then it will be disabled (no matter the page is not a node).]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_usrgrp_attach" version_id="27" version_string="2.3.0 Preview"><![CDATA[[ATTACH] Disable for these usergroups]]></phrase>
-    <phrase title="option_Bbm_xenTags_disabled_usrgrp_attach_explain" version_id="50" version_string="2.7.1"><![CDATA[Parsing permissions targeting the poster (not the viewer). Disclaimer: this method is experimental. It should work with XenForo posts, threads, conversations, etc.
-<br /><br />
-If you want more options to customize the return, then create instead a new Bbm Bb Code with permissions and use the above wrapper options.]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_usrgrp_attach_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_usrgrp_color" version_id="76" version_string="3.3.0"><![CDATA[[COLOR] Disable for these usergroups]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_usrgrp_color_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_usrgrp_email" version_id="27" version_string="2.3.0 Preview"><![CDATA[[EMAIL] Disable for these usergroups]]></phrase>
-    <phrase title="option_Bbm_xenTags_disabled_usrgrp_email_explain" version_id="50" version_string="2.7.1"><![CDATA[Parsing permissions targeting the poster (not the viewer). Disclaimer: this method is experimental. It should work with XenForo posts, threads, conversations, etc.
-<br /><br />
-If you want more options to customize the return, then create instead a new Bbm Bb Code with permissions and use the above wrapper options.]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_usrgrp_email_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_usrgrp_img" version_id="24" version_string="2.2.1"><![CDATA[[IMG] Disable for these usergroups]]></phrase>
-    <phrase title="option_Bbm_xenTags_disabled_usrgrp_img_explain" version_id="50" version_string="2.7.1"><![CDATA[Parsing permissions targeting the poster (not the viewer). Disclaimer: this method is experimental. It should work with XenForo posts, threads, conversations, etc.
-<br /><br />
-If you want more options to customize the return, then create instead a new Bbm Bb Code with permissions and use the above wrapper options.]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_usrgrp_img_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_usrgrp_media" version_id="27" version_string="2.3.0 Preview"><![CDATA[[MEDIA] Disable for these usergroups]]></phrase>
-    <phrase title="option_Bbm_xenTags_disabled_usrgrp_media_explain" version_id="50" version_string="2.7.1"><![CDATA[Parsing permissions targeting the poster (not the viewer). Disclaimer: this method is experimental. It should work with XenForo posts, threads, conversations, etc.
-<br /><br />
-If you want more options to customize the return, then create instead a new Bbm Bb Code with permissions and use the above wrapper options.]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_usrgrp_media_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
     <phrase title="option_Bbm_xenTags_disabled_usrgrp_url" version_id="27" version_string="2.3.0 Preview"><![CDATA[[URL] Disable for these usergroups]]></phrase>
-    <phrase title="option_Bbm_xenTags_disabled_usrgrp_url_explain" version_id="50" version_string="2.7.1"><![CDATA[Parsing permissions targeting the poster (not the viewer). Disclaimer: this method is experimental. It should work with XenForo posts, threads, conversations, etc.
-<br /><br />
-If you want more options to customize the return, then create instead a new Bbm Bb Code with permissions and use the above wrapper options.]]></phrase>
+    <phrase title="option_Bbm_xenTags_disabled_usrgrp_url_explain" version_id="76" version_string="3.3.0"><![CDATA[]]></phrase>
     <phrase title="option_Bbm_ZenkakuConv" version_id="37" version_string="2.4.0"><![CDATA[Clean option helper - Zenkaku conversion support]]></phrase>
     <phrase title="option_Bbm_ZenkakuConv_explain" version_id="37" version_string="2.4.0"><![CDATA[If your Japanese/Chinese members might use full-width characters, enable this setting will enable to convert the Bb Code options in half width characters to be sure to match the user needs. This function is not automatic. The Bb Code must use the helper provided with this addon.<br />
 <br />
@@ -3719,11 +3877,13 @@ If you use "true" as second parameter, the option will be output with lower case
     <phrase title="option_group_bbm_xenforo_misc" version_id="64" version_string="3.1.1"><![CDATA[[Bb Codes & Buttons Manager] XenForo Misc.]]></phrase>
     <phrase title="option_group_bbm_xenforo_misc_description" version_id="64" version_string="3.1.1"><![CDATA[Some settings that can you might need to modify XenForo default behaviour]]></phrase>
     <phrase title="permission_bbm_bbcodes_grp_bbm_hide_attach" version_id="50" version_string="2.7.1"><![CDATA[Hide attach Bb Code content]]></phrase>
+    <phrase title="permission_bbm_bbcodes_grp_bbm_hide_color" version_id="76" version_string="3.3.0"><![CDATA[Hide color Bb Code content]]></phrase>
     <phrase title="permission_bbm_bbcodes_grp_bbm_hide_email" version_id="50" version_string="2.7.1"><![CDATA[Hide email Bb Code content]]></phrase>
     <phrase title="permission_bbm_bbcodes_grp_bbm_hide_img" version_id="50" version_string="2.7.1"><![CDATA[Hide img Bb Code content]]></phrase>
     <phrase title="permission_bbm_bbcodes_grp_bbm_hide_media" version_id="50" version_string="2.7.1"><![CDATA[Hide media Bb Code content]]></phrase>
     <phrase title="permission_bbm_bbcodes_grp_bbm_hide_url" version_id="50" version_string="2.7.1"><![CDATA[Hide url Bb Code content]]></phrase>
     <phrase title="permission_forum_bbm_disable_attach" version_id="50" version_string="2.7.1"><![CDATA[Disable attach Bb Code]]></phrase>
+    <phrase title="permission_forum_bbm_disable_color" version_id="76" version_string="3.3.0"><![CDATA[Disable color Bb Code]]></phrase>
     <phrase title="permission_forum_bbm_disable_email" version_id="50" version_string="2.7.1"><![CDATA[Disable email Bb Code]]></phrase>
     <phrase title="permission_forum_bbm_disable_img" version_id="50" version_string="2.7.1"><![CDATA[Disable img Bb Code]]></phrase>
     <phrase title="permission_forum_bbm_disable_media" version_id="50" version_string="2.7.1"><![CDATA[Disable media Bb Code]]></phrase>

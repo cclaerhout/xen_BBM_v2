@@ -277,14 +277,17 @@ class BBM_Helper_Buttons
 			'email' => $options->Bbm_xenTags_disabled_usrgrp_email,
 			'img' => $options->Bbm_xenTags_disabled_usrgrp_img,
 			'url' => $options->Bbm_xenTags_disabled_usrgrp_url,
-			'media' => $options->Bbm_xenTags_disabled_usrgrp_media
+			'media' => $options->Bbm_xenTags_disabled_usrgrp_media,
+			'color' => $options->Bbm_xenTags_disabled_usrgrp_color
 		);
 		
 		$xenButtonsNameToBbCodes = array(
 			'xen_link' => array('email', 'url'),
 			'xen_unlink' => array('email', 'url'),
 			'xen_image' => array('img'),
-			'xen_media' => array('media')
+			'xen_media' => array('media'),
+			'forecolor' => array('color'),
+			'backcolor' => array('color')			
 		);
 		
 		$quattroGrid = array();
@@ -472,14 +475,16 @@ class BBM_Helper_Buttons
 			'email' => $options->Bbm_xenTags_disabled_usrgrp_email,
 			'img' => $options->Bbm_xenTags_disabled_usrgrp_img,
 			'url' => $options->Bbm_xenTags_disabled_usrgrp_url,
-			'media' => $options->Bbm_xenTags_disabled_usrgrp_media
+			'media' => $options->Bbm_xenTags_disabled_usrgrp_media,
+			'color' => $options->Bbm_xenTags_disabled_usrgrp_color
 		);
 		
 		$xenButtonsNameToBbCodes = array(
 			'createlink' => array('email', 'url'),
 			'unlink' => array('email', 'url'),
 			'image' => array('img'),
-			'media' => array('media')
+			'media' => array('media'),
+			'fontcolor' => array('color')
 		);
 		
 		$buttonsGrid = array();

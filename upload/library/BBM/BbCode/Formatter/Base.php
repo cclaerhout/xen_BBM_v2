@@ -261,7 +261,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			'email' => $options->Bbm_xenTags_disabled_usrgrp_email,
 			'img' => $options->Bbm_xenTags_disabled_usrgrp_img,
 			'url' => $options->Bbm_xenTags_disabled_usrgrp_url,
-			'media' => $options->Bbm_xenTags_disabled_usrgrp_media
+			'media' => $options->Bbm_xenTags_disabled_usrgrp_media,
+			'color' => $options->Bbm_xenTags_disabled_usrgrp_color
 		);
 
 		$this->_bbmXenTagsParsingAllowedNodes = array(
@@ -269,7 +270,8 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 			'email' => $options->Bbm_xenTags_disabled_nodes_email,
 			'img' => $options->Bbm_xenTags_disabled_nodes_img,
 			'url' => $options->Bbm_xenTags_disabled_nodes_url,
-			'media' => $options->Bbm_xenTags_disabled_nodes_media
+			'media' => $options->Bbm_xenTags_disabled_nodes_media,
+			'color' => $options->Bbm_xenTags_disabled_nodes_color
 		);
 
 		if($options->Bbm_wrapper_img != 'none' && !in_array('img', $disabledXenTags) )
@@ -885,7 +887,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		}
 	}
 
-	static $xenTagArray = array('attach' => true, 'email' => true, 'img' => true, 'media' => true, 'url' => true);
+	static $xenTagArray = array('attach' => true, 'email' => true, 'img' => true, 'media' => true, 'url' => true, 'color' => true);
 
 	protected function _xenTagControl($tag, $tagInfo)
 	{
