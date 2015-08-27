@@ -128,9 +128,15 @@ class BBM_BbCode_Formatter_Extensions_PreCacheBase extends XFCP_BBM_BbCode_Forma
 
 	protected function sanitizeTagsForPreParse(array $tags)
 	{
+		$threshold = XenForo_Application::get('options')->get('Bbm_PreCache_Threshold');
 		foreach($tags as $tagName => &$tag)
 		{
 			if (!$this->preParserEnableFor($tagName))
+			{
+				unset($tags[$tagName]);
+			}
+			// verify the pre-parse tags are even used.
+			else if ($this->_bbCodesMap != null && (empty($this->_bbCodesMap[$tagName]) || count($this->_bbCodesMap[$tagName]) < $threshold))
 			{
 				unset($tags[$tagName]);
 			}
