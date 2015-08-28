@@ -917,7 +917,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 		$secondaryUsergroups = $this->getPostParam('secondary_group_ids');
 		$posterUserGroupIds = array_merge(array((string)$usergroup), (explode(',', $secondaryUsergroups)));
 
-		if(array_intersect($posterUserGroupIds, $targetedUsergroups))
+		if(!is_null($targetedUsergroups) && array_intersect($posterUserGroupIds, $targetedUsergroups))
 		{
 			$proceed = true;
 			$node_id = $this->getThreadParam('node_id');
