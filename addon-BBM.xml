@@ -2822,6 +2822,12 @@ Your callback doesn't need to return anything. It allows you to modify on the fl
       <sub_options></sub_options>
       <relation group_id="bbm_bbcodemanager" display_order="610"/>
     </option>
+    <option option_id="Bbm_PreCache_Threshold" edit_format="spinbox" data_type="integer" can_backup="1">
+      <default_value>2</default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="bbm_bbcodemanager" display_order="620"/>
+    </option>
     <option option_id="Bbm_PreCache_XenTags" edit_format="callback" data_type="array" can_backup="1">
       <default_value></default_value>
       <edit_format_params>BBM_Options_XenOptions::render_xen_tags</edit_format_params>
@@ -3753,6 +3759,8 @@ Once activated, It will automatically override the private function "_parseTag()
     <phrase title="option_Bbm_Params_DebugInfo_explain" version_id="0" version_string="1.0"><![CDATA[If activate, these debug information can only be seen by admins.]]></phrase>
     <phrase title="option_Bbm_PreCache_Enable" version_id="76" version_string="3.3.0"><![CDATA[Enable the Bbm Pre-cache System for Bb Codes]]></phrase>
     <phrase title="option_Bbm_PreCache_Enable_explain" version_id="76" version_string="3.3.0"><![CDATA[Don't forget, once enable, you still need to enable the feature by Bb Codes. For Bbm Bb Codes, go the their parsing options. For XenForo default Bb Codes, see below. Default value: off.]]></phrase>
+    <phrase title="option_Bbm_PreCache_Threshold" version_id="78" version_string="3.3.0"><![CDATA[Per tag usage threshold]]></phrase>
+    <phrase title="option_Bbm_PreCache_Threshold_explain" version_id="78" version_string="3.3.0"><![CDATA[Minimum usage threshold to enable the PreCache system for a individual tag.]]></phrase>
     <phrase title="option_Bbm_PreCache_XenTags" version_id="51" version_string="2.8.0"><![CDATA[XenForo Bb Codes to use with the pre-parser]]></phrase>
     <phrase title="option_Bbm_PreCache_XenTags_explain" version_id="51" version_string="2.8.0"><![CDATA[If you need to enable the pre-parser with some XenForo default Bb Codes, here's a quick way to do it. Use the CTRL key to select/unselect Bb Codes.]]></phrase>
     <phrase title="option_Bbm_TagsMap_Cache_Enabled" version_id="61" version_string="3.0.4"><![CDATA[Tags Map Caching Enabled]]></phrase>
