@@ -719,9 +719,9 @@ class BBM_Model_BbCodes extends XenForo_Model
 		{
 			$options = $this->_getTagMapCacheOptions();
 
-			$cacheId = $content_type . 
-						$post_id. 
-						$options['bbCodeCacheVersion'] . 
+			$cacheId = 'tagmap_'. $content_type . '_'.
+						$post_id . '_'.
+						$options['bbCodeCacheVersion'] . '_'.
 						($options['GlobalMethod'] ? "1" : "0")
 						;
 			if ($raw = $this->cacheObject->load($cacheId, true))
@@ -743,9 +743,9 @@ class BBM_Model_BbCodes extends XenForo_Model
 		{
 			$options = $this->_getTagMapCacheOptions();
 
-			$cacheId = $content_type . 
-						$post_id. 
-						$options['bbCodeCacheVersion'] . 
+			$cacheId = 'tagmap_'. $content_type . '_'.
+						$post_id . '_'.
+						$options['bbCodeCacheVersion'] . '_'.
 						($options['GlobalMethod'] ? "1" : "0")
 						;
 			if (!empty($tagMapCache) && $options['EnableCache'])
