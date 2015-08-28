@@ -561,6 +561,12 @@ class BBM_Helper_Buttons
 				$disableBbCodesPerms = false;
 				foreach($xenButtonsNameToBbCodes[$tag] as $bbcodeTag)
 				{
+					if(is_null($xenParsingBbCodesPerms[$bbcodeTag]))
+					{
+						//The script is been upgraded, the option is not yet available, so ignore this at the moment
+						continue;
+					}
+
 					if(array_intersect($visitorUserGroupIds, $xenParsingBbCodesPerms[$bbcodeTag]))
 					{
 						$disableBbCodesPerms = true;
