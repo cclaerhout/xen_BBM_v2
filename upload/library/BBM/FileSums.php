@@ -5,10 +5,10 @@ class BBM_FileSums
 	public static function getHashes()
 	{
 		return array (
-  'library/BBM/BbCode/Formatter/Base.php' => '5a2cebea9610d1958d163b4892075236',
+  'library/BBM/BbCode/Formatter/Base.php' => 'ecf99182b28670395c18ccf9fcd873ec',
   'library/BBM/BbCode/Formatter/BbCode/AutoLink.php' => '7530a0fc2933c570b0fcb6f720fbd00d',
   'library/BBM/BbCode/Formatter/Default.php' => '130f4a97f3fbd7d38c12f8b470bedb3c',
-  'library/BBM/BbCode/Formatter/Extensions/PreCacheBase.php' => '4d90171f6241a1ad9ad118bdb4fdfa54',
+  'library/BBM/BbCode/Formatter/Extensions/PreCacheBase.php' => '98ba6d68dafb1d3d173ee3f291e9dfb3',
   'library/BBM/BbCode/Formatter/Extensions/PreCacheWysiwyg.php' => '908562ceb79dcedc28b235705197e9c1',
   'library/BBM/BbCode/Formatter/Wysiwyg.php' => 'dcaf428ed341e29f6cfb304e519b7b74',
   'library/BBM/BbCode/Parser.php' => '5db41c6fa6a8461605243b24a325d9b5',
@@ -22,7 +22,7 @@ class BBM_FileSums
   'library/BBM/DataWriter/Post.php' => '317874e6de99ec27e4e9dd7bb2e4bd9c',
   'library/BBM/Helper/BbCodes.php' => '543b9ee3d20ef4d31fe62448dca99751',
   'library/BBM/Helper/Bbm.php' => 'f8a8e91b749539fa265ce27f424a28e9',
-  'library/BBM/Helper/Buttons.php' => 'a429d3c8975bcd73522e59766cd24b44',
+  'library/BBM/Helper/Buttons.php' => 'fcb82fd03af7af0bf093affe7c373324',
   'library/BBM/Helper/Editors.php' => '33abd5dc75be58c6bc9df943f07e32b2',
   'library/BBM/Helper/FontAwesome.php' => 'b3bc6674c77dc1e2988639d929880883',
   'library/BBM/Helper/HtmlFixer.php' => '17420d9a7a0321d3cac6af6e2e5fb979',
@@ -33,7 +33,7 @@ class BBM_FileSums
   'library/BBM/Listeners/Templates/Preloader.php' => 'dd5bc34646d7de716480215ef4a116e2',
   'library/BBM/Listeners/Templates/Public.php' => '58d3c12fd4cfa071c1f484ecef124f6a',
   'library/BBM/Model/Attachment.php' => '7c32823fde5d7ccd7234aff69500cfd0',
-  'library/BBM/Model/BbCodes.php' => '1c73fd5edff4383581eab937aded0047',
+  'library/BBM/Model/BbCodes.php' => '8dbedcd69bd992ef53d697a27e69e1e1',
   'library/BBM/Model/Buttons.php' => 'db104e9ea64b6af0898c46768d8cdcd3',
   'library/BBM/Options/Model/GetContentTypes.php' => '2cc793cc64081b065309ed238b78c0ba',
   'library/BBM/Options/Model/GetNodes.php' => 'cdc9402d559a4dfcb0cfe9ffcea6d549',
