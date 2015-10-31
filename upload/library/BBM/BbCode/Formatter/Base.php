@@ -1945,7 +1945,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				$this->_threadParams = $params['thread'];
 				$this->_postsDatas = $params['posts'];
 
-				$this->_createBbCodesMap($this->_postsDatas, 'post');
+				$this->_createBbCodesMap($this->_postsDatas, 'post', 'last_edit_date');
 			}
 			/**
 			 * Preview new post/edit preview in thread or new thread
@@ -2277,7 +2277,7 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 	protected $_parseCache = array();
 	protected $_cacheBbcodeTree = false;
 
-	protected function _createBbCodesMap($posts = NULL, $content_type = NULL)
+	protected function _createBbCodesMap($posts = NULL, $content_type = NULL, $edit_date = NULL)
 	{
 		if( $posts === NULL || !is_array($posts) )
 		{
@@ -2318,9 +2318,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 			$tag_cache = array();
 			$has_loaded_tags = false;
-			if ($cache_enabled)
+			if ($cache_enabled && isset($post[$edit_date]))
 			{
-				$tag_cache = $bbcodesModel->getBbCodeTagCache($content_type, $post_id, $bbmRecursiveMode);
+				$tag_cache = $bbcodesModel->getBbCodeTagCache($content_type, $post_id, $post[$edit_date], $bbmRecursiveMode);
 				if (!empty($tag_cache))
 				{
 					foreach($tag_cache as $tag)
@@ -2414,9 +2414,9 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 				}
 			}
 
-			if (!$has_loaded_tags && $cache_enabled && (microtime(true) - $time)*1000 > $cache_threshold)
+			if (!$has_loaded_tags && $cache_enabled && isset($post[$edit_date]) && (microtime(true) - $time)*1000 > $cache_threshold)
 			{
-				$bbcodesModel->setBbCodeTagCache($content_type, $post_id, $tag_cache);
+				$bbcodesModel->setBbCodeTagCache($content_type, $post_id, $post[$edit_date], $bbmRecursiveMode, $tag_cache);
 			}
 		}
 

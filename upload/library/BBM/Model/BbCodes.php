@@ -700,7 +700,6 @@ class BBM_Model_BbCodes extends XenForo_Model
 		{
 			$options = XenForo_Application::get('options');
 			$this->TagMapCacheOptions = array(
-				'GlobalMethod' => $options->Bbm_TagsMap_GlobalMethod,
 				'Expiry'       => $options->Bbm_TagsMap_Cache_Expiry,
 				'EnableCache'  => $options->Bbm_TagsMap_Cache_Enabled,
 				'bbCodeCacheVersion'  => $options->bbCodeCacheVersion
@@ -709,7 +708,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 		return $this->TagMapCacheOptions;
 	}
 
-	public function getBbCodeTagCache($content_type, $post_id)
+	public function getBbCodeTagCache($content_type, $post_id, $post_date, $bbmRecursiveMode)
 	{ 
 		if ($this->cacheObject === null)
 		{
@@ -722,7 +721,8 @@ class BBM_Model_BbCodes extends XenForo_Model
 			$cacheId = 'tagmap_'. $content_type . '_'.
 						$post_id . '_'.
 						$options['bbCodeCacheVersion'] . '_'.
-						($options['GlobalMethod'] ? "1" : "0")
+                        ($bbmRecursiveMode ? '1' : '0') . '_'.
+						$post_date
 						;
 			if ($raw = $this->cacheObject->load($cacheId, true))
 			{
@@ -732,7 +732,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 		return array();
 	}    
 
-	public function setBbCodeTagCache($content_type, $post_id, array $tagMapCache)
+	public function setBbCodeTagCache($content_type, $post_id, $post_date, $bbmRecursiveMode, array $tagMapCache)
 	{  
 		if ($this->cacheObject === null)
 		{
@@ -746,7 +746,8 @@ class BBM_Model_BbCodes extends XenForo_Model
 			$cacheId = 'tagmap_'. $content_type . '_'.
 						$post_id . '_'.
 						$options['bbCodeCacheVersion'] . '_'.
-						($options['GlobalMethod'] ? "1" : "0")
+                        ($bbmRecursiveMode ? '1' : '0') . '_'.
+						$post_date
 						;
 			if (!empty($tagMapCache) && $options['EnableCache'])
 			{
@@ -755,8 +756,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 			}
 			else
 			{
-				$data = false;
-                $this->cacheObject->remove($data);
+                $this->cacheObject->remove($cacheId);
 			}
 		}
 	}
