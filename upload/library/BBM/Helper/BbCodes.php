@@ -35,7 +35,7 @@ class BBM_Helper_BbCodes
 		$count = preg_match_all(
 			'#{(?P<tag>'.$tags.')(=(?P<option>\[([\w\d]+)(?:=.+?)?\].+?\[/\4\]|[^{}]+)+?)?}'.
 			'(?P<catchup>(?:</[^>]+>\s*)*)?(?P<content>.*?)'.
-			'{/\1}(?!(?:\W+)?{/\1})(?P<outside>.*?)(?={\1(?:=[^}]*)?}|$)#is', 
+			'{/\1}(?!(?:\W+)?{/\1})(?P<outside>.*?)(?={(?:'.$tags.')(?:=[^}]*)?}|$)#is',
 			$content,
 			$matches,
 			PREG_SET_ORDER
@@ -69,7 +69,7 @@ class BBM_Helper_BbCodes
 			$extraData = $matches[$k]['outside'];
 			$extraDataCheck = str_replace('<br />', '', $extraData);
 
-			if(empty($extraDataCheck))
+			if(empty(trim($extraDataCheck)))
 			{
 				continue;
 			}
@@ -87,10 +87,9 @@ class BBM_Helper_BbCodes
 					}
 				}
 			}
-				
+
 			$content .= $extraData;
 			$content = self::tidyHTML($content);
-
 		}
 
 		return $matches;
