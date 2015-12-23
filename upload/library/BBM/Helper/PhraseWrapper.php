@@ -38,7 +38,7 @@ class BBM_Helper_PhraseWrapper
 				$this->_text = str_replace($this->phraseSearch, $this->phraseReplace, $this->_text);
 			}
 
-			if($jsEscape == true)
+			if($this->jsEscape == true)
 			{
 				$this->_text = XenForo_Template_Helper_Core::jsEscape($this->_text);
 			}
