@@ -424,12 +424,12 @@ class BBM_Helper_Buttons
 					'code' => $code,
 					'iconSet' => $iconSet,
 					'type' => $btnType,
-					'typeOption' => self::_detectPhrases($button['quattro_button_type_opt']),
+					'typeOption' => new BBM_Helper_PhraseWrapper($button['quattro_button_type_opt']),
 					'return' => (!empty($button['killCmd'])) ? 'kill' : $button['quattro_button_return'],
-					'returnOption' => self::_detectPhrases($button['quattro_button_return_opt']),
-					'description' => self::_detectPhrases($button['buttonDesc']),
-					'tagOptions' => self::_detectPhrases($button['tagOptions']),
-					'tagContent' => self::_detectPhrases($button['tagContent']),
+					'returnOption' => new BBM_Helper_PhraseWrapper($button['quattro_button_return_opt']),
+					'description' => new BBM_Helper_PhraseWrapper($button['buttonDesc']),
+					'tagOptions' => new BBM_Helper_PhraseWrapper($button['tagOptions']),
+					'tagContent' => new BBM_Helper_PhraseWrapper($button['tagContent']),
 					'separator' => (empty($button['options_separator'])) ? $options->Bbm_BbCode_Options_Separator : $button['options_separator']
 				);
 			}
@@ -594,7 +594,7 @@ class BBM_Helper_Buttons
 				$textButton = false;
 				if(isset($button['redactor_button_type']) && $button['redactor_button_type'] == 'text')
 				{
-					$textButton = self::_detectPhrases($button['redactor_button_type_opt']);
+					$textButton = new BBM_Helper_PhraseWrapper($button['redactor_button_type_opt']);
 				}
 
 				$faButton = false;
@@ -606,9 +606,9 @@ class BBM_Helper_Buttons
 				$customButtons[] = array(
 					'tag'	=> $tag,
 					'code' => $code,
-					'description' => self::_detectPhrases($button['buttonDesc']),
-					'tagOptions' => self::_detectPhrases($button['tagOptions']),
-					'tagContent' => self::_detectPhrases($button['tagContent']),
+					'description' => new BBM_Helper_PhraseWrapper($button['buttonDesc']),
+					'tagOptions' => new BBM_Helper_PhraseWrapper($button['tagOptions']),
+					'tagContent' => new BBM_Helper_PhraseWrapper($button['tagContent']),
 					'separator' => (empty($button['options_separator'])) ? $options->Bbm_BbCode_Options_Separator : $button['options_separator'],
 					'textButton' => $textButton,
 					'faButton' => $faButton
@@ -666,25 +666,6 @@ class BBM_Helper_Buttons
 	protected static function _cleanOrphan($string)
 	{
 		return str_replace('@', 'at_', $string);
-	}
-
-	protected static function _detectPhrases($string, $jsEscape = false)
-	{
-		if(preg_match_all('#{phrase:(.+?)}#i', $string, $captures, PREG_SET_ORDER))
-		{
-			foreach($captures as $capture)
-			{
-				$phrase = new XenForo_Phrase($capture[1]);
-				$string = str_replace($capture[0], $phrase, $string);
-			}
-		}
-		
-		if($jsEscape == true)
-		{
-			return XenForo_Template_Helper_Core::jsEscape($string);
-		}
-		
-		return $string;		
 	}
 
 	protected static function _fallBack($debug)
