@@ -68,8 +68,9 @@ class BBM_Helper_BbCodes
 			/*Between special tags management*/
 			$extraData = $matches[$k]['outside'];
 			$extraDataCheck = str_replace('<br />', '', $extraData);
+			$extraDataCheck = trim($extraDataCheck);
 
-			if(empty(trim($extraDataCheck)))
+			if(empty($extraDataCheck))
 			{
 				continue;
 			}
