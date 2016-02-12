@@ -49,7 +49,7 @@ class BBM_Helper_Buttons
 
 		//Get buttons config
 		$myConfigs = BBM_Helper_Bbm::getBbmButtons();
-						
+
 		if(empty($myConfigs))
 		{
 			return self::_fallBack(2);
@@ -66,7 +66,7 @@ class BBM_Helper_Buttons
 			return self::_fallBack(3);
 		}
 
-		$extraParams = self::_bakeExtraParams($myConfigs[$config_ed][$config_type]['config_buttons_full'], $options, $visitor);
+		$extraParams = self::_bakeExtraParams($myConfigs[$config_ed][$config_type]['config_buttons_full']);
 		
 		if( ($editor == 'mce' && $editor != $config_ed) || $editor == 'xen')
 		{
@@ -315,6 +315,11 @@ class BBM_Helper_Buttons
 				continue;
 			}
 
+			if(self::isSignatureEdit() && isset($button['allow_signature']) && !$button['allow_signature'])
+			{
+				continue;
+			}
+
 			/*Xen buttons perms based on Xen Bb Codes parsing permissions*/
 			if(isset($xenButtonsNameToBbCodes[$tag]))
 			{
@@ -515,6 +520,11 @@ class BBM_Helper_Buttons
 				continue;
 			}
 
+			if(self::isSignatureEdit() && isset($button['allow_signature']) && !$button['allow_signature'])
+			{
+				continue;
+			}
+
 			/*Button permissions*/
 			if(!empty($button['button_has_usr']))
 			{
@@ -657,6 +667,11 @@ class BBM_Helper_Buttons
 		}
 		
 		return $buttonsGrid;
+	}
+
+	public static function isSignatureEdit()
+	{
+		return (self::$controllerName == 'XenForo_ControllerPublic_Account' && self::$controllerAction == 'Signature');
 	}
 	
 	/***

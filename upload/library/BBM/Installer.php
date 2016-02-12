@@ -197,12 +197,8 @@ class BBM_Installer
 		{
 			self::addColumnIfNotExist($db, 'bbm_buttons', 'config_ed', "varchar(25) NOT NULL DEFAULT 'mce'");
 			$db->query("INSERT INTO bbm_buttons (config_ed, config_type, config_name, config_buttons_order, config_buttons_full) VALUES ('xen', 'redactor', 'redactor', '', '');");	
-			
-			if(!empty($addon))
-			{
-				//Update Registry - first key have changed
-				$configs = XenForo_Model::create('BBM_Model_Buttons')->InsertConfigInRegistry();
-			}		
+
+			self::updateRegistry($addon);		
 		}
 
 		if(empty($addon) || $addon['version_id'] < 23)
@@ -241,6 +237,11 @@ class BBM_Installer
 		if(empty($addon) || $addon['version_id'] < 68)
 		{
 			self::addColumnIfNotExist($db, 'bbm', 'trimContent', "INT(1) NOT NULL DEFAULT '0'");
+		}
+
+		if(empty($addon) || $addon['version_id'] < 85)
+		{
+			self::updateRegistry($addon);
 		}
 
 		//Generate simple cache (users don't need anymore to edit a bbcode and save it (without operating any change) to activate the Simple Cache
@@ -445,6 +446,15 @@ class BBM_Installer
 		}
 
 		return $errors;
+	}
+	
+	public static function updateRegistry($addon)
+	{
+		if(!empty($addon))
+		{
+			//Update Registry - first key have changed
+			XenForo_Model::create('BBM_Model_Buttons')->InsertConfigInRegistry();
+		}
 	}
 }
 //Zend_Debug::dump($code);

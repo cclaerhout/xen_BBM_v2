@@ -56,7 +56,7 @@ class BBM_Helper_Bbm
 			'buttonDesc', 'tagOptions', 'tagContent', 'options_separator',
 			'quattro_button_type', 'quattro_button_type_opt', 'quattro_button_return', 'quattro_button_return_opt',
 			'redactor_has_icon', 'redactor_sprite_mode', 'redactor_image_url', 'redactor_sprite_params_x', 'redactor_sprite_params_y',
-			'redactor_button_type', 'redactor_button_type_opt'
+			'redactor_button_type', 'redactor_button_type_opt', 'allow_signature'
 		);
 	}
 

@@ -13,9 +13,10 @@ class BBM_BbCode_Formatter_BbCode_Filter extends XFCP_BBM_BbCode_Formatter_BbCod
 		{
 			foreach($baseFormatterTags as $tagName => $tag)
 			{
-				unset($tag['replace'], $tag['callback'], $tag['trimLeadingLinesAfter']);
-				$tag['callback'] = $this->_generalTagCallback;
-				$parentTags[$tagName] = $tag;
+				if(!isset($parentTags[$tagName]))
+				{
+					$parentTags[$tagName] = $this->_filterTagDefinition($tagName, $tag);
+				}
 			}
 		}
 
