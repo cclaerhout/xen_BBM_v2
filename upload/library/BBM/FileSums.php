@@ -7,6 +7,7 @@ class BBM_FileSums
 		return array (
   'library/BBM/BbCode/Formatter/Base.php' => '983c34acaf1494175f618c5c73a195bb',
   'library/BBM/BbCode/Formatter/BbCode/AutoLink.php' => '7530a0fc2933c570b0fcb6f720fbd00d',
+  'library/BBM/BbCode/Formatter/BbCode/Filter.php' => 'eba20092590e985e17c7b2b076505a1f',
   'library/BBM/BbCode/Formatter/Default.php' => '130f4a97f3fbd7d38c12f8b470bedb3c',
   'library/BBM/BbCode/Formatter/Extensions/PreCacheBase.php' => '98ba6d68dafb1d3d173ee3f291e9dfb3',
   'library/BBM/BbCode/Formatter/Extensions/PreCacheWysiwyg.php' => '908562ceb79dcedc28b235705197e9c1',
@@ -29,7 +30,7 @@ class BBM_FileSums
   'library/BBM/Helper/PhraseWrapper.php' => '37fdd3ce08bda417e876fefa22de77d0',
   'library/BBM/Helper/QuattroUnicode.php' => 'f0df7b6de16c04d945ffb6b8338dc4d4',
   'library/BBM/Installer.php' => '97ff5ed404be9175a6e4f5a624b500be',
-  'library/BBM/Listeners/AllInOne.php' => '3835edd21037ca7b027647277afa1f0e',
+  'library/BBM/Listeners/AllInOne.php' => '633b1157125eb00ef2627381f841b116',
   'library/BBM/Listeners/Templates/Admin.php' => '3cb94796c0e5547a683fe288ec09f913',
   'library/BBM/Listeners/Templates/Preloader.php' => 'dd5bc34646d7de716480215ef4a116e2',
   'library/BBM/Listeners/Templates/Public.php' => '58d3c12fd4cfa071c1f484ecef124f6a',

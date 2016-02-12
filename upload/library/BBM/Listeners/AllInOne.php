@@ -21,6 +21,10 @@ class BBM_Listeners_AllInOne
 					$extend[] = 'BBM_BbCode_Formatter_BbCode_AutoLink';
 				break;
 
+				case 'XenForo_BbCode_Formatter_BbCode_Filter':
+					$extend[] = 'BBM_BbCode_Formatter_BbCode_Filter';
+				break;
+
 				case 'XenForo_BbCode_Formatter_Base':
 					$extend[] = 'BBM_BbCode_Formatter_Base';
 					if(XenForo_Application::get('options')->get('Bbm_PreCache_Enable'))
