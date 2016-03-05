@@ -98,7 +98,7 @@ class BBM_Helper_QuattroUnicode
 			'e02c',
 			'e02b',
 			'e02a',
-			'e029',
+			//'e029', // has been deleted in MCE 4.3.7
 			'e028',
 			'e027',
 			'e026',

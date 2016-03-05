@@ -452,7 +452,6 @@ class BBM_Installer
 	{
 		if(!empty($addon))
 		{
-			//Update Registry - first key have changed
 			XenForo_Model::create('BBM_Model_Buttons')->InsertConfigInRegistry();
 		}
 	}
