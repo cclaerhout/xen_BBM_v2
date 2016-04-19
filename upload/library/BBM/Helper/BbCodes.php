@@ -31,40 +31,79 @@ class BBM_Helper_BbCodes
 	 **/
 	public static function getSpecialTags($content, array $tags = array('slide'), $getContentBetweenTags = false)
 	{
+
 		$tags = implode('|', $tags);
+		$afterTagBlank = '[\s]|&\#8203;';
+		
 		$count = preg_match_all(
-			'#{(?P<tag>'.$tags.')(=(?P<option>\[([\w\d]+)(?:=.+?)?\].+?\[/\4\]|[^{}]+)+?)?}'.
-			'(?P<catchup>(?:</[^>]+>\s*)*)?(?P<content>.*?)'.
-			'{/\1}(?!(?:\W+)?{/\1})(?P<outside>.*?)(?={(?:'.$tags.')(?:=[^}]*)?}|$)#is',
+			'#(?P<beforeTag>(?:<[^>]+?>)+)?{(?P<tag>'.$tags.')(=(?P<option>\[([\w\d]+)(?:=.+?)?\].+?\[\/\5\]|[^{}]+)+?)?}'.
+			'(?P<afterTag>(?:(?:'.$afterTagBlank.')*<\/[^>]+?>(?:'.$afterTagBlank.')*)+)?(?P<content>.*?)'.
+			'{\/\2}(?!(?:\W+)?{\/\2})(?P<outside>.*?)(?={(?:'.$tags.')(?:=[^}]*)?}|$)#msi',
 			$content,
 			$matches,
 			PREG_SET_ORDER
 		);
-		
+
 		/* Prevent html breaks */
 		for(; $count > 0; $count--)
 		{
 			$k = $count-1;
 			$content = &$matches[$k]['content'];
-			
-			/*
-			$catchup = false; //$matches[$k]['catchup'];
 
-			//Catchup lost closing tags at the begin of n+1 special tag
-			if($catchup && isset($matches[$k-1]))
+			/*Restore in a clean way a messy code between normal & special tags*/
+			if(!empty($matches[$k]['beforeTag']) && !empty($matches[$k]['afterTag']))
 			{
-				$previousContent = &$matches[$k-1]['content'];
-				if(preg_match('#^.*<br />$#s', $previousContent))
+				$htmlBeforeTagData = explode('>', $matches[$k]['beforeTag']);
+				$htmlBeforeTagData = array_filter($htmlBeforeTagData);
+				$htmlBeforeTagData = array_values($htmlBeforeTagData);
+				
+				$htmlAfterTagData = explode('>', $matches[$k]['afterTag']);
+				$htmlAfterTagData = array_filter($htmlAfterTagData);
+				$htmlAfterTagData = array_reverse($htmlAfterTagData);
+				
+				$catchupContent = '';
+				
+				for($i = 0; ; $i++)
 				{
-					$previousContent = preg_replace('#^(.*)<br />$#s', "$1{$catchup}<br />", $previousContent);
+					if(!isset($htmlBeforeTagData[$i], $htmlAfterTagData[$i]))
+					{
+						break;
+					}
+					
+					$htmlBeforeTag = null;
+					$htmlBeforeTagLimitPos = strpos($htmlBeforeTagData[$i], ' ');
+					if($htmlBeforeTagLimitPos !== false)
+					{
+						$htmlBeforeTag = substr($htmlBeforeTagData[$i], 1, $htmlBeforeTagLimitPos-1);
+					}
+					else
+					{
+						$htmlBeforeTag = substr($htmlBeforeTagData[$i], -1); //ie: b>
+					}
+
+					$htmlAfterTag = null;
+					$htmlAfterTagStartPos = strpos($htmlAfterTagData[$i], '</');
+					if($htmlAfterTagStartPos !== false)
+					{
+						$htmlAfterTag = substr($htmlAfterTagData[$i], $htmlAfterTagStartPos+2, strlen($htmlAfterTagData[$i]));
+					}
+					else
+					{
+						break;
+					}
+
+					if($htmlBeforeTag == $htmlAfterTag)
+					{
+						$catchupContent .= $htmlBeforeTagData[$i].">";
+					}
 				}
-				else
+
+				if($catchupContent)
 				{
-					$previousContent .= $catchup;
+					$content =$catchupContent.$content; 
 				}
 			}
-			*/
-			
+		
 			/*Between special tags management*/
 			$extraData = $matches[$k]['outside'];
 			$extraDataCheck = str_replace('<br />', '', $extraData);
