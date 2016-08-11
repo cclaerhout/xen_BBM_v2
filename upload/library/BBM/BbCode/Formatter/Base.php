@@ -532,6 +532,10 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 			return $parserPermissionsReturn;
 		}
+		elseif(!$rendererStates['canUseBbCode'])
+		{
+			return $this->checkBbCodeParsingPerms($tag, $rendererStates);
+		}
 
 		if(!isset($rendererStates['canViewBbCode']))
 		{
