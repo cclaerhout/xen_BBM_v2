@@ -5,7 +5,7 @@ class BBM_FileSums
 	public static function getHashes()
 	{
 		return array (
-  'library/BBM/BbCode/Formatter/Base.php' => '983c34acaf1494175f618c5c73a195bb',
+  'library/BBM/BbCode/Formatter/Base.php' => '83bf6bc1b1778b10c02329ba120a953f',
   'library/BBM/BbCode/Formatter/BbCode/AutoLink.php' => '7530a0fc2933c570b0fcb6f720fbd00d',
   'library/BBM/BbCode/Formatter/BbCode/Filter.php' => '501519e3ec356d1a292a3333599a57af',
   'library/BBM/BbCode/Formatter/Default.php' => '130f4a97f3fbd7d38c12f8b470bedb3c',
@@ -21,7 +21,7 @@ class BBM_FileSums
   'library/BBM/DataWriter/Buttons.php' => 'af999a948c9df9cd2d4e21f9c7836201',
   'library/BBM/DataWriter/Forum.php' => 'bca355360dd59454dee1b4e0e4159df3',
   'library/BBM/DataWriter/Post.php' => '04560d745639373035513412385548a6',
-  'library/BBM/Helper/BbCodes.php' => 'db46317736a0995b9328b7305a398002',
+  'library/BBM/Helper/BbCodes.php' => '9cd124e4b04a69092c1c1f1ec4cf1b54',
   'library/BBM/Helper/Bbm.php' => '3a98a5ce81e31fa665f9ad502cb6bdd1',
   'library/BBM/Helper/Buttons.php' => 'c98612d0a3d3695a2583a2e70e0e40c5',
   'library/BBM/Helper/Editors.php' => '33abd5dc75be58c6bc9df943f07e32b2',
@@ -45,8 +45,8 @@ class BBM_FileSums
   'library/BBM/Protection/BbCode/Formatter/BbCode/Eradicator.php' => '7ed4f9f510f884e1592274f4db0f815e',
   'library/BBM/Protection/BbCode/Formatter/BbCode/Lupin.php' => '98e999df6ec1d9d1c23e02bf4d1a97a0',
   'library/BBM/Protection/Helper/ContentProtection.php' => '1ccdd6042890f4bec9e1259236f5dc9b',
-  'library/BBM/Protection/Helper/MiniParser.php' => '40d4f4fcfbdfa8085b18191d97178536',
-  'library/BBM/Protection/Listener/Models.php' => 'c10679d463dbcef1830cf503f347bb45',
+  'library/BBM/Protection/Helper/MiniParser.php' => 'ac7aac2df5a6590ad6e5d3455218f467',
+  'library/BBM/Protection/Listener/Models.php' => 'a4823cd7bfdb77959944811e5c3e1d9f',
   'library/BBM/Protection/Model/NewsFeed.php' => '65eead04c4d0e3db26be3924a9d5a054',
   'library/BBM/Protection/Model/Search.php' => 'e4f15d538d0528f0a893fe65366c8bd7',
   'library/BBM/Protection/Model/ThreadWatch.php' => '2d40586dcf6f4e01c3f8646a6443d2f0',
