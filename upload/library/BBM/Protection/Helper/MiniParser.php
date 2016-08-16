@@ -1,5 +1,5 @@
 <?php
-/* Mini Parser BbCodes to Html - v1.35 by Sedo - CC by 3.0*/
+/* Mini Parser BbCodes to Html - v1.4.0 WIP - 160816#1 by Sedo - CC by 3.0*/
 class BBM_Protection_Helper_MiniParser
 {
 	/**
@@ -10,16 +10,25 @@ class BBM_Protection_Helper_MiniParser
 	protected $_parserClosingCharacter = '}';
 	protected $_parserClosingCharacterRegex = '}';
 	protected $_parserDepthLimit = 50;
-	protected $_htmlspecialcharsForContent = true;
-	protected $_htmlspecialcharsForOptions = true;
-	protected $_renderStates = array();
+	protected $_parsingMode = 'bbcode';		// Choices: bbcode or html
+	protected $_parserNamespace = '';		// Allow to setup a namespace to parse only tags with it;ie: <wdp:articles limit="5"></wdp:articles>
+	protected $_getAllTags = false;			// Set true to match all tags (tagRules can then just be an empty array)
+	protected $_htmlspecialcharsForContent = true;  // Apply htmlspecialchars on content
+	protected $_htmlspecialcharsForOptions = true;  // Apply htmlspecialchars on options
 	protected $_checkClosingTag = false; 		// Check if a closing tag exists for the tag being processed
+	protected $_checkSelfClosingTag = false;	// Check self closing tags (do not forget to configure Bb Code)
 	protected $_preventHtmlBreak = false;		// For private use (protect Bb Code and avoid page break) 
 	protected $_externalFormatter = false; 		// To be valid, it must be an array with the class & the method
 	protected $_mergeAdjacentTextNodes = false; 	// Should not do any difference
 	protected $_autoRecalibrateStack = false; 	// WIP... not that good
-	protected $_nl2br = true;
-	protected $_trimTextNodes = true;		//Should be set to false with standard Bb Codes
+	protected $_nl2br = true;			// Apply nl2br on text nodes
+	protected $_trimTextNodes = true;		// Should be set to false with standard Bb Codes
+	protected $_encoding = 'utf-8';			// Used for the html parsing mode
+	protected $_matchNestedTagsInOpeningTags = false; // [bbcode] Match nested tags in option such as [abc=[b]def[/b]]content[/abc]
+	protected $_parserCheckParentChildren = true;	// The easiest way: don't specify any rules, but if you already set them, just disable them here
+
+	protected $_renderStates = array();		// If needed you can add data to renderStates here
+
 
 	/**
 	 * Parser debug - bolean values needs to be changed manualy
@@ -203,6 +212,54 @@ class BBM_Protection_Helper_MiniParser
 			{
 				$this->_trimTextNodes = $parserOptions['trimTextNodes'];
 			}
+			
+			if(isset($parserOptions['checkSelfClosingTag']))
+			{
+				$this->_checkSelfClosingTag = $parserOptions['checkSelfClosingTag'];
+			}
+			
+			if(isset($parserOptions['parserNamespace']))
+			{
+				$this->_parserNamespace = $parserOptions['parserNamespace'];
+			}
+			
+			$parsingModes = array('bbcode', 'html');
+			
+			if(isset($parserOptions['parsingMode']) && in_array($parserOptions['parsingMode'], $parsingModes))
+			{
+				$this->_parsingMode = $parserOptions['parsingMode'];
+			}
+			else
+			{
+				//default parsing mode is bbcode
+				$checkParsingCharacters = $this->_parserOpeningCharacter.$this->_parserClosingCharacter;
+
+				if($checkParsingCharacters == '<>')
+				{
+					//Let's automatically change the parsing mode to  bbcode
+					$this->_parsingMode = 'html';
+				}
+			}
+
+			if(isset($parserOptions['encoding']))
+			{
+				$this->_encoding = $parserOptions['encoding'];
+			}
+	
+			if(isset($parserOptions['getAllTags']))
+			{
+				$this->_getAllTags = $parserOptions['getAllTags'];
+			}
+			
+			if(isset($parserOptions['matchNestedTagsInOpeningTags']))
+			{
+				$this->_matchNestedTagsInOpeningTags = $parserOptions['matchNestedTagsInOpeningTags'];
+			}
+			
+			if(isset($parserOptions['parserCheckParentChildren']))
+			{
+				$this->_parserCheckParentChildren = $parserOptions['parserCheckParentChildren'];
+			}
 		}
 
 		if($this->__debug_parserSpeed)
@@ -211,10 +268,29 @@ class BBM_Protection_Helper_MiniParser
 			$startTime = microtime(true);
 		}
 
+		if($this->_parsingMode == 'html')
+		{
+			$text = $this->_htmlEscapeSpecials($text);
+		}
+		else
+		{
+			$text = $this->_bbcodeEscapeSpecials($text);
+		}
+
 		$this->_text = $text;
 		$this->_matches = $this->_getMatchesFromSplitRegex($text);
 		reset($this->_matches);
 		$this->_tree = $this->_buildTree();
+
+		if($this->_parsingMode == 'html' && $this->_textEscaped)
+		{
+			$this->_tree = $this->_htmlUnescapeSpecials($this->_tree);
+		}
+
+		if($this->_parsingMode == 'bbcode' && $this->_textEscaped)
+		{
+			$this->_tree = $this->_bbcodeUnescapeSpecials($this->_tree);
+		}
 
 		if($this->__debug_parserSpeed)
 		{
@@ -239,8 +315,9 @@ class BBM_Protection_Helper_MiniParser
 	{
 		$poc = $this->_parserOpeningCharacterRegex;
 		$pcc = $this->_parserClosingCharacterRegex;
+		$namespace = $this->_parserNamespace;
 
-		return preg_split('#'.$poc.'(/?)([^'.$pcc.']*)'.$pcc.'#u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+		return preg_split('#'.$poc.'(/?)'. $namespace .'([^'.$pcc.$poc.']*)'.$pcc.'#u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 	}
 	
 	protected $_stringTreePos = 0;
@@ -275,10 +352,10 @@ class BBM_Protection_Helper_MiniParser
 				break;
 
 				case 2:
-					if ($closing)
+					if($closing)
 					{
 						$tagName = strtolower($value);
-						
+
 						//The fallback must use the value and not the tagName to output valid datas from mal formed closing tag (ie: [/quote)
 						$fallBack = $this->_parserOpeningCharacter.'/'.$value.$this->_parserClosingCharacter;
 
@@ -294,6 +371,7 @@ class BBM_Protection_Helper_MiniParser
 
 						/*Unexpected Closing Tag Management*/
 						$expected = array_pop($this->_openedTagsStack);
+
 						$id = $expected['tagId'];
 						
 						if ($tagName != $expected['tagName'])
@@ -335,31 +413,26 @@ class BBM_Protection_Helper_MiniParser
 					}
 					else
 					{
+						$selfClosingTag = false;
+						if($this->_checkSelfClosingTag && substr($value, -1, 1) == '/')
+						{
+							$selfClosingTag = true;
+						}
+
 						$missingClosingTagDetected = false;
 						$htmlBreakDetected = false;
 
-						/* Option Checker */
-						$tagOptionPosition = strpos($value, '=');
-					
-						if(!$tagOptionPosition)
-						{
-							$tagName = $value;
-							$tagOption = null;
-						}
-						else
-						{
-							$tagName = substr($value, 0, $tagOptionPosition);
-							$tagOption = substr($value, $tagOptionPosition+1);
-							$tagOption = (trim($tagOption)) ? $tagOption : null;
-						}
+						/* Setup main data */
+						$callerMode = '_'.$this->_parsingMode.'GetTagNameAndTagOption';
+						list($tagName, $tagOption) = $this->$callerMode($value, $selfClosingTag);
 
 						$tagNameValue = $tagName;
 						$tagName = strtolower($tagName);
 
 						$openingFallBack = $this->_parserOpeningCharacter.$value.$this->_parserClosingCharacter;
-						$closingFallBack = $this->_parserOpeningCharacter.'/'.$tagNameValue.$this->_parserClosingCharacter;
+						$closingFallBack = ($selfClosingTag) ? '' : $this->_parserOpeningCharacter.'/'.$tagNameValue.$this->_parserClosingCharacter;						
 
-						$validTag = $this->_parseTagChecker($tagName, true, $tagOption, 'openingCheck');
+						$validTag = $this->_parseTagChecker($tagName, true, $tagOption, 'openingCheck', $selfClosingTag);
 
 						/* Get Wrapping text */
 						$getWrappingText = false;
@@ -374,7 +447,7 @@ class BBM_Protection_Helper_MiniParser
 							list($textBefore, $textAfter) = $this->_getWrappingText();
 
 							/* Missing closing tag detection */
-							if($this->_checkClosingTag && $validTag)
+							if($this->_checkClosingTag && $validTag && !$selfClosingTag)
 							{
 								$missingClosingTagDetected = (strpos($textAfter, $closingFallBack) === false);
 								//Zend_Debug::dump($textAfter);
@@ -389,7 +462,6 @@ class BBM_Protection_Helper_MiniParser
 								if(preg_match('#.*<(?!/)[^>]+?(?<!/)>?$#sui', $bbcontent))
 								{
 									$htmlBreakDetected = true;
-									
 								}
 							}
 						}
@@ -419,11 +491,14 @@ class BBM_Protection_Helper_MiniParser
 						$tagId = $this->_tagId++;
 
 						/*Add tagName & its ID to the openTags stack*/
-						$this->_openedTagsStack[] = array(
-							'tagName' => $tagName,
-							'tagId' => $tagId,
-							'theoricalDepth' => $this->_depth
-						);
+						if(!$selfClosingTag)
+						{
+							$this->_openedTagsStack[] = array(
+								'tagName' => $tagName,
+								'tagId' => $tagId,
+								'theoricalDepth' => $this->_depth
+							);
+						}
 
 						/*Check if next nodes must be activated with the current opening tag*/
 						$this->_enableDisableTextNodes($tagName, true);
@@ -432,7 +507,7 @@ class BBM_Protection_Helper_MiniParser
 						$tagInfo = array(
 							'tagId' => $tagId,
 							'tag' => $tagName,
-							'option' => ($this->_htmlspecialcharsForOptions) ?
+							'option' => ($this->_htmlspecialcharsForOptions && is_string($tagOption)) ?
 								htmlspecialchars($tagOption) : $tagOption,
 							'original' => array(
 								0 => $openingFallBack,
@@ -441,7 +516,8 @@ class BBM_Protection_Helper_MiniParser
 							'depth' => $this->_depth,
 							'parentTag' => $this->_parentTag[$this->_depth-1]['tag'],
 							'parentOption' => $this->_parentTag[$this->_depth-1]['option'],
-							'parentTagId' => $this->_parentTag[$this->_depth-1]['tagId']
+							'parentTagId' => $this->_parentTag[$this->_depth-1]['tagId'],
+							'selfClosingTag' => $selfClosingTag
 						);
 
 						preg_replace('#.#su', '', $value, -1, $length);
@@ -449,8 +525,17 @@ class BBM_Protection_Helper_MiniParser
 						
 						$this->_pushOpeningTagSuccess($tagName, $tagInfo);
 
-						/*Here comes the recursive*/
-						$tagInfo['children'] = $this->_buildTree();
+						if($selfClosingTag)
+						{
+							$this->_depth--;
+							$tagInfo['children'] = array();
+						}
+						else
+						{
+							/*Here comes the recursive*/
+							$tagInfo['children'] = $this->_buildTree();
+						}
+
 						$nodes[] = $tagInfo;
 					}
 				break;
@@ -460,80 +545,471 @@ class BBM_Protection_Helper_MiniParser
 		return $nodes;
 	}
 
+	/***
+	* Get tagName and tagOption functions
+	* They have been externalised from previous function to deal with different modes such as html one
+	**/
+	protected function _bbcodeGetTagNameAndTagOption($value, $selfClosingTag = false)
+	{
+		$tagOptionPosition = strpos($value, '=');
+
+		if($tagOptionPosition === false)
+		{
+			$tagName = $value;
+			$tagOption = null;
+			
+			if($selfClosingTag)
+			{
+				$tagName = trim(substr($tagName, 0, -1));
+			}
+		}
+		else
+		{
+			$tagName = substr($value, 0, $tagOptionPosition);
+			$tagOption = substr($value, $tagOptionPosition+1);
+
+			if($selfClosingTag)
+			{
+				$tagOption = substr($tagOption, 0, -1);
+			}
+			
+			$tagOption = (trim($tagOption)) ? $tagOption : null;
+		}
+		
+		return array($tagName, $tagOption);
+	}
+
+	protected function _htmlGetTagNameAndTagOption($value, $selfClosingTag = false)
+	{
+		$hasTagOption = strpos($value, '=');
+
+		if($hasTagOption === false)
+		{
+			$tagName = $value;
+			$tagOption = array();
+			
+			if($selfClosingTag)
+			{
+				$tagName = substr($tagName, 0, -1);
+			}
+			
+			$tagName = trim($tagName);
+		}
+		else
+		{
+			$tagNameEndingPosition = strpos($value, ' ');
+
+			$tagName = substr($value, 0, $tagNameEndingPosition);
+			$tagOption = trim(substr($value, $tagNameEndingPosition+1));
+
+			if($selfClosingTag)
+			{
+				$tagOption = substr($tagOption, 0, -1);
+			}
+			
+			$tagOption = $this->parseHtmlTagOption($tagOption);
+		}
+		
+		return array($tagName, $tagOption);
+	}
+
+	public function parseHtmlTagOption($tagOption)
+	{
+		/*Get markup's arguments*/
+		preg_match_all('#\s*([^=]+)\s*=\s*["\']([^"\']+)["\']#', $tagOption, $matches, PREG_SET_ORDER);
+
+		/*Transform the matches into a nice key/value array*/
+		$attributes = array(
+			'_original' => $tagOption,
+			'style' => array()
+		);
+
+		if(empty($matches)) return $attributes;
+		
+		foreach ($matches as $m)
+		{
+			/* unescape the html entities of the argument's value*/
+			$propertyName = strtolower($m[1]);
+			$propertyData = html_entity_decode($m[2], ENT_QUOTES, $this->_encoding);
+			$propertyData = trim($propertyData);
+			
+			if($propertyName == "style")
+			{
+				$originalPropertyData = $propertyData;
+				$propertyDataWip = explode(";", $propertyData);
+				$propertyData = array();
+				$propertyData['_original'] = $originalPropertyData;
+				
+				for($i=0,$iMax=count($propertyDataWip); $i < $iMax; $i++)
+				{
+					list($cssProperty, $cssVal) = explode(':', $propertyDataWip[$i]);
+					$cssProperty = trim($cssProperty);
+					$cssVal = trim($cssVal);					
+					$propertyData[$cssProperty] = $cssVal;
+				}
+			}
+
+			$attributes[$propertyName] = $propertyData;
+		}
+
+		return $attributes;
+	}
+
+	public function flattenHtmlTagOption(array $tagOption)
+	{
+		$flattenOption = '';
+		
+		if(empty($tagOption))
+		{
+			return $flattenOption;
+		}
+
+		if(!empty($tagOption['style']))
+		{
+			$styleData = $tagOption['style'];
+			$style = array();
+
+			foreach($styleData as $cssProperty => $cssVal)
+			{
+				if($cssProperty[0] == '_') continue;
+				$style[] = "{$cssProperty}:{$cssVal}";
+			}
+			
+			$tagOption['style'] = implode('; ', $style);
+		}
+		else
+		{
+			unset($tagOption['style']);
+		}
+
+		$properties = array();
+		foreach($tagOption as $propertyName => $propertyData)
+		{
+			if($propertyName[0] == '_') continue;
+			$properties[] = "{$propertyName}=\"{$propertyData}\"";
+		}
+
+		$flattenOption = implode(' ', $properties);
+
+		return $flattenOption;
+	}
+
+	public function sanitizeHtmlTagOption(array $tagOption, $preventRecursion = false)
+	{
+		foreach($tagOption as $k => &$attr)
+		{
+			if(is_array($attr) )
+			{
+				if(!$preventRecursion)
+				{
+					$attr = $this->sanitizeHtmlTagOption($attr);
+				}
+				continue;
+			}
+			
+			if($k[0] == '_')
+			{
+				unset($tagOption[$k]);
+				continue;
+			}
+		}
+		
+		return $tagOption;
+	}
+
+	public function getHtmlStyleOption(array $tagOption, $sanitize = true)
+	{
+		if(!isset($tagOption['style']))
+		{
+			return array();
+		}
+
+		$styleOption = $tagOption['style'];
+
+		if($sanitize)
+		{
+			$styleOption = $this->sanitizeHtmlTagOption($styleOption, true);
+		}
+		
+		return $styleOption;
+	}	
+
+	/***
+	* HTML/BBCODE pre/post parsing functions
+	**/
+	protected $_textEscaped = false;
+	
+	protected function _htmlEscapeSpecials($html)
+	{
+		/*Here we escape comments...*/
+		$html = preg_replace_callback('#<\!--.+-->#sU', array($this, '_htmlEscapeSpecials_callback'), $html);
+		
+		/*...and processing options*/
+		$html = preg_replace_callback('#(?<=<)([^\s<>]+?[\s](?:[\s]*[\S]+?=([\'"]).*?\2[\s]*)+?)\/?(?=>)#', array($this, '_htmlEscapeSpecials_callback'), $html);
+		//=> We are escaping and not parsing here: no need to match both identical opening & closing tags. Matching only the opening tag is enough.
+		
+		return $html;
+	}
+
+	protected function _htmlEscapeSpecials_callback($m)
+	{
+		$this->_textEscaped = true;
+		
+		$text = $m[0];
+		
+		$text = str_replace
+		(
+			array('<', '>'),
+			array("\x01", "\x02"),
+			$text
+		);
+		
+		return $text;
+	}
+
+	protected function _htmlUnescapeSpecials($tree)
+	{
+		return is_array($tree) ? array_map(array($this, '_htmlUnescapeSpecials'), $tree) : str_replace
+		(
+			array("\x01", "\x02"),
+			array('<', '>'),
+			$tree
+		);
+	}
+
+	protected function _bbcodeEscapeSpecials($html)
+	{
+		$poc = $this->_parserOpeningCharacterRegex;
+		$pcc = $this->_parserClosingCharacterRegex;
+		
+		/**
+		 * Escape options
+		 * The below regex will only match any opening tags with nested parsing character inside their option
+		 */
+		if($this->_matchNestedTagsInOpeningTags)
+		{
+			$html = preg_replace_callback(
+				'#'.$poc.'(?P<tagname>[\w\d]+?=)(?:'.$poc.'([\w\d]+?)(?:=.+?)?'.$pcc.'.+?'.$poc.'/\2'.$pcc.'|[^'.$poc.$pcc.'])+?'.$pcc.'#ui', 
+				array($this, '_bbcodeEscapeSpecials_callback'),
+				$html
+			);
+		}
+
+		return $html;
+	}
+
+	protected function _bbcodeEscapeSpecials_callback($m)
+	{
+		$this->_textEscaped = true;
+		
+		$full = $m[0];
+		$content = substr($full, 1, -1);
+		$tagname = $m['tagname'];
+		
+		$poc = $this->_parserOpeningCharacter;
+		$pcc = $this->_parserClosingCharacter;
+
+		$content = str_replace
+		(
+			array($poc, $pcc),
+			array("\x01", "\x02"),
+			$content
+		);
+
+		$o = "{$poc}{$content}{$pcc}";
+
+		return "{$poc}{$content}{$pcc}";
+	}
+
+	protected function _bbcodeUnescapeSpecials($tree)
+	{
+		if(!$this->_matchNestedTagsInOpeningTags)
+		{
+			return $tree;
+		}
+
+		return is_array($tree) ? array_map(array($this, '_bbcodeUnescapeSpecials'), $tree) : str_replace
+		(
+			array("\x01", "\x02"),
+			array($this->_parserOpeningCharacter, $this->_parserClosingCharacter),
+			$tree
+		);
+	}
+
+	/* Annexe functions to main ones*/
+	protected $_prevTextAfter = null;
+	protected $_prevTextPos = 0;
+	
+	protected function _getWrappingText($getTextBefore = false)
+	{
+		//The getTextBefore feature is only for reference.
+		
+		$pos = $this->_stringTreePos;
+		$method = 'regex';
+		
+		$delta = $pos - $this->_prevTextPos;
+		$wipTextAfter = ($this->_prevTextAfter) ? $this->_prevTextAfter : $this->_text;
+
+		$textBefore = '';
+		$textAfter = '';
+
+		if($method == 'regex')
+		{
+			if(!$getTextBefore)
+			{
+				//a too high number in {} will trigger an error, so let's split it
+				$regexMax = 5000;
+
+				if($delta <= $regexMax)
+				{
+					$regex = '.{'.$delta.'}';
+				}
+				else
+				{
+					$nRegex = floor($delta/$regexMax);
+					$diffRegex = $delta - ($regexMax*$nRegex);
+					$regex = str_repeat('.{'.$regexMax.'}', $nRegex) . '.{' . $diffRegex . '}';
+				}
+
+				$regex = '#^'.$regex.'#sui';
+				$textAfter = preg_replace($regex, '', $wipTextAfter);
+			}
+			else
+			{
+
+				//a too high number in {} will trigger an error, so let's split it
+				$regexMax = 5000;
+
+				if($pos <= $regexMax)
+				{
+					$regex = '.{'.$pos.'}';
+				}
+				else
+				{
+					$nRegex = floor($pos/$regexMax);
+					$diffRegex = $pos - ($regexMax*$nRegex);
+					$regex = str_repeat('.{'.$regexMax.'}', $nRegex) . '.{' . $diffRegex . '}';
+				}
+
+				$regex = '#^(?<before>'.$regex.')(?<after>.*)$#sui';
+				$textBefore = '';
+				$textAfter = '';
+
+				if(preg_match($regex, $this->_text, $match))
+				{
+					$textBefore = $match['before'];
+					$textAfter = $match['after'];
+				}
+			}
+		}
+		elseif($method == 'mb_substr')
+		{
+			/**
+			 * Problems:
+			 * 1) said as very slow (even if I'm not sure the regex method is faster)
+			 * 2) not in all php installation
+			 **/
+			
+			if($getTextBefore)
+			{
+				$textBefore = mb_substr($this->_text, 0, $pos);
+			}
+			  
+			$textAfter = mb_substr($wipTextAfter, $delta);
+		}
+		elseif($method == 'substr')
+		{
+			/**
+			 * Problem:
+			 * 1) not utf compatible
+			 **/
+
+			//$text = utf8_encode($this->_text); //Worse performance than the two above solutions
+			$text = $this->_text;
+
+			if($getTextBefore)
+			{
+				$textBefore = substr($text, 0, $pos);
+			}
+			
+			$textAfter = substr($wipTextAfter, $delta);
+		}
+
+		$this->_prevTextAfter = $textAfter;
+		$this->_prevTextPos = $pos;
+		
+		return array($textBefore, $textAfter);
+	}
+
+	/***
+	//Former function for reference
 	protected function _getWrappingText($getTextBefore = false)
 	{
 		$pos = $this->_stringTreePos;
-      		$method = 'regex';
+		$method = 'substr';
 		
 		$textBefore = '';
-	      	$textAfter = '';
-	      	
-      		if($method == 'regex')
-      		{
-      			//a too high number in {} will trigger an error, so let's split it
-      			$regexMax = 5000;
+		$textAfter = '';
 
-      			if($pos <= $regexMax)
-      			{
-      				$regex = '.{'.$pos.'}';
-      			}
-      			else
-      			{
-      				$nRegex = floor($pos/$regexMax);
-      				$diffRegex = $pos - ($regexMax*$nRegex);
-      				$regex = str_repeat('.{'.$regexMax.'}', $nRegex) . '.{' . $diffRegex . '}';
-      			}
+		if($method == 'regex')
+		{
+			//a too high number in {} will trigger an error, so let's split it
+			$regexMax = 5000;
 
-      			if(!$getTextBefore)
-      			{
-      				$regex = '#^'.$regex.'#sui';
-      				$textAfter = preg_replace($regex, '', $this->_text);
-      			}
-      			else
-      			{
-      				$regex = '#^(?<before>'.$regex.')(?<after>.*)$#sui';
-      				$textBefore = '';
-      				$textAfter = '';
+			if($pos <= $regexMax)
+			{
+				$regex = '.{'.$pos.'}';
+			}
+			else
+			{
+				$nRegex = floor($pos/$regexMax);
+				$diffRegex = $pos - ($regexMax*$nRegex);
+				$regex = str_repeat('.{'.$regexMax.'}', $nRegex) . '.{' . $diffRegex . '}';
+			}
 
-      				if(preg_match($regex, $this->_text, $match))
-      				{
-      					$textBefore = $match['before'];
-      					$textAfter = $match['after'];
-      				}
-      			}
-      		}
-      		elseif($method == 'mb_substr')
-      		{
-      			/**
-      			 * Problems:
-      			 * 1) said as very slow (even if I'm not sure the regex method is faster
-      			 * 2) not in all php installation
-      			 **/
-      			
-      			if($getTextBefore)
-      			{
-      				$textBefore = mb_substr($this->_text, 0, $this->_stringTreePos);
-      			}
-      			  
-      			$textAfter = mb_substr($this->_text, $this->_stringTreePos);
-      		}
-      		elseif($method == 'substr')
-      		{
-      			/**
-      			 * Problem:
-      			 * 1) not utf compatible
-      			 **/
+			if(!$getTextBefore)
+			{
+				$regex = '#^'.$regex.'#sui';
+				$textAfter = preg_replace($regex, '', $this->_text);
+			}
+			else
+			{
+				$regex = '#^(?<before>'.$regex.')(?<after>.*)$#sui';
+				$textBefore = '';
+				$textAfter = '';
 
-      			if($getTextBefore)
-      			{
-      				$textBefore = mb_substr($this->_text, 0, $this->_stringTreePos);
-      			}
-      			
-      			$textAfter = substr($this->_text, $this->_stringTreePos);
-      		}
-      		
-      		return array($textBefore, $textAfter);
+				if(preg_match($regex, $this->_text, $match))
+				{
+					$textBefore = $match['before'];
+					$textAfter = $match['after'];
+				}
+			}
+		}
+		elseif($method == 'mb_substr')
+		{
+			if($getTextBefore)
+			{
+				$textBefore = mb_substr($this->_text, 0, $this->_stringTreePos);
+			}
+			  
+			$textAfter = mb_substr($this->_text, $this->_stringTreePos);
+		}
+		elseif($method == 'substr')
+		{
+			//$text = utf8_encode($this->_text); //Worse performance than the two above solutions
+			$text = $this->_text;
+
+			if($getTextBefore)
+			{
+				$textBefore = substr($text, 0, $this->_stringTreePos);
+			}
+			
+			$textAfter = substr($text, $this->_stringTreePos);
+		}
+		
+		return array($textBefore, $textAfter);
 	}
+	***/
 
 	protected function _pushOpeningTagSuccess($tagName, &$tagInfo)
 	{
@@ -544,7 +1020,11 @@ class BBM_Protection_Helper_MiniParser
 			The current tag will be the parent of the nested children
 		*/
 		$this->_parentTag[$this->_depth] = $tagInfo;
-		$this->_openedTagsInfo[$this->_tagId-1] = $tagInfo;
+		
+		if(empty($tagInfo['selfClosingTag']))
+		{
+			$this->_openedTagsInfo[$this->_tagId-1] = $tagInfo;
+		}
 
 		/*Plain Text Mode: enable*/
 		if(!empty($tagRules['plainText']))
@@ -697,7 +1177,7 @@ class BBM_Protection_Helper_MiniParser
 	/**
 	 *  Check if the current tag must be parsed (return: true) or added as a text node (return: false)
 	 */
-	protected function _parseTagChecker($tagName, $isOpeningTag = false, $tagOption = null, $method = null)
+	protected function _parseTagChecker($tagName, $isOpeningTag = false, $tagOption = null, $method = null, $selfClosingTag = false)
 	{
 		$depth = $this->_depth;
 		$tagRules = $this->getTagRules($tagName);
@@ -721,6 +1201,11 @@ class BBM_Protection_Helper_MiniParser
 			return false;
 		}
 
+		if($selfClosingTag && (empty($tagRules['selfClosingTag']) && !$this->_getAllTags))
+		{
+			return false;
+		}
+
 		/*Tags options checker*/
 		if(!empty($tagRules['compulsoryOption']))
 		{
@@ -740,7 +1225,7 @@ class BBM_Protection_Helper_MiniParser
 		 * The depth has not been processed at this point, so skip all options related to parent/children elements
 		 **/
 		 
-		if($method == 'openingCheck')
+		if($method == 'openingCheck' || !$this->_parserCheckParentChildren)
 		{
 			return true;
 		}
@@ -859,7 +1344,21 @@ class BBM_Protection_Helper_MiniParser
 	 */
 	protected function _isValidTag($tagName)
 	{
+		if($this->_getAllTags)
+		{
+			return true;
+		}
+
 		return array_key_exists($tagName, $this->_tagsRules);
+	}
+
+	/**
+	 * Force closing tag to be valid (might be needed sometimes when extended this class)
+	 */
+	protected function _makeClosingTagValid($tagId)
+	{
+		if(!isset($this->_openedTagsInfo[$tagId])) return;
+		$this->_openedTagsInfo[$tagId]['validClosingTag'] = true;
 	}
 
 	/**
@@ -956,6 +1455,16 @@ class BBM_Protection_Helper_MiniParser
 	public function getTree()
 	{
 		return $this->_tree;
+	}
+
+	/**
+	 * Set the tree
+	 *
+	 * Can be used after process
+	 */
+	public function setTree($tree)
+	{
+		$this->_tree = $tree;
 	}
 
 	/**
@@ -1181,9 +1690,16 @@ class BBM_Protection_Helper_MiniParser
 			}
 
 			/*Merge identical siblings - ie: [b]test[/b] [b]test 2[/b]*/
+			$processSiblings = true;
 			list($prevMerge, $prevIndex, $prevTagId, $blankCatchUp) = $contextIt->prevIsSimilarToRef();
 
-			if($prevMerge && $prevTagId && !$this->stopSiblingsPatch)
+			if(!isset($this->_tagsMapByTagsId[$prevTagId]))
+			{
+				//Avoid to create a fake map with this line: $this->_tagsMapByTagsId[$prevTagId]['children'][]
+				$processSiblings = false;
+			}
+
+			if($processSiblings && $prevMerge && $prevTagId && !$this->stopSiblingsPatch)
 			{
 				if($blankCatchUp != null)
 				{
@@ -1462,7 +1978,7 @@ class BBM_Protection_Helper_MiniParser
 			
 			$option = $this->filterString($tag['option'], $rendererStates);
 
-			list($prepend, $append) = $tagInfo['replace'];
+			list($prepend, $append) = $tagRules['replace'];
 			return $this->wrapInHtml($prepend, $append, $text, $option);
 		}
 		else if(!empty($tagRules['stringReplace']))
@@ -1599,6 +2115,10 @@ class Sedo_TinyQuattro_Helper_MiniIterator implements Iterator
 
 				if(!isset($arr['tagId']))
 				{
+					if(is_string($arr))
+					{
+						$this->stringDetectedInTree = true;
+					}
 					continue;
 				}
 				
@@ -1704,6 +2224,23 @@ class Sedo_TinyQuattro_Helper_MiniIterator implements Iterator
 		
 		return false;
 	}
+
+	public function isCurrentBlankStringWithCarriageReturn()
+	{
+		if(!$this->isCurrentBlankString())
+		{
+			return false;
+		}
+
+		$current = $this->current();
+		
+		if(strpos($current, "\n") !== false)
+		{
+			return true;
+		}
+
+		return false;
+	}
 	
 	public function isCurrentTag()
 	{
@@ -1728,7 +2265,7 @@ class Sedo_TinyQuattro_Helper_MiniIterator implements Iterator
 
 	public function prev()
 	{
-		$this->index--;		
+		$this->index--;
 	}
 
 	public function next()
@@ -1746,7 +2283,7 @@ class Sedo_TinyQuattro_Helper_MiniIterator implements Iterator
 			return null;
 		}
 		
-		while(!$this->isCurrentTag && $this->isCurrentBlankString() && $this->isValidIndex())
+		while(!$this->isCurrentTag() && $this->isCurrentBlankString() && $this->isValidIndex())
 		{
 			$this->prev();
 		}
@@ -1766,13 +2303,12 @@ class Sedo_TinyQuattro_Helper_MiniIterator implements Iterator
 
 		$this->next();
 
-		
 		if(!$this->isValidIndex())
 		{
 			return null;
 		}
 		
-		while(!$this->isCurrentTag && $this->isCurrentBlankString() && $this->isValidIndex())
+		while(!$this->isCurrentTag() && $this->isCurrentBlankString() && $this->isValidIndex())
 		{
 			$this->next();
 		}
@@ -1820,6 +2356,53 @@ class Sedo_TinyQuattro_Helper_MiniIterator implements Iterator
 		}
 		
 		while($this->isCurrentBlankString() && $this->isValidIndex())
+		{
+			$this->next();
+		}
+		
+		if(!$this->isValidIndex())
+		{
+			return null;
+		}
+		
+		return $this->current();
+	}
+
+	public function prevString()
+	{
+		$maxIndex = $this->totalTreeEl-1;
+		$this->prev();
+		
+		if(!$this->isValidIndex())
+		{
+			return null;
+		}
+		
+		while($this->isCurrentTag() && $this->isValidIndex())
+		{
+			$this->prev();
+		}
+		
+		if(!$this->isValidIndex())
+		{
+			return null;
+		}
+		
+		return $this->current();
+	}
+
+	public function nextString()
+	{
+		$maxIndex = $this->totalTreeEl-1;
+
+		$this->next();
+		
+		if(!$this->isValidIndex())
+		{
+			return null;
+		}
+		
+		while($this->isCurrentTag() && $this->isValidIndex())
 		{
 			$this->next();
 		}
@@ -1945,6 +2528,7 @@ class Sedo_TinyQuattro_Helper_MiniIterator implements Iterator
 		$blankCatchUp = null;
 		
 		$this->prev();
+
 		if($this->currentIsSimilarToRef())
 		{
 			$prevMerge = true;
@@ -2074,6 +2658,31 @@ class Sedo_TinyQuattro_Helper_MiniIterator implements Iterator
 	public function getParentTagId()
 	{
 		return $this->refParentTagId;
+	}
+	
+	private $stringDetectedInTree = null;
+	public function treeHasString()
+	{
+		if($this->stringDetectedInTree != null)
+		{
+			return $this->stringDetectedInTree;
+		}
+	
+		$this->stringDetectedInTree = false;
+		
+		for($i=0; ; ++$i)
+		{
+			if(!isset($tree[$i])) break;
+			$arr = $tree[$i];
+
+			if(is_string($arr))
+			{
+				$this->stringDetectedInTree = true;
+				break;
+			}
+		}
+
+		return $this->stringDetectedInTree;
 	}
 }
 //Source: http://www.weirdog.com/blog/php/un-parser-html-des-plus-leger.html
