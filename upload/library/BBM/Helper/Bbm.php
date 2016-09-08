@@ -154,4 +154,9 @@ class BBM_Helper_Bbm
 		
 		return isset($activeAddons[$addonId]);
 	}
+	
+	public static function sanitizeString($string = '')
+	{
+		return filter_var ($string, FILTER_SANITIZE_STRING);
+	}
 }

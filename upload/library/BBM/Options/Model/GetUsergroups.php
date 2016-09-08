@@ -8,7 +8,7 @@ class BBM_Options_Model_GetUsergroups extends XenForo_Model
 		foreach ($this->getDbUserGroups() AS $userGroup)
 		{
 			$userGroups[] = array(
-				'label' => $userGroup['title'],
+				'label' => BBM_Helper_Bbm::sanitizeString($userGroup['title']),
 				'value' => $userGroup['user_group_id'],
 				'selected' => in_array($userGroup['user_group_id'], $selectedUserGroupIds)
 			);

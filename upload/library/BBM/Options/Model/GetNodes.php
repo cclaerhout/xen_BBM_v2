@@ -18,7 +18,7 @@ class BBM_Options_Model_GetNodes extends XenForo_Model
 		foreach ($this->getDbNodes() AS $node)
 		{
 			$nodes[] = array(
-			'label' => $node['title'],
+			'label' => BBM_Helper_Bbm::sanitizeString($node['title']),
 			'value' => $node['node_id'],
 			'selected' => in_array($node['node_id'], $selectedNodesIds)
 			);
