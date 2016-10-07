@@ -2018,7 +2018,55 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 				$this->_createBbCodesMap($this->_postsDatas);
 			}
+			/**
+             * Posts in reports
+             **/
+            else if( isset($params['report']['content_type']) && $params['report']['content_type'] == 'post'
+				&& $this->_disableTagsMap == false && !isset($params['bbm_config'])
+			)
+            {
+				$visitor = XenForo_Visitor::getInstance()->ToArray();
 
+				$this->_bbmMessageKey = 'message';
+				$this->_threadParams = array( 'node_id' => $params['report']['extraContent']['node_id']);
+
+                $id = $params['report']['content_id'];
+                $user_id = $params['report']['content_user_id'];
+
+				if ($user_id == $visitor['user_id'])
+				{
+					$user = $visitor;
+				}
+				else
+				{
+					$user = XenForo_Model::Create('XenForo_Model_User')->getUserById($user_id);
+				}
+
+				if (!empty($user))
+				{
+					$user_group_id = $user['user_group_id'];
+					$secondary_group_ids = $user['secondary_group_ids'];
+				}
+				else
+				{
+					/*Safety fallback*/
+					$user_group_id = 1; //Unregistered / Unconfirmed
+					$secondary_group_ids = array();
+				}
+
+				$this->_postsDatas = array(
+					$id => array(
+						'post_date' => XenForo_Application::$time,
+						'user_id' => $user_id,
+						'post_id' => $id,
+						'user_group_id' => $user_group_id,
+						'secondary_group_ids' => $secondary_group_ids,
+						'message' => $params['report']['extraContent']['message']
+					)
+				);
+
+				$this->_createBbCodesMap($this->_postsDatas);
+            }
 			/**
 			 * For conversations: check conversation & messages
 			 * Let's use viewNames here, it's unlikely the content of conversations are reused in other views
