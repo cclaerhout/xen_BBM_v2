@@ -66,6 +66,7 @@ class BBM_Model_BbCodes extends XenForo_Model
 		);
 	}
 
+	static $allBbcodeCache = null;
 	/**
 	* Gets all bbm Bb Codes
 	*
@@ -73,12 +74,16 @@ class BBM_Model_BbCodes extends XenForo_Model
 	**/
 	public function getAllBbCodes($cmd = null)
 	{
-		$bbcodes = $this->fetchAllKeyed('
-				SELECT *
-				FROM bbm
-				ORDER BY tag
-			', 'tag_id');
-			
+		if (self::$allBbcodeCache === null)
+		{
+			self::$allBbcodeCache = $this->fetchAllKeyed('
+					SELECT *
+					FROM bbm
+					ORDER BY tag
+				', 'tag_id');
+		}
+		$bbcodes = self::$allBbcodeCache;
+
 		if(!is_array($bbcodes))
 		{
 			return array();
