@@ -1948,8 +1948,15 @@ class BBM_BbCode_Formatter_Base extends XFCP_BBM_BbCode_Formatter_Base
 
 				$this->_threadParams = $params['thread'];
 				$this->_postsDatas = $params['posts'];
-
-				$this->_createBbCodesMap($this->_postsDatas, 'post', 'last_edit_date');
+				$visiblePosts = array();
+				foreach($this->_postsDatas as $post_id => $post)
+				{
+					if ($post['message_state'] == 'visible')
+					{
+						$visiblePosts[$post_id] = $post;
+					}
+				}
+				$this->_createBbCodesMap($visiblePosts, 'post', 'last_edit_date');
 			}
 			/**
 			 * Preview new post/edit preview in thread or new thread
