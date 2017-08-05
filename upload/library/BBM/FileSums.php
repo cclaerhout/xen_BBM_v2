@@ -5,7 +5,7 @@ class BBM_FileSums
 	public static function getHashes()
 	{
 		return array (
-  'library/BBM/BbCode/Formatter/Base.php' => '83bf6bc1b1778b10c02329ba120a953f',
+  'library/BBM/BbCode/Formatter/Base.php' => '3708c7a486ba7e4f8df52b3f0a429eb1',
   'library/BBM/BbCode/Formatter/BbCode/AutoLink.php' => '7530a0fc2933c570b0fcb6f720fbd00d',
   'library/BBM/BbCode/Formatter/BbCode/Filter.php' => '501519e3ec356d1a292a3333599a57af',
   'library/BBM/BbCode/Formatter/Default.php' => '130f4a97f3fbd7d38c12f8b470bedb3c',
@@ -35,7 +35,7 @@ class BBM_FileSums
   'library/BBM/Listeners/Templates/Preloader.php' => 'dd5bc34646d7de716480215ef4a116e2',
   'library/BBM/Listeners/Templates/Public.php' => '58d3c12fd4cfa071c1f484ecef124f6a',
   'library/BBM/Model/Attachment.php' => '7c32823fde5d7ccd7234aff69500cfd0',
-  'library/BBM/Model/BbCodes.php' => '9091d56e28bb7f2dae76cb65f342b74b',
+  'library/BBM/Model/BbCodes.php' => '59cdb70bf3f29087d9c6ebca5e57227a',
   'library/BBM/Model/Buttons.php' => 'db104e9ea64b6af0898c46768d8cdcd3',
   'library/BBM/Options/Model/GetContentTypes.php' => '2cc793cc64081b065309ed238b78c0ba',
   'library/BBM/Options/Model/GetNodes.php' => '7bef23e3fb52ee871dc573faaa456944',
@@ -45,7 +45,7 @@ class BBM_FileSums
   'library/BBM/Protection/BbCode/Formatter/BbCode/Eradicator.php' => '7ed4f9f510f884e1592274f4db0f815e',
   'library/BBM/Protection/BbCode/Formatter/BbCode/Lupin.php' => '98e999df6ec1d9d1c23e02bf4d1a97a0',
   'library/BBM/Protection/Helper/ContentProtection.php' => '1ccdd6042890f4bec9e1259236f5dc9b',
-  'library/BBM/Protection/Helper/MiniParser.php' => 'ac7aac2df5a6590ad6e5d3455218f467',
+  'library/BBM/Protection/Helper/MiniParser.php' => '898cb17eba9178f3de7345c6f88cd7aa',
   'library/BBM/Protection/Listener/Models.php' => 'a4823cd7bfdb77959944811e5c3e1d9f',
   'library/BBM/Protection/Model/NewsFeed.php' => '65eead04c4d0e3db26be3924a9d5a054',
   'library/BBM/Protection/Model/Search.php' => 'e4f15d538d0528f0a893fe65366c8bd7',
