@@ -1612,7 +1612,7 @@ class BBM_Protection_Helper_MiniParser
 			$children = (isset($data['children'])) ? $data['children'] : array();
 			$depth = $data['depth'];
 
-			$contextIt = new Sedo_TinyQuattro_Helper_MiniIterator($tree, $data);
+			$contextIt = new BBM_Protection_Helper_MiniIterator($tree, $data);
 
 			/***FIX BEFORE***/
 			/*Children recalibration when identical parent/children have been merged*/
@@ -2080,7 +2080,7 @@ class BBM_Protection_Helper_MiniParser
 /**
  * Iterator Class for tags navigation
  */
-class Sedo_TinyQuattro_Helper_MiniIterator implements Iterator
+class BBM_Protection_Helper_MiniIterator implements Iterator
 {
 	private $tree = array();
 	private $totalTreeEl = 0;
